@@ -165,19 +165,37 @@
             }
         }
 
-        async function requestAddPhone() {
-            const pin = prompt("Masukkan PIN Keamanan (Hanya Owner):");
-            if(pin !== userProfileData.security_pin) return alert("PIN SALAH!");
-            
-            const name = prompt("Nama CS / Pengguna:");
-            const phone = prompt("Nomor WhatsApp (Contoh: 62812xxx):");
-            if(name && phone) {
-                const newList = [...(userProfileData.phone_numbers || []), {name, phone}];
-                const { error } = await supabase.from('profiles').update({ phone_numbers: newList }).eq('id', userUID);
-                if(!error) { loadProfile(); alert("Berhasil Ditambah!"); }
-            }
-        }
+       async function requestAddPhone() {
+    // 1. Verifikasi PIN
+    const pinInput = prompt("Masukkan PIN Keamanan (Hanya Owner):");
+    if (pinInput !== userProfileData.security_pin) {
+        return alert("PIN SALAH! Akses ditolak.");
+    }
 
+    // 2. Input Data Baru
+    const name = prompt("Nama Customer Service / Pengguna:");
+    const phone = prompt("Nomor WhatsApp (Contoh: 62812xxxx):");
+
+    if (name && phone) {
+        // Ambil list nomor yang sudah ada di memori
+        const currentList = userProfileData.phone_numbers || [];
+        const newList = [...currentList, { name, phone }];
+
+        // 3. Update ke Supabase
+        const { error } = await supabase
+            .from('profiles')
+            .update({ phone_numbers: newList })
+            .eq('id', userUID);
+
+        if (error) {
+            alert("Gagal menyimpan: " + error.message);
+        } else {
+            alert("Nomor Berhasil Ditambahkan!");
+            // SIHIR REFRESH: Memanggil ulang data profil agar list di modal langsung update
+            await loadProfile(); 
+        }
+    }
+}
         async function handleLogout() { await supabase.auth.signOut(); window.location.href = "login.html"; }
         init();
     </script>
