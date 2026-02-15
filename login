@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - WA-Sender PRO 2.5</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen p-6">
+    <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200 w-full max-w-md border border-slate-100">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-black text-emerald-600 tracking-tight">WA-SENDER PRO</h1>
+            <p class="text-slate-400 text-[10px] font-bold mt-1 uppercase tracking-widest">Kelola antrean pesan dengan mudah</p>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Email Address</label>
+                <input type="email" id="email" placeholder="nama@email.com" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm">
+            </div>
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Password</label>
+                <input type="password" id="password" placeholder="••••••••" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm">
+            </div>
+            
+            <button onclick="handleLogin()" id="btnLogin" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-emerald-100 transition-all active:scale-95 mt-2">MASUK SEKARANG</button>
+            
+            <div class="relative py-4">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
+                <div class="relative flex justify-center text-[10px] uppercase font-bold text-slate-300"><span class="bg-white px-4">Baru di sini?</span></div>
+            </div>
+            
+            <button onclick="handleRegister()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl hover:bg-slate-900 transition-all shadow-lg shadow-slate-200">BUAT AKUN GRATIS</button>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
+        const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo"; // Gunakan Anon Key Anda
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+        async function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btnLogin');
+            
+            if(!email || !password) return alert("Isi email dan password!");
+
+            btn.innerText = "MENYAMBUNGKAN...";
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            
+            if (error) {
+                alert("Login Gagal: " + error.message);
+                btn.innerText = "MASUK SEKARANG";
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        async function handleRegister() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if(!email || !password) return alert("Isi email & password untuk mendaftar");
+
+            const { data, error } = await supabase.auth.signUp({ email, password });
+            
+            if (error) {
+                alert("Registrasi Gagal: " + error.message);
+            } else {
+                alert("Berhasil Daftar! Silakan login menggunakan akun tersebut.");
+            }
+        }
+    </script>
+</body>
+</html>
