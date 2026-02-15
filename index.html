@@ -198,6 +198,46 @@
 }
         async function handleLogout() { await supabase.auth.signOut(); window.location.href = "login.html"; }
         init();
+
+// Tambahkan fungsi ini di dalam <script>
+
+async function openAdminMagic() {
+    const pin = prompt("MASUKKAN PIN ADMIN UNTUK AKSES SIHIR:");
+    if (pin !== userProfileData.security_pin) return alert("PIN SALAH!");
+
+    const newPkg = prompt("Ubah Jenis Paket:", userProfileData.package_type);
+    const newSub = prompt("Ubah Jenis Langganan:", userProfileData.subscription_type);
+    const newInfo = prompt("Update Info Layanan:", userProfileData.service_info);
+    const newDays = prompt("Tambah Masa Aktif (Hari) dari SEKARANG:", "30");
+
+    if (newPkg && newSub && newInfo && newDays) {
+        // Hitung tanggal kadaluarsa baru
+        const expDate = new Date();
+        expDate.setDate(expDate.getDate() + parseInt(newDays));
+
+        const { error } = await supabase
+            .from('profiles')
+            .update({ 
+                package_type: newPkg,
+                subscription_type: newSub,
+                service_info: newInfo,
+                expired_at: expDate.toISOString(),
+                sub_expired_at: expDate.toISOString(),
+                status: 'pro', // Otomatis jadi PRO
+                add_on_image: true, // Otomatis aktifkan fitur gambar
+                add_on_video_link: true // Otomatis aktifkan fitur video
+            })
+            .eq('id', userUID);
+
+        if (!error) {
+            alert("SIHIR BERHASIL! Akun telah diupdate.");
+            await loadProfile(); // Refresh data di layar
+        } else {
+            alert("Gagal: " + error.message);
+        }
+    }
+}
+
     </script>
 </body>
 </html>
