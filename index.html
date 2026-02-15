@@ -283,7 +283,79 @@ async function openAdminMagic() {
         }
     }
 }
+async function saveToQueue() {
+    const phoneInput = document.getElementById('phoneInput').value;
+    const catInput = document.getElementById('catInput').value || 'Umum';
+    const msgInput = document.getElementById('msgInput').value;
 
+    // Bersihkan input nomor: pisahkan per baris, buang spasi kosong
+    const phones = phoneInput.split('\n').map(p => p.trim()).filter(p => p !== "");
+
+    // 1. Validasi Dasar
+    if (phones.length === 0 || !msgInput) {
+        return alert("⚠️ Mohon isi minimal 1 nomor WA dan pesan promosi!");
+    }
+
+    // --- LOGIKA SATPAM (MODE TRIAL) ---
+    const pkg = userProfileData.package_type;
+    if (pkg === 'MODE TRIAL') {
+        // Batasi maksimal 5 nomor sekali input
+        if (phones.length > 5) {
+            alert("❌ MODE TRIAL TERBATAS!\nMaksimal hanya 5 nomor per pengiriman.\n\nSilakan upgrade ke paket PRO untuk kirim ke ratusan nomor!");
+            return;
+        }
+
+        // Batasi total antrean di database (Cek jumlah pesan yang sudah ada)
+        const { count } = await supabase
+            .from('messages_queue')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userUID);
+
+        if (count >= 5) {
+            alert("❌ LIMIT ANTRIAN PENUH!\nSebagai user Trial, Anda hanya bisa memiliki 5 antrean.\nKirimkan pesan yang ada atau upgrade paket!");
+            return;
+        }
+    }
+    // --- SELESAI LOGIKA SATPAM ---
+
+    // 2. Proses Simpan ke Database
+    // Kita buat array objek untuk disimpan sekaligus (bulk insert)
+    const payload = phones.map(p => ({
+        user_id: userUID,
+        phone: p,
+        message_content: msgInput,
+        category_name: catInput
+    }));
+
+    const { error } = await supabase.from('messages_queue').insert(payload);
+
+    if (error) {
+        alert("Gagal menyimpan: " + error.message);
+    } else {
+        alert(`✅ Berhasil! ${phones.length} pesan telah masuk antrean.`);
+        // Reset form agar bersih kembali
+        document.getElementById('phoneInput').value = "";
+        document.getElementById('msgInput').value = "";
+        document.getElementById('catInput').value = "";
+        
+        // Refresh daftar antrean (akan kita buat fungsinya di langkah berikutnya)
+        if (typeof loadQueue === "function") loadQueue();
+    }
+}
+
+// Fungsi tambahan untuk sinkronisasi tampilan badge paket
+function updatePackageUI() {
+    const badge = document.querySelector('[onclick="openAdminMagic()"]');
+    if (!badge || !userProfileData) return;
+
+    if (userProfileData.package_type === 'MODE TRIAL') {
+        badge.innerText = "MODE TRIAL";
+        badge.className = "text-[9px] font-black bg-amber-500 text-white px-3 py-1 rounded-full uppercase cursor-pointer active:scale-95 transition-all";
+    } else {
+        badge.innerText = userProfileData.package_type;
+        badge.className = "text-[9px] font-black bg-emerald-600 text-white px-3 py-1 rounded-full uppercase cursor-pointer active:scale-95 transition-all";
+    }
+}
     </script>
 </body>
 </html>
