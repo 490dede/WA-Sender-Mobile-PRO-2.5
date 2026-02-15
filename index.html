@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - WA-Sender PRO 2.5</title>
+    <title>Dashboard - WA-Sender Mobile PRO 2.5</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; }
+        .modal-active { transform: translateY(0) !important; }
     </style>
 </head>
 <body class="pb-24">
@@ -21,64 +22,81 @@
                 </svg>
             </div>
             <div>
-                <h1 class="text-sm font-black text-slate-800 leading-none">WA-SENDER</h1>
-                <p class="text-[9px] font-bold text-emerald-600 uppercase tracking-widest mt-1">PRO Version 2.5</p>
+                <h1 class="text-xs font-black text-slate-800 leading-none">WA-SENDER</h1>
+                <p class="text-[8px] font-bold text-emerald-600 uppercase tracking-widest mt-1">Mobile PRO 2.5</p>
             </div>
         </div>
-        <button onclick="handleLogout()" class="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-red-100 transition-all">LOGOUT</button>
+        <div class="flex items-center gap-3">
+            <button onclick="toggleProfile()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center border border-slate-200 text-slate-500 active:scale-90 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+            </button>
+        </div>
     </nav>
 
     <div class="max-w-md mx-auto p-6 space-y-6">
-        
-        <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-slate-300">
+        <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl">
             <div class="relative z-10">
                 <div class="flex justify-between items-start mb-10">
                     <div>
-                        <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.2em] mb-1">Status Paket</p>
-                        <h2 id="pkgDisplay" class="text-xl font-black uppercase tracking-tight">Memuat...</h2>
+                        <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-1">Status Paket</p>
+                        <h2 id="pkgDisplay" class="text-xl font-black uppercase">Memuat...</h2>
                     </div>
-                    <div class="text-right">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-1">Berakhir Pada</p>
-                        <p id="expDisplay" class="text-xs font-bold bg-white/10 px-3 py-1 rounded-full">-</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div id="boxImg" class="bg-white/5 border border-white/10 p-4 rounded-3xl"><p class="text-[9px] text-slate-500 uppercase font-bold">Kirim Gambar</p><p id="txtImg" class="text-[11px] font-black">NON-AKTIF</p></div>
+                    <div id="boxVid" class="bg-white/5 border border-white/10 p-4 rounded-3xl"><p class="text-[9px] text-slate-500 uppercase font-bold">Video & Link</p><p id="txtVid" class="text-[11px] font-black">NON-AKTIF</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-[2.5rem] p-7 border border-slate-100 shadow-sm space-y-4">
+            <textarea id="phoneInput" rows="3" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100" placeholder="Nomor WA (Gunakan Enter)"></textarea>
+            <input type="text" id="catInput" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100" placeholder="Kategori">
+            <textarea id="msgInput" rows="3" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100" placeholder="Pesan Promosi"></textarea>
+            <button onclick="saveToQueue()" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">SIMPAN KE ANTREAN</button>
+        </div>
+    </div>
+
+    <div id="profileModal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="toggleProfile()"></div>
+        <div id="profilePanel" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[3rem] p-8 shadow-2xl transition-transform duration-500 translate-y-full">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
+            
+            <div class="space-y-6 max-h-[75vh] overflow-y-auto pb-10">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center text-2xl font-black mb-3" id="userInitial">A</div>
+                    <h3 id="userEmailDisplay" class="font-black text-slate-800 text-lg">loading...</h3>
+                    <span class="text-[9px] font-black bg-emerald-600 text-white px-3 py-1 rounded-full uppercase">PRO USER</span>
+                </div>
+
+                <div class="bg-slate-50 rounded-[2rem] p-6 border border-slate-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Daftar Nomor WhatsApp</p>
+                        <button onclick="requestAddPhone()" class="text-emerald-600 font-black text-[10px]">+ TAMBAH</button>
                     </div>
+                    <div id="phoneList" class="space-y-3"></div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div id="boxImg" class="bg-white/5 border border-white/10 p-4 rounded-3xl transition-all">
-                        <p class="text-[9px] font-bold text-slate-500 uppercase mb-1 tracking-wider">Kirim Gambar</p>
-                        <p id="txtImg" class="text-[11px] font-black text-slate-400">NON-AKTIF</p>
+                    <div class="bg-emerald-50 p-5 rounded-3xl">
+                        <p class="text-[8px] font-black text-emerald-600 uppercase mb-1">Paket</p>
+                        <p id="detPkg" class="text-xs font-black text-slate-800">-</p>
+                        <p id="detPkgExp" class="text-[8px] text-emerald-500 font-bold mt-1">S/D --/--/----</p>
                     </div>
-                    <div id="boxVid" class="bg-white/5 border border-white/10 p-4 rounded-3xl transition-all">
-                        <p class="text-[9px] font-bold text-slate-500 uppercase mb-1 tracking-wider">Video & Link</p>
-                        <p id="txtVid" class="text-[11px] font-black text-slate-400">NON-AKTIF</p>
+                    <div class="bg-blue-50 p-5 rounded-3xl">
+                        <p class="text-[8px] font-black text-blue-600 uppercase mb-1">Langganan</p>
+                        <p id="detSub" class="text-xs font-black text-slate-800">-</p>
+                        <p id="detSubExp" class="text-[8px] text-blue-500 font-bold mt-1">S/D --/--/----</p>
                     </div>
                 </div>
-            </div>
-            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-[60px]"></div>
-        </div>
 
-        <div class="bg-white rounded-[2.5rem] p-7 border border-slate-100 shadow-sm space-y-5">
-            <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-2 block tracking-tighter">1. Tempel Nomor WA</label>
-                <textarea id="phoneInput" rows="4" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all border border-slate-100" placeholder="0812xxx&#10;0857xxx"></textarea>
-            </div>
-            
-            <input type="text" id="catInput" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100" placeholder="Nama Kategori (Contoh: Promo Hijab)">
-            
-            <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-2 block tracking-tighter">2. Isi Pesan Promosi</label>
-                <textarea id="msgInput" rows="4" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all border border-slate-100" placeholder="Tulis pesan promosi Anda..."></textarea>
-            </div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <p class="text-[8px] font-black text-slate-400 uppercase text-center mb-2">Info Layanan</p>
+                    <p id="specInfo" class="text-[10px] text-slate-500 text-center leading-relaxed">Akses Prioritas Aktif</p>
+                </div>
 
-            <button onclick="saveToQueue()" id="btnSave" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-emerald-100 active:scale-95 transition-all">SIMPAN KE ANTREAN</button>
-        </div>
-
-        <div class="space-y-4">
-            <div class="flex justify-between items-center px-2">
-                <h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">Daftar Siap Kirim (<span id="count" class="text-emerald-600">0</span>)</h3>
-                <button onclick="fetchQueue()" class="text-emerald-600 font-bold text-[10px] uppercase bg-emerald-50 px-3 py-1 rounded-full">Refresh</button>
+                <button onclick="handleLogout()" class="w-full py-4 text-red-500 font-black text-[10px] uppercase tracking-widest border border-red-100 rounded-2xl active:bg-red-50">Keluar Aplikasi</button>
             </div>
-            <div id="queueList" class="space-y-3"></div>
         </div>
     </div>
 
@@ -87,110 +105,80 @@
         const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
         let userUID = "";
+        let userProfileData = null;
 
         async function init() {
-    // 1. Cek apakah ada sesi aktif
-    const { data: { session }, error } = await supabase.auth.getSession();
-    
-    // 2. Jika tidak ada sesi atau ada error, tendang ke login.html
-    if (error || !session) {
-        console.log("Sesi tidak ditemukan, dialihkan...");
-        window.location.href = "login.html";
-        return;
-    }
-
-    // 3. Jika ada sesi, baru jalankan fungsi lainnya
-    userUID = session.user.id;
-    console.log("Login berhasil, UID:", userUID);
-    
-    await loadProfile();
-    await fetchQueue();
-}
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return window.location.href = "login.html";
+            userUID = session.user.id;
+            await loadProfile();
+        }
 
         async function loadProfile() {
             const { data } = await supabase.from('profiles').select('*').eq('id', userUID).single();
             if (data) {
+                userProfileData = data;
                 document.getElementById('pkgDisplay').innerText = data.package_type;
-                document.getElementById('expDisplay').innerText = data.expired_at ? new Date(data.expired_at).toLocaleDateString('id-ID') : 'PERMANEN';
+                document.getElementById('userEmailDisplay').innerText = data.email;
+                document.getElementById('userInitial').innerText = data.email[0].toUpperCase();
+                document.getElementById('detPkg').innerText = data.package_type;
+                document.getElementById('detSub').innerText = data.subscription_type;
+                document.getElementById('specInfo').innerText = data.service_info;
+                document.getElementById('detPkgExp').innerText = "S/D " + new Date(data.expired_at).toLocaleDateString('id-ID');
+                document.getElementById('detSubExp').innerText = "S/D " + new Date(data.sub_expired_at).toLocaleDateString('id-ID');
                 
+                // Aktifkan Fitur Visual
                 if(data.add_on_image) {
-                    document.getElementById('boxImg').className = "bg-emerald-500/20 border border-emerald-500/30 p-4 rounded-3xl transition-all";
+                    document.getElementById('boxImg').className = "bg-emerald-500/20 border border-emerald-500/30 p-4 rounded-3xl";
                     document.getElementById('txtImg').innerText = "AKTIF";
-                    document.getElementById('txtImg').className = "text-[11px] font-black text-emerald-400";
+                    document.getElementById('txtImg').classList.add("text-emerald-400");
                 }
-                if(data.add_on_video_link) {
-                    document.getElementById('boxVid').className = "bg-blue-500/20 border border-blue-500/30 p-4 rounded-3xl transition-all";
-                    document.getElementById('txtVid').innerText = "AKTIF";
-                    document.getElementById('txtVid').className = "text-[11px] font-black text-blue-400";
-                }
+                
+                renderPhoneList(data.phone_numbers);
             }
         }
 
-        async function saveToQueue() {
-            const phones = document.getElementById('phoneInput').value.trim().split('\n');
-            const cat = document.getElementById('catInput').value || 'Umum';
-            const msg = document.getElementById('msgInput').value;
-
-            if(!phones[0] || !msg) return alert("Nomor dan Pesan harus diisi!");
-
-            const finalData = phones.map(p => ({
-                phone: p.trim().startsWith('0') ? '62' + p.trim().slice(1) : p.trim().replace(/\D/g,''),
-                message_content: msg,
-                category_name: cat,
-                user_id: userUID
-            }));
-
-            const { error } = await supabase.from('messages_queue').insert(finalData);
-            if (!error) {
-                document.getElementById('phoneInput').value = "";
-                fetchQueue();
-            }
-        }
-
-        async function fetchQueue() {
-            const { data } = await supabase.from('messages_queue').select('*').eq('user_id', userUID).order('created_at', {ascending:false});
-            const list = document.getElementById('queueList');
-            document.getElementById('count').innerText = data ? data.length : 0;
+        function renderPhoneList(phones = []) {
+            const list = document.getElementById('phoneList');
             list.innerHTML = "";
-
-            if(!data || data.length === 0) {
-                list.innerHTML = '<div class="text-center py-10 text-slate-300 text-xs italic">Antrean kosong</div>';
-                return;
-            }
-
-            data.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-5 rounded-[2rem] border border-slate-100 flex justify-between items-center shadow-sm";
-                card.innerHTML = `
-                    <div class="flex-1 pr-4">
-                        <span class="text-[8px] font-black px-2 py-0.5 bg-slate-50 border rounded text-slate-400 uppercase">${item.category_name}</span>
-                        <p class="font-bold text-slate-800 mt-1">${item.phone}</p>
-                        <p class="text-[10px] text-slate-400 line-clamp-1">${item.message_content}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="deleteItem('${item.id}')" class="p-2 text-slate-300 hover:text-red-500 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-                        <button onclick="sendWA('${item.phone}', '${encodeURIComponent(item.message_content)}', '${item.id}')" class="bg-emerald-500 text-white px-5 py-2.5 rounded-2xl text-[10px] font-black shadow-lg shadow-emerald-100 active:scale-95 transition-all">KIRIM</button>
-                    </div>
-                `;
-                list.appendChild(card);
+            phones.forEach((p, i) => {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+                        <div>
+                            <p class="text-[11px] font-black text-slate-800">${p.phone}</p>
+                            <p class="text-[8px] font-bold text-slate-400 uppercase">${p.name} ${i===0 ? '(Owner)' : ''}</p>
+                        </div>
+                        ${i === 0 ? '<div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>' : ''}
+                    </div>`;
             });
         }
 
-        async function deleteItem(id) {
-            await supabase.from('messages_queue').delete().eq('id', id);
-            fetchQueue();
+        function toggleProfile() {
+            const modal = document.getElementById('profileModal');
+            const panel = document.getElementById('profilePanel');
+            if(modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => panel.classList.add('modal-active'), 10);
+            } else {
+                panel.classList.remove('modal-active');
+                setTimeout(() => modal.classList.add('hidden'), 500);
+            }
         }
 
-        async function sendWA(phone, msg, id) {
-            window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${msg}`, '_blank');
-            await deleteItem(id);
+        async function requestAddPhone() {
+            const pin = prompt("Masukkan PIN Keamanan (Hanya Owner):");
+            if(pin !== userProfileData.security_pin) return alert("PIN SALAH!");
+            
+            const name = prompt("Nama CS / Pengguna:");
+            const phone = prompt("Nomor WhatsApp (Contoh: 62812xxx):");
+            if(name && phone) {
+                const newList = [...(userProfileData.phone_numbers || []), {name, phone}];
+                const { error } = await supabase.from('profiles').update({ phone_numbers: newList }).eq('id', userUID);
+                if(!error) { loadProfile(); alert("Berhasil Ditambah!"); }
+            }
         }
 
-        async function handleLogout() {
-            await supabase.auth.signOut();
-            window.location.href = "login.html";
-        }
-
+        async function handleLogout() { await supabase.auth.signOut(); window.location.href = "login.html"; }
         init();
     </script>
 </body>
