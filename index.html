@@ -27,22 +27,16 @@
                 <p class="text-[8px] font-bold text-emerald-600 uppercase tracking-widest mt-1">Mobile PRO 2.5</p>
             </div>
         </div>
-        <div class="flex items-center gap-3">
-            <button onclick="toggleProfile()" class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center border border-slate-900 text-white active:scale-90 transition-all shadow-lg shadow-slate-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
-            </button>
-        </div>
+        <button onclick="toggleProfile()" class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white active:scale-90 transition-all shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+        </button>
     </nav>
 
     <div class="max-w-md mx-auto p-6 space-y-6">
         <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl">
             <div class="relative z-10">
-                <div class="flex justify-between items-start mb-10">
-                    <div>
-                        <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-1">Status Paket</p>
-                        <h2 id="pkgDisplay" class="text-xl font-black uppercase">Memuat...</h2>
-                    </div>
-                </div>
+                <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-1">Status Paket</p>
+                <h2 id="pkgDisplay" class="text-xl font-black uppercase mb-8">Memuat...</h2>
                 <div class="grid grid-cols-2 gap-4">
                     <div id="boxImg" class="bg-white/5 border border-white/10 p-4 rounded-3xl"><p class="text-[9px] text-slate-500 uppercase font-bold">Kirim Gambar</p><p id="txtImg" class="text-[11px] font-black">NON-AKTIF</p></div>
                     <div id="boxVid" class="bg-white/5 border border-white/10 p-4 rounded-3xl"><p class="text-[9px] text-slate-500 uppercase font-bold">Video & Link</p><p id="txtVid" class="text-[11px] font-black">NON-AKTIF</p></div>
@@ -51,37 +45,36 @@
         </div>
 
         <div class="bg-white rounded-[2.5rem] p-7 border border-slate-100 shadow-sm space-y-4">
-            <textarea id="phoneInput" rows="3" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100" placeholder="Nomor WA (Gunakan Enter)"></textarea>
-            <input type="text" id="catInput" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100" placeholder="Kategori">
-            <textarea id="msgInput" rows="3" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100" placeholder="Pesan Promosi"></textarea>
-            <button onclick="saveToQueue()" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all uppercase tracking-widest text-xs">Simpan ke Antrean</button> 
+            <textarea id="phoneInput" rows="3" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100 focus:border-emerald-500 transition-all" placeholder="Nomor WA (Gunakan Enter untuk banyak nomor)"></textarea>
+            <input type="text" id="catInput" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100 focus:border-emerald-500 transition-all" placeholder="Kategori (Contoh: Promo Hijab)">
+            <textarea id="msgInput" rows="3" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100 focus:border-emerald-500 transition-all" placeholder="Isi Pesan Promosi..."></textarea>
+            <button onclick="saveToQueue()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all uppercase tracking-widest text-xs">Simpan ke Antrean</button> 
         </div>
 
         <div class="mt-10 space-y-4">
             <div class="flex justify-between items-center px-2">
                 <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Daftar Siap Kirim</h3>
-                <button onclick="loadQueue()" class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full active:scale-90">REFRESH</button>
+                <button onclick="loadQueue()" class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">REFRESH</button>
             </div>
-            <div id="queueContainer" class="space-y-3">
-                <div class="text-center py-10"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Memuat Antrean...</p></div>
-            </div>
-        </div> 
+            <div id="queueContainer" class="space-y-3 pb-10">
+                </div>
+        </div>
     </div>
 
     <div id="profileModal" class="fixed inset-0 z-[100] hidden">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="toggleProfile()"></div>
         <div id="profilePanel" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[3rem] p-8 shadow-2xl transition-transform duration-500 translate-y-full">
             <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
-            <div class="space-y-6 max-h-[75vh] overflow-y-auto pb-10">
+            <div class="space-y-6 max-h-[75vh] overflow-y-auto pb-6 no-scrollbar">
                 <div class="text-center">
-                    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center text-2xl font-black mb-3" id="userInitial">A</div>
-                    <h3 id="userEmailDisplay" class="font-black text-slate-800 text-lg">loading...</h3>
-                    <span id="badgePaket" onclick="openAdminMagic()" class="text-[9px] font-black bg-emerald-600 text-white px-3 py-1 rounded-full uppercase cursor-pointer active:scale-95 transition-all">PRO USER</span>
+                    <div id="userInitial" class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center text-2xl font-black mb-3 text-uppercase">?</div>
+                    <h3 id="userEmailDisplay" class="font-black text-slate-800 text-lg">Memuat...</h3>
+                    <span id="badgePaket" onclick="openAdminMagic()" class="inline-block text-[9px] font-black px-3 py-1 rounded-full uppercase cursor-pointer active:scale-95 transition-all">...</span>
                 </div>
 
                 <div class="bg-slate-50 rounded-[2rem] p-6 border border-slate-100">
                     <div class="flex justify-between items-center mb-4">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Daftar CS / Pengirim</p>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Daftar Nomor CS</p>
                         <button onclick="requestAddPhone()" class="text-emerald-600 font-black text-[10px]">+ TAMBAH</button>
                     </div>
                     <div id="phoneList" class="space-y-3"></div>
@@ -98,11 +91,6 @@
                         <p id="detSub" class="text-xs font-black text-slate-800">-</p>
                         <p id="detSubExp" class="text-[8px] text-blue-500 font-bold mt-1">S/D --/--/----</p>
                     </div>
-                </div>
-
-                <div class="p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-center">
-                    <p class="text-[8px] font-black text-slate-400 uppercase mb-2">Info Layanan</p>
-                    <p id="specInfo" class="text-[10px] text-slate-500 leading-relaxed">Akses Prioritas Aktif</p>
                 </div>
 
                 <button onclick="handleLogout()" class="w-full py-4 text-red-500 font-black text-[10px] uppercase tracking-widest border border-red-100 rounded-2xl active:bg-red-50 transition-all">Keluar Aplikasi</button>
@@ -126,7 +114,7 @@
         }
 
         async function loadProfile() {
-            const { data } = await supabase.from('profiles').select('*').eq('id', userUID).single();
+            const { data, error } = await supabase.from('profiles').select('*').eq('id', userUID).single();
             if (data) {
                 userProfileData = data;
                 document.getElementById('pkgDisplay').innerText = data.package_type;
@@ -134,7 +122,6 @@
                 document.getElementById('userInitial').innerText = data.email[0].toUpperCase();
                 document.getElementById('detPkg').innerText = data.package_type;
                 document.getElementById('detSub').innerText = data.subscription_type;
-                document.getElementById('specInfo').innerText = data.service_info;
                 document.getElementById('detPkgExp').innerText = "S/D " + new Date(data.expired_at).toLocaleDateString('id-ID');
                 document.getElementById('detSubExp').innerText = "S/D " + new Date(data.sub_expired_at).toLocaleDateString('id-ID');
                 
@@ -155,48 +142,50 @@
             const msgInput = document.getElementById('msgInput').value;
             const phones = phoneInput.split('\n').map(p => p.trim()).filter(p => p !== "");
 
-            if (phones.length === 0 || !msgInput) return alert("Isi nomor & pesan!");
+            if (phones.length === 0 || !msgInput) return alert("Nomor & Pesan harus diisi!");
 
-            // SATPAM TRIAL
+            // SATPAM MODE TRIAL
             if (userProfileData.package_type === 'MODE TRIAL') {
-                if (phones.length > 5) return alert("❌ TRIAL: Maksimal 5 nomor!");
+                if (phones.length > 5) return alert("❌ TRIAL LIMIT: Maksimal 5 nomor sekali input!");
                 const { count } = await supabase.from('messages_queue').select('*', { count: 'exact', head: true }).eq('user_id', userUID);
-                if (count >= 5) return alert("❌ TRIAL: Antrean penuh (Maks 5)!");
+                if (count >= 5) return alert("❌ ANTRIAN PENUH: User Trial hanya boleh punya 5 antrean.");
             }
 
             const payload = phones.map(p => ({ user_id: userUID, phone: p, message_content: msgInput, category_name: catInput }));
             const { error } = await supabase.from('messages_queue').insert(payload);
 
             if (!error) {
-                alert("✅ Tersimpan!");
+                alert(`✅ Berhasil menyimpan ${phones.length} pesan.`);
                 document.getElementById('phoneInput').value = "";
                 document.getElementById('msgInput').value = "";
                 loadQueue();
+            } else {
+                alert("Error: " + error.message);
             }
         }
 
         async function loadQueue() {
             const container = document.getElementById('queueContainer');
-            const { data } = await supabase.from('messages_queue').select('*').eq('user_id', userUID).order('created_at', { ascending: false });
+            const { data, error } = await supabase.from('messages_queue').select('*').eq('user_id', userUID).order('created_at', { ascending: false });
 
             if (!data || data.length === 0) {
-                container.innerHTML = `<div class="bg-slate-50 border-2 border-dashed border-slate-100 rounded-[2rem] p-10 text-center"><p class="text-[10px] text-slate-400 font-bold uppercase">Antrean Kosong</p></div>`;
+                container.innerHTML = `<div class="bg-slate-50 border-2 border-dashed border-slate-100 rounded-[2rem] p-10 text-center text-[10px] text-slate-400 font-bold uppercase">Antrean Kosong</div>`;
                 return;
             }
 
             container.innerHTML = data.map(item => `
-                <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative group">
+                <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative group transition-all hover:shadow-md">
                     <div class="flex justify-between items-start mb-2">
                         <div>
                             <p class="text-[12px] font-black text-slate-800">${item.phone}</p>
                             <span class="text-[8px] font-black bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md uppercase">${item.category_name}</span>
                         </div>
-                        <button onclick="deleteQueue('${item.id}')" class="text-slate-300 hover:text-red-500 transition-colors">
+                        <button onclick="deleteQueue('${item.id}')" class="text-slate-300 hover:text-red-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         </button>
                     </div>
-                    <p class="text-[10px] text-slate-500 line-clamp-2 mb-4">${item.message_content}</p>
-                    <button onclick="sendToWA('${item.phone}', \`${encodeURIComponent(item.message_content)}\`)" class="w-full bg-emerald-600 text-white text-[10px] font-black py-3 rounded-xl hover:bg-slate-900 transition-all uppercase tracking-widest">Kirim Sekarang</button>
+                    <p class="text-[10px] text-slate-500 line-clamp-2 mb-4 leading-relaxed">${item.message_content}</p>
+                    <button onclick="sendToWA('${item.phone}', \`${encodeURIComponent(item.message_content)}\`)" class="w-full bg-emerald-600 text-white text-[10px] font-black py-3 rounded-xl hover:bg-slate-900 shadow-lg shadow-emerald-100 transition-all uppercase tracking-widest">Kirim Sekarang</button>
                 </div>
             `).join('');
         }
@@ -208,14 +197,15 @@
         }
 
         async function deleteQueue(id) {
-            if(confirm("Hapus antrean?")) {
-                await supabase.from('messages_queue').delete().eq('id', id);
-                loadQueue();
-            }
+            if(!confirm("Hapus pesan ini?")) return;
+            const { error } = await supabase.from('messages_queue').delete().eq('id', id);
+            if (!error) loadQueue();
         }
 
         function updatePackageUI() {
             const badge = document.getElementById('badgePaket');
+            if (!badge || !userProfileData) return;
+            
             if (userProfileData.package_type === 'MODE TRIAL') {
                 badge.innerText = "MODE TRIAL";
                 badge.className = "text-[9px] font-black bg-amber-500 text-white px-3 py-1 rounded-full uppercase cursor-pointer active:scale-95 transition-all";
@@ -227,7 +217,7 @@
 
         function renderPhoneList(phones = []) {
             const list = document.getElementById('phoneList');
-            list.innerHTML = phones.map((p, i) => `
+            list.innerHTML = phones.length > 0 ? phones.map((p, i) => `
                 <div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
                     <div>
                         <p class="text-[11px] font-black text-slate-800">${p.phone}</p>
@@ -235,7 +225,7 @@
                     </div>
                     ${i === 0 ? '<div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>' : ''}
                 </div>
-            `).join('');
+            `).join('') : '<p class="text-center text-[10px] text-slate-400">Belum ada nomor CS</p>';
         }
 
         function toggleProfile() {
@@ -251,6 +241,8 @@
         }
 
         async function handleLogout() { await supabase.auth.signOut(); window.location.href = "login.html"; }
+        
+        // Panggil init saat halaman dimuat
         init();
     </script>
 </body>
