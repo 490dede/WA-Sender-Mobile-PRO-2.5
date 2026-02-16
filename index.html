@@ -33,6 +33,7 @@
     </nav>
 
     <div class="max-w-md mx-auto p-6 space-y-6">
+        
         <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl">
             <div class="relative z-10">
                 <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-1">Status Paket</p>
@@ -40,6 +41,23 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div id="boxImg" class="bg-white/5 border border-white/10 p-4 rounded-3xl cursor-pointer" onclick="toggleProfile()"><p class="text-[9px] text-slate-500 uppercase font-bold">Kirim Gambar</p><p id="txtImg" class="text-[11px] font-black">NON-AKTIF</p></div>
                     <div id="boxVid" class="bg-white/5 border border-white/10 p-4 rounded-3xl cursor-pointer" onclick="toggleProfile()"><p class="text-[9px] text-slate-500 uppercase font-bold">Video & Link</p><p id="txtVid" class="text-[11px] font-black">NON-AKTIF</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div onclick="showProductInfo('premix')" class="bg-gradient-to-br from-indigo-600 to-violet-800 p-5 rounded-[2rem] text-white shadow-xl shadow-indigo-100 cursor-pointer active:scale-95 transition-all">
+                <p class="text-[7px] font-black opacity-70 uppercase tracking-widest">Upgrade Plan</p>
+                <p class="text-[10px] font-extrabold leading-tight mt-1">SINGLE USER PREMIX</p>
+                <div class="mt-3 flex items-center gap-1">
+                    <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-bold">Detail →</span>
+                </div>
+            </div>
+            <div onclick="showProductInfo('media')" class="bg-gradient-to-br from-emerald-600 to-teal-800 p-5 rounded-[2rem] text-white shadow-xl shadow-emerald-100 cursor-pointer active:scale-95 transition-all">
+                <p class="text-[7px] font-black opacity-70 uppercase tracking-widest">Add-On Media</p>
+                <p class="text-[10px] font-extrabold leading-tight mt-1">VIDEO & LINK PRO</p>
+                <div class="mt-3 flex items-center gap-1">
+                    <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-bold">Detail →</span>
                 </div>
             </div>
         </div>
@@ -70,19 +88,6 @@
                     <div id="userInitial" class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center text-2xl font-black mb-3">?</div>
                     <h3 id="userEmailDisplay" class="font-black text-slate-800 text-lg">Memuat...</h3>
                     <span id="badgePaket" class="inline-block text-[9px] font-black px-3 py-1 rounded-full uppercase">...</span>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div onclick="alert('Info: Paket Premix mendukung hingga 250 nomor sekali kirim!')" class="bg-gradient-to-br from-indigo-500 to-purple-600 p-4 rounded-3xl text-white cursor-pointer active:scale-95 transition-all">
-                        <p class="text-[8px] font-black opacity-80 uppercase">Upgrade Plan</p>
-                        <p class="text-[10px] font-extrabold leading-tight">Single User Premix</p>
-                        <p class="text-[8px] mt-2 bg-white/20 inline-block px-2 py-0.5 rounded-full text-[7px]">Rp 35.000/bln</p>
-                    </div>
-                    <div onclick="alert('Info: Langganan Video & Link memungkinkan Anda mengirim konten media interaktif!')" class="bg-gradient-to-br from-emerald-500 to-teal-600 p-4 rounded-3xl text-white cursor-pointer active:scale-95 transition-all">
-                        <p class="text-[8px] font-black opacity-80 uppercase">Add-On Media</p>
-                        <p class="text-[10px] font-extrabold leading-tight">Video & Link Pro</p>
-                        <p class="text-[8px] mt-2 bg-white/20 inline-block px-2 py-0.5 rounded-full text-[7px]">Rp 15.000/bln</p>
-                    </div>
                 </div>
 
                 <div class="bg-slate-50 rounded-[2rem] p-6 border border-slate-100">
@@ -138,126 +143,6 @@
                 document.getElementById('detPkgExp').innerText = "S/D " + new Date(data.expired_at).toLocaleDateString('id-ID');
                 document.getElementById('detSubExp').innerText = "S/D " + (data.sub_expired_at ? new Date(data.sub_expired_at).toLocaleDateString('id-ID') : "--/--/--");
                 
-                // Update Badge Paket
                 const badge = document.getElementById('badgePaket');
                 badge.innerText = data.package_type;
-                badge.className = `inline-block text-[9px] font-black px-3 py-1 rounded-full uppercase ${data.package_type.includes('TRIAL') ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}`;
-
-                // Update Add-On Visual
-                if(data.add_on_image) {
-                    document.getElementById('boxImg').className = "bg-emerald-500/20 border border-emerald-500/30 p-4 rounded-3xl";
-                    document.getElementById('txtImg').innerText = "AKTIF";
-                    document.getElementById('txtImg').classList.add("text-emerald-400");
-                }
-                
-                renderPhoneList(data.phone_numbers || []);
-            }
-        }
-
-        async function saveToQueue() {
-            const phoneVal = document.getElementById('phoneInput').value;
-            const category = document.getElementById('catInput').value || 'Umum';
-            const message = document.getElementById('msgInput').value;
-            const phones = phoneVal.split('\n').map(p => p.trim()).filter(p => p !== "");
-
-            if (phones.length === 0 || !message) return alert("❌ Nomor & Pesan harus diisi!");
-
-            // Satpam Trial
-            if (userProfileData.package_type === 'MODE TRIAL' && phones.length > 5) {
-                return alert("❌ LIMIT TRIAL: Maksimal 5 nomor sekaligus.");
-            }
-
-            const payload = phones.map(p => ({ user_id: userUID, phone: p, message_content: message, category_name: category }));
-            const { error } = await supabase.from('messages_queue').insert(payload);
-
-            if (!error) {
-                document.getElementById('phoneInput').value = "";
-                document.getElementById('msgInput').value = "";
-                loadQueue();
-            } else { alert("Gagal: " + error.message); }
-        }
-
-        async function loadQueue() {
-            const container = document.getElementById('queueContainer');
-            const { data, error } = await supabase.from('messages_queue').select('*').eq('user_id', userUID).order('created_at', { ascending: false });
-
-            if (!data || data.length === 0) {
-                container.innerHTML = `<div class="bg-slate-50 border-2 border-dashed border-slate-100 rounded-[2rem] p-10 text-center text-[10px] text-slate-400 font-bold uppercase">Antrean Kosong</div>`;
-                return;
-            }
-
-            container.innerHTML = data.map(item => `
-                <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative group transition-all">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <p class="text-[12px] font-black text-slate-800">${item.phone}</p>
-                            <span class="text-[8px] font-black bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md uppercase italic">${item.category_name}</span>
-                        </div>
-                        <button onclick="deleteQueue('${item.id}')" class="text-slate-300 hover:text-red-500 p-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
-                    </div>
-                    <p class="text-[10px] text-slate-500 line-clamp-2 mb-4 leading-relaxed">${item.message_content}</p>
-                    <button onclick="sendToWA('${item.phone}', '${item.category_name}', \`${encodeURIComponent(item.message_content)}\`)" class="w-full bg-emerald-600 text-white text-[10px] font-black py-3 rounded-xl shadow-lg shadow-emerald-100 transition-all uppercase tracking-widest active:scale-95">Kirim Sekarang</button>
-                </div>
-            `).join('');
-        }
-
-        function sendToWA(phone, cat, msg) {
-            let cleanPhone = phone.replace(/[^0-9]/g, '');
-            if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
-            
-            // Tambahkan Judul Kategori di awal pesan agar tampil di WA
-            const finalMsg = `*${cat.toUpperCase()}*%0A%0A${msg}`;
-            window.open(`https://wa.me/${cleanPhone}?text=${finalMsg}`, '_blank');
-        }
-
-        async function deleteQueue(id) {
-            if(!confirm("Hapus pesan ini?")) return;
-            const { error } = await supabase.from('messages_queue').delete().eq('id', id);
-            if (!error) loadQueue();
-        }
-
-        async function addCSPhone() {
-            const name = prompt("Masukkan Nama CS:");
-            const num = prompt("Masukkan Nomor WA (Contoh: 08123...)");
-            if(!name || !num) return;
-
-            let currentPhones = userProfileData.phone_numbers || [];
-            currentPhones.push({ name: name, phone: num });
-
-            const { error } = await supabase.from('profiles').update({ phone_numbers: currentPhones }).eq('id', userUID);
-            if(!error) { alert("✅ Nomor CS Berhasil Ditambah!"); loadProfile(); }
-        }
-
-        function renderPhoneList(phones) {
-            const list = document.getElementById('phoneList');
-            list.innerHTML = phones.map((p, i) => `
-                <div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-slate-100">
-                    <div>
-                        <p class="text-[11px] font-black text-slate-800">${p.phone}</p>
-                        <p class="text-[8px] font-bold text-slate-400 uppercase">${p.name} ${i===0 ? '(Owner)' : ''}</p>
-                    </div>
-                    ${i === 0 ? '<div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>' : ''}
-                </div>
-            `).join('');
-        }
-
-        function toggleProfile() {
-            const modal = document.getElementById('profileModal');
-            const panel = document.getElementById('profilePanel');
-            if(modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                setTimeout(() => panel.classList.add('modal-active'), 10);
-            } else {
-                panel.classList.remove('modal-active');
-                setTimeout(() => modal.classList.add('hidden'), 500);
-            }
-        }
-
-        async function handleLogout() { await supabase.auth.signOut(); window.location.href = "login.html"; }
-        
-        init();
-    </script>
-</body>
-</html>
+                badge.className = `inline-block text-[9px] font-black px-3 py-1 rounded-full uppercase ${data.package_type.includes('TRIAL') ? 'bg-amber-100 text-amber-600
