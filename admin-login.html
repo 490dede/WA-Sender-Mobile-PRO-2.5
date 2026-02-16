@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin - WA-Sender PRO</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at top right, #EEF2FF, #FFFFFF); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <div class="w-full max-w-md bg-white rounded-[3rem] shadow-2xl shadow-indigo-100 p-10 border border-slate-50">
+        <div class="text-center mb-10">
+            <div class="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-indigo-200">
+                <span class="text-3xl">🛡️</span>
+            </div>
+            <h1 class="text-2xl font-black text-slate-800">Admin Login</h1>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Otoritas Terbatas</p>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-2 block">Email Otoritas</label>
+                <input type="email" id="adminEmail" placeholder="nama@email.com" class="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold border border-slate-100 outline-none focus:border-indigo-500 transition-all">
+            </div>
+
+            <button onclick="handleLogin()" id="btnLogin" class="w-full py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:bg-indigo-600 transition-all flex items-center justify-center gap-2">
+                <span>Masuk Sekarang</span>
+            </button>
+        </div>
+
+        <p id="msg" class="mt-6 text-center text-[11px] font-bold text-slate-400"></p>
+    </div>
+
+    <script>
+        const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
+        const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+        async function handleLogin() {
+            const email = document.getElementById('adminEmail').value;
+            const btn = document.getElementById('btnLogin');
+            const msg = document.getElementById('msg');
+
+            if(!email) return;
+
+            btn.disabled = true;
+            btn.innerHTML = "Memverifikasi...";
+            
+            // Menggunakan Magic Link Supabase untuk keamanan email
+            const { error } = await supabase.auth.signInWithOtp({
+                email: email,
+                options: { emailRedirectTo: window.location.origin + '/admin.html' }
+            });
+
+            if (error) {
+                msg.innerText = "Error: " + error.message;
+                msg.className = "mt-6 text-center text-[11px] font-bold text-red-500";
+                btn.disabled = false;
+                btn.innerHTML = "Masuk Sekarang";
+            } else {
+                msg.innerText = "Link login telah dikirim ke email Anda. Silakan cek inbox/spam.";
+                msg.className = "mt-6 text-center text-[11px] font-bold text-indigo-600";
+            }
+        }
+    </script>
+</body>
+</html>
