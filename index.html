@@ -45,27 +45,29 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div onclick="showProductInfo('premix')" class="bg-gradient-to-br from-indigo-600 to-violet-800 p-5 rounded-[2rem] text-white shadow-xl shadow-indigo-100 cursor-pointer active:scale-95 transition-all">
-                <p class="text-[7px] font-black opacity-70 uppercase tracking-widest">Upgrade Plan</p>
-                <p class="text-[10px] font-extrabold leading-tight mt-1">SINGLE USER PREMIX</p>
-                <div class="mt-3 flex items-center gap-1">
-                    <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-bold">Detail →</span>
-                </div>
+        <div class="grid grid-cols-2 gap-3">
+            <div onclick="showProductInfo('premix')" class="bg-gradient-to-br from-indigo-600 to-violet-700 p-4 rounded-[1.5rem] text-white shadow-lg cursor-pointer active:scale-95 transition-all">
+                <p class="text-[7px] font-black opacity-80 uppercase">Upgrade Plan</p>
+                <p class="text-[10px] font-extrabold leading-tight">SINGLE PREMIX</p>
+                <p class="text-[7px] mt-2 bg-white/20 inline-block px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter italic">Cek Fitur →</p>
             </div>
-            <div onclick="showProductInfo('media')" class="bg-gradient-to-br from-emerald-600 to-teal-800 p-5 rounded-[2rem] text-white shadow-xl shadow-emerald-100 cursor-pointer active:scale-95 transition-all">
-                <p class="text-[7px] font-black opacity-70 uppercase tracking-widest">Add-On Media</p>
-                <p class="text-[10px] font-extrabold leading-tight mt-1">VIDEO & LINK PRO</p>
-                <div class="mt-3 flex items-center gap-1">
-                    <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-bold">Detail →</span>
-                </div>
+            <div onclick="showProductInfo('media')" class="bg-gradient-to-br from-emerald-500 to-teal-600 p-4 rounded-[1.5rem] text-white shadow-lg cursor-pointer active:scale-95 transition-all">
+                <p class="text-[7px] font-black opacity-80 uppercase">Add-On Media</p>
+                <p class="text-[10px] font-extrabold leading-tight">VIDEO & LINK PRO</p>
+                <p class="text-[7px] mt-2 bg-white/20 inline-block px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter italic">Cek Fitur →</p>
             </div>
         </div>
 
         <div class="bg-white rounded-[2.5rem] p-7 border border-slate-100 shadow-sm space-y-4">
-            <textarea id="phoneInput" rows="3" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100 focus:border-emerald-500 transition-all" placeholder="Nomor WA (Gunakan Enter untuk banyak nomor)"></textarea>
+            <div>
+                <label class="text-[10px] font-black text-emerald-600 uppercase ml-1 mb-1 block">Nomor WA Tujuan</label>
+                <textarea id="phoneInput" rows="3" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100 focus:border-emerald-500 transition-all" placeholder="Contoh:&#10;628123456789&#10;628567891234"></textarea>
+                <p class="text-[9px] text-slate-400 mt-2 px-1 leading-relaxed">💡 <b>Petunjuk:</b> Masukkan nomor diawali <b>62</b>. Gunakan <b>Enter</b> untuk memisahkan banyak nomor. Sistem otomatis memperbaiki jika Anda tak sengaja memakai 08.</p>
+            </div>
+
             <input type="text" id="catInput" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100 focus:border-emerald-500 transition-all" placeholder="Kategori (Contoh: Promo Hijab)">
             <textarea id="msgInput" rows="3" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100 focus:border-emerald-500 transition-all" placeholder="Isi Pesan Promosi..."></textarea>
+            
             <button onclick="saveToQueue()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all uppercase tracking-widest text-xs">Simpan ke Antrean</button> 
         </div>
 
@@ -145,4 +147,142 @@
                 
                 const badge = document.getElementById('badgePaket');
                 badge.innerText = data.package_type;
-                badge.className = `inline-block text-[9px] font-black px-3 py-1 rounded-full uppercase ${data.package_type.includes('TRIAL') ? 'bg-amber-100 text-amber-600
+                badge.className = `inline-block text-[9px] font-black px-3 py-1 rounded-full uppercase ${data.package_type.includes('TRIAL') ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}`;
+
+                if(data.add_on_image) {
+                    document.getElementById('boxImg').className = "bg-emerald-500/20 border border-emerald-500/30 p-4 rounded-3xl cursor-pointer";
+                    document.getElementById('txtImg').innerText = "AKTIF";
+                    document.getElementById('txtImg').classList.add("text-emerald-400");
+                }
+                
+                renderPhoneList(data.phone_numbers || []);
+            }
+        }
+
+        async function saveToQueue() {
+            const phoneVal = document.getElementById('phoneInput').value;
+            const category = document.getElementById('catInput').value || 'Umum';
+            const message = document.getElementById('msgInput').value;
+            
+            // LOGIKA PEMBERSIHAN NOMOR (The 62 Guard)
+            const rawPhones = phoneVal.split('\n').map(p => p.trim()).filter(p => p !== "");
+            const cleanedPhones = rawPhones.map(num => {
+                let clean = num.replace(/[^0-9]/g, ''); // Hapus spasi/karakter non-angka
+                if (clean.startsWith('0')) clean = '62' + clean.slice(1); // Ubah 08 ke 628
+                if (clean.startsWith('8')) clean = '62' + clean; // Ubah 8 ke 628
+                return clean;
+            });
+
+            if (cleanedPhones.length === 0 || !message) return alert("❌ Nomor & Pesan harus diisi!");
+
+            // Cek Limit Trial
+            if (userProfileData.package_type === 'MODE TRIAL' && cleanedPhones.length > 5) {
+                return alert("❌ LIMIT TRIAL: Maksimal 5 nomor sekaligus.");
+            }
+
+            const payload = cleanedPhones.map(p => ({ user_id: userUID, phone: p, message_content: message, category_name: category }));
+            const { error } = await supabase.from('messages_queue').insert(payload);
+
+            if (!error) {
+                document.getElementById('phoneInput').value = "";
+                document.getElementById('msgInput').value = "";
+                loadQueue();
+            } else { alert("Gagal Simpan: " + error.message); }
+        }
+
+        async function loadQueue() {
+            const container = document.getElementById('queueContainer');
+            const { data, error } = await supabase.from('messages_queue').select('*').eq('user_id', userUID).order('created_at', { ascending: false });
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div class="bg-slate-50 border-2 border-dashed border-slate-100 rounded-[2rem] p-10 text-center text-[10px] text-slate-400 font-bold uppercase">Antrean Kosong</div>`;
+                return;
+            }
+
+            container.innerHTML = data.map(item => `
+                <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative group transition-all">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="text-[12px] font-black text-slate-800 tracking-wider">${item.phone}</p>
+                            <span class="text-[8px] font-black bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md uppercase italic">${item.category_name}</span>
+                        </div>
+                        <button onclick="deleteQueue('${item.id}')" class="text-slate-300 hover:text-red-500 p-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-500 line-clamp-2 mb-4 leading-relaxed">${item.message_content}</p>
+                    <button onclick="sendAndRemove('${item.id}', '${item.phone}', '${item.category_name}', \`${encodeURIComponent(item.message_content)}\`)" class="w-full bg-emerald-600 text-white text-[10px] font-black py-3 rounded-xl shadow-lg shadow-emerald-100 transition-all uppercase tracking-widest active:scale-95">Kirim Sekarang</button>
+                </div>
+            `).join('');
+        }
+
+        async function sendAndRemove(id, phone, cat, msg) {
+            // 1. Jalankan Buka WhatsApp (Link WA tetap menggunakan 62 yang sudah bersih)
+            const finalMsg = `*${cat.toUpperCase()}*%0A%0A${msg}`;
+            window.open(`https://wa.me/${phone}?text=${finalMsg}`, '_blank');
+
+            // 2. Hapus dari database Supabase
+            const { error } = await supabase.from('messages_queue').delete().eq('id', id);
+            
+            // 3. Update tampilan antrean (Jeda 1 detik agar user sempat melihat aksi)
+            setTimeout(() => { loadQueue(); }, 1000);
+        }
+
+        async function deleteQueue(id) {
+            if(!confirm("Hapus antrean ini?")) return;
+            const { error } = await supabase.from('messages_queue').delete().eq('id', id);
+            if (!error) loadQueue();
+        }
+
+        function showProductInfo(type) {
+            if(type === 'premix') {
+                alert("📦 SINGLE USER PREMIX\n------------------------\n• Kirim hingga 250 nomor sekali input\n• Tanpa Delay antar pesan\n• Support Multi-Device\n• Harga: Rp 35.000/bulan");
+            } else {
+                alert("🎬 VIDEO & LINK PRO\n------------------------\n• Kirim Gambar dengan Caption\n• Kirim Video durasi panjang\n• Link aktif yang bisa diklik\n• Harga: Rp 15.000/bulan");
+            }
+        }
+
+        async function addCSPhone() {
+            const name = prompt("Masukkan Nama CS:");
+            const numRaw = prompt("Masukkan Nomor WA (0812...):");
+            if(!name || !numRaw) return;
+            
+            let num = numRaw.replace(/[^0-9]/g, '');
+            if (num.startsWith('0')) num = '62' + num.slice(1);
+
+            let currentPhones = userProfileData.phone_numbers || [];
+            currentPhones.push({ name: name, phone: num });
+            const { error } = await supabase.from('profiles').update({ phone_numbers: currentPhones }).eq('id', userUID);
+            if(!error) { alert("✅ Nomor CS Berhasil Ditambah!"); loadProfile(); }
+        }
+
+        function renderPhoneList(phones) {
+            const list = document.getElementById('phoneList');
+            list.innerHTML = phones.map((p, i) => `
+                <div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-slate-100">
+                    <div>
+                        <p class="text-[11px] font-black text-slate-800">${p.phone}</p>
+                        <p class="text-[8px] font-bold text-slate-400 uppercase">${p.name} ${i===0 ? '(Owner)' : ''}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleProfile() {
+            const modal = document.getElementById('profileModal');
+            const panel = document.getElementById('profilePanel');
+            if(modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => panel.classList.add('modal-active'), 10);
+            } else {
+                panel.classList.remove('modal-active');
+                setTimeout(() => modal.classList.add('hidden'), 500);
+            }
+        }
+
+        async function handleLogout() { await supabase.auth.signOut(); window.location.href = "login.html"; }
+        
+        init();
+    </script>
+</body>
+</html>
