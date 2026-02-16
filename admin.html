@@ -8,44 +8,51 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F1F5F9; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; }
+        .premium-glow { box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
     </style>
 </head>
-<body class="p-4">
+<body class="p-4 pb-20">
 
     <div class="max-w-4xl mx-auto space-y-6">
-        <div class="flex justify-between items-center bg-slate-900 p-6 rounded-[2rem] text-white shadow-xl">
+        <div class="flex justify-between items-center bg-slate-900 p-6 rounded-[2.5rem] text-white shadow-2xl">
             <div>
-                <h1 class="text-xl font-bold">Admin Central</h1>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Manajemen Aktivasi User</p>
+                <h1 class="text-xl font-extrabold tracking-tight">Admin Central</h1>
+                <p class="text-[9px] text-indigo-400 font-black uppercase tracking-[0.2em]">Revenue & User Control</p>
             </div>
-            <button onclick="location.href='index.html'" class="text-xs bg-white/10 px-4 py-2 rounded-xl font-bold">Kembali</button>
+            <button onclick="location.href='index.html'" class="text-[10px] bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-2xl font-bold transition-all">KEMBALI</button>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100">
                 <p class="text-[10px] font-black text-slate-400 uppercase">Total User</p>
                 <h3 id="statTotalUser" class="text-2xl font-black text-slate-800">0</h3>
             </div>
-            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
-                <p class="text-[10px] font-black text-slate-400 uppercase">Antrean Aktif</p>
-                <h3 id="statTotalQueue" class="text-2xl font-black text-emerald-600">0</h3>
+            
+            <div class="md:col-span-2 bg-indigo-600 p-5 rounded-[2rem] shadow-lg shadow-indigo-100 text-white">
+                <p class="text-[10px] font-black text-indigo-200 uppercase mb-2">Global Number Checker (Anti-Cheat)</p>
+                <div class="flex gap-2">
+                    <input type="text" id="inputNomorCek" placeholder="Cari 628xxx..." class="flex-1 bg-white/10 border border-white/20 p-2.5 rounded-xl text-xs outline-none placeholder:text-indigo-300">
+                    <button onclick="handleAdminCheck()" class="bg-white text-indigo-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-indigo-50 transition-all">CEK</button>
+                </div>
+                <div id="statusChecking" class="mt-2 text-[11px] font-bold"></div>
             </div>
         </div>
 
-        <div class="bg-white p-4 rounded-2xl shadow-sm">
-            <input type="text" id="searchUser" onkeyup="filterUser()" placeholder="Cari Email User..." class="w-full bg-slate-50 p-3 rounded-xl text-sm outline-none border border-slate-100 focus:border-indigo-500">
+        <div class="bg-white p-2 rounded-[2rem] shadow-sm border border-slate-100 flex items-center px-4">
+            <span class="text-slate-400 ml-2">🔍</span>
+            <input type="text" id="searchUser" onkeyup="filterUser()" placeholder="Cari Email User..." class="w-full p-4 text-sm outline-none font-medium">
         </div>
 
-        <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-100">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50/50 border-b border-slate-50">
                         <tr>
-                            <th class="p-4 text-[10px] font-black text-slate-400 uppercase">User</th>
-                            <th class="p-4 text-[10px] font-black text-slate-400 uppercase">Paket</th>
-                            <th class="p-4 text-[10px] font-black text-slate-400 uppercase">Media</th>
-                            <th class="p-4 text-[10px] font-black text-slate-400 uppercase">Aksi</th>
+                            <th class="p-5 text-[10px] font-black text-slate-400 uppercase">User Profile</th>
+                            <th class="p-5 text-[10px] font-black text-slate-400 uppercase">Plan Status</th>
+                            <th class="p-5 text-[10px] font-black text-slate-400 uppercase text-center">Add-Ons</th>
+                            <th class="p-5 text-[10px] font-black text-slate-400 uppercase text-right">Action</th>
                         </tr>
                     </thead>
                     <tbody id="userTableBody" class="divide-y divide-slate-50">
@@ -55,26 +62,35 @@
         </div>
     </div>
 
-    <div id="editModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
-            <h3 class="font-black text-slate-800 mb-6">Upgrade User</h3>
+    <div id="editModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm rounded-[3rem] p-8 shadow-2xl border border-white/20">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-indigo-100 rounded-3xl flex items-center justify-center mx-auto mb-4 text-2xl">💎</div>
+                <h3 class="font-black text-slate-800 text-xl">Upgrade Access</h3>
+                <p id="displayEmail" class="text-xs text-slate-400 font-medium"></p>
+            </div>
+            
             <input type="hidden" id="editUserId">
             
-            <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Jenis Paket</label>
-            <select id="editPackage" class="w-full bg-slate-50 p-3 rounded-xl mb-4 text-sm border border-slate-100">
-                <option value="MODE TRIAL">MODE TRIAL</option>
-                <option value="SINGLE PREMIX">SINGLE PREMIX</option>
-                <option value="BUSINESS PRO">BUSINESS PRO</option>
+            <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-2 block">Pilih Paket Utama</label>
+            <select id="editPackage" class="w-full bg-slate-50 p-4 rounded-2xl mb-5 text-sm font-bold border border-slate-100 outline-none focus:border-indigo-500 transition-all">
+                <option value="TRIAL">MODE TRIAL</option>
+                <option value="S_BASIC">SINGLE USER BASIC</option>
+                <option value="S_PREMIX">SINGLE USER PREMIX</option>
+                <option value="M_BASIC">MULTI USER BASIC</option>
+                <option value="M_PREMIX">MULTI USER PREMIX</option>
             </select>
 
-            <div class="flex items-center gap-3 mb-6 bg-slate-50 p-3 rounded-xl">
-                <input type="checkbox" id="editAddOn" class="w-5 h-5 accent-emerald-600">
-                <label for="editAddOn" class="text-xs font-bold text-slate-700">Aktifkan Video & Link</label>
-            </div>
+            <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-2 block">Level Media Add-On</label>
+            <select id="editAddOnLevel" class="w-full bg-slate-50 p-4 rounded-2xl mb-8 text-sm font-bold border border-slate-100 outline-none focus:border-indigo-500 transition-all">
+                <option value="0">TEXT ONLY (FREE)</option>
+                <option value="1">GAMBAR SAJA</option>
+                <option value="2">GAMBAR - VIDEO - LINK</option>
+            </select>
 
             <div class="flex gap-3">
-                <button onclick="closeModal()" class="flex-1 py-3 text-xs font-bold text-slate-400 uppercase">Batal</button>
-                <button onclick="saveUserUpdate()" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase shadow-lg shadow-indigo-100">Simpan</button>
+                <button onclick="closeModal()" class="flex-1 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">Batal</button>
+                <button onclick="saveUserUpdate()" class="flex-1 py-4 bg-slate-900 text-white rounded-[1.5rem] text-xs font-black uppercase shadow-xl shadow-slate-200 hover:scale-105 transition-all">AKTIFKAN</button>
             </div>
         </div>
     </div>
@@ -84,43 +100,72 @@
         const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        async function loadAdminData() {
-            // 1. Load Statistik
-            const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-            const { count: queueCount } = await supabase.from('messages_queue').select('*', { count: 'exact', head: true });
-            
-            document.getElementById('statTotalUser').innerText = userCount;
-            document.getElementById('statTotalQueue').innerText = queueCount;
+        // --- CORE LOGIC ---
 
-            // 2. Load Table User
+        async function loadAdminData() {
+            const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+            document.getElementById('statTotalUser').innerText = userCount;
+
             const { data: users, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
             
             const tbody = document.getElementById('userTableBody');
             tbody.innerHTML = users.map(u => `
-                <tr>
-                    <td class="p-4">
-                        <p class="text-xs font-bold text-slate-800">${u.email}</p>
-                        <p class="text-[9px] text-slate-400">${new Date(u.created_at).toLocaleDateString()}</p>
+                <tr class="hover:bg-slate-50/50 transition-all">
+                    <td class="p-5">
+                        <p class="text-xs font-extrabold text-slate-800">${u.email}</p>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">Joined ${new Date(u.created_at).toLocaleDateString()}</p>
                     </td>
-                    <td class="p-4">
-                        <span class="text-[9px] font-black px-2 py-1 rounded-md ${u.package_type === 'MODE TRIAL' ? 'bg-amber-100 text-amber-600' : 'bg-indigo-100 text-indigo-600'}">
-                            ${u.package_type}
+                    <td class="p-5">
+                        <span class="text-[9px] font-black px-3 py-1.5 rounded-xl border ${getPackageClass(u.package_type)}">
+                            ${u.package_type.replace('_', ' ')}
                         </span>
                     </td>
-                    <td class="p-4 text-center">
-                        <div class="w-3 h-3 rounded-full ${u.add_on_image ? 'bg-emerald-500' : 'bg-slate-200'} mx-auto"></div>
+                    <td class="p-5">
+                        <div class="flex justify-center gap-1">
+                            <div class="w-2 h-2 rounded-full ${u.add_on_level >= 1 ? 'bg-emerald-500' : 'bg-slate-200'}"></div>
+                            <div class="w-2 h-2 rounded-full ${u.add_on_level >= 2 ? 'bg-emerald-500' : 'bg-slate-200'}"></div>
+                        </div>
                     </td>
-                    <td class="p-4 text-right">
-                        <button onclick="openEdit('${u.id}', '${u.package_type}', ${u.add_on_image})" class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg active:scale-90">EDIT</button>
+                    <td class="p-5 text-right">
+                        <button onclick="openEdit('${u.id}', '${u.email}', '${u.package_type}', ${u.add_on_level})" class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl active:scale-95 transition-all">MANAGE</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function openEdit(id, pkg, addon) {
+        function getPackageClass(pkg) {
+            if (pkg.includes('PREMIX')) return 'bg-indigo-50 text-indigo-600 border-indigo-100';
+            if (pkg.includes('BASIC')) return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+            return 'bg-slate-100 text-slate-400 border-slate-200';
+        }
+
+        // --- ANTI-CHEAT ENGINE ---
+
+        async function handleAdminCheck() {
+            const num = document.getElementById('inputNomorCek').value;
+            const resDiv = document.getElementById('statusChecking');
+            if(!num) return;
+
+            resDiv.innerText = "🔍 Mengecek database...";
+            
+            const { data, error } = await supabase.rpc('check_phone_number_exists', { target_number: num });
+
+            if (data && data.length > 0) {
+                resDiv.innerHTML = `⚠️ Nomor milik: <span class="underline">${data[0].owner_email}</span>`;
+                resDiv.className = "mt-2 text-[11px] font-bold text-amber-300";
+            } else {
+                resDiv.innerHTML = `✅ Nomor Tersedia / Belum Terdaftar`;
+                resDiv.className = "mt-2 text-[11px] font-bold text-emerald-300";
+            }
+        }
+
+        // --- MODAL ACTIONS ---
+
+        function openEdit(id, email, pkg, level) {
             document.getElementById('editUserId').value = id;
+            document.getElementById('displayEmail').innerText = email;
             document.getElementById('editPackage').value = pkg;
-            document.getElementById('editAddOn').checked = addon;
+            document.getElementById('editAddOnLevel').value = level || 0;
             document.getElementById('editModal').classList.remove('hidden');
         }
 
@@ -129,16 +174,22 @@
         async function saveUserUpdate() {
             const id = document.getElementById('editUserId').value;
             const pkg = document.getElementById('editPackage').value;
-            const addon = document.getElementById('editAddOn').checked;
+            const level = parseInt(document.getElementById('editAddOnLevel').value);
+
+            // Logic: Level 1 = Image True, Level 2 = Both True
+            const isImg = level >= 1;
+            const isVid = level >= 2;
 
             const { error } = await supabase.from('profiles').update({
                 package_type: pkg,
-                add_on_image: addon,
-                expired_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // Otomatis tambah 30 hari
+                add_on_level: level,
+                add_on_image: isImg,
+                add_on_video_link: isVid,
+                expired_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
             }).eq('id', id);
 
             if (!error) {
-                alert("Update Berhasil!");
+                alert("Aktivasi Paket Berhasil!");
                 closeModal();
                 loadAdminData();
             }
