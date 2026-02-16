@@ -27,7 +27,7 @@
                 <p class="text-[8px] font-bold text-emerald-600 uppercase tracking-widest mt-1">Mobile PRO 2.5</p>
             </div>
         </div>
-        <button onclick="toggleProfile()" class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white active:scale-90 transition-all shadow-lg">
+        <button type="button" onclick="toggleProfile()" class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white active:scale-90 transition-all shadow-lg">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
         </button>
     </nav>
@@ -62,19 +62,19 @@
             <div>
                 <label class="text-[10px] font-black text-emerald-600 uppercase ml-1 mb-1 block">Nomor WA Tujuan</label>
                 <textarea id="phoneInput" rows="3" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100 focus:border-emerald-500 transition-all" placeholder="Contoh:&#10;628123456789&#10;628567891234"></textarea>
-                <p class="text-[9px] text-slate-400 mt-2 px-1 leading-relaxed">💡 <b>Petunjuk:</b> Masukkan nomor diawali <b>62</b>. Gunakan <b>Enter</b> untuk memisahkan banyak nomor. Sistem otomatis memperbaiki jika Anda tak sengaja memakai 08.</p>
+                <p class="text-[9px] text-slate-400 mt-2 px-1 leading-relaxed">💡 <b>Petunjuk:</b> Masukkan nomor diawali <b>62</b>. Sistem otomatis memperbaiki jika Anda tak sengaja memakai 08.</p>
             </div>
 
             <input type="text" id="catInput" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100 focus:border-emerald-500 transition-all" placeholder="Kategori (Contoh: Promo Hijab)">
             <textarea id="msgInput" rows="3" class="w-full bg-slate-50 p-4 rounded-2xl text-sm outline-none border border-slate-100 focus:border-emerald-500 transition-all" placeholder="Isi Pesan Promosi..."></textarea>
             
-            <button onclick="saveToQueue()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all uppercase tracking-widest text-xs">Simpan ke Antrean</button> 
+            <button type="button" onclick="saveToQueue()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all uppercase tracking-widest text-xs">Simpan ke Antrean</button> 
         </div>
 
         <div class="mt-10 space-y-4">
             <div class="flex justify-between items-center px-2">
                 <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Daftar Siap Kirim</h3>
-                <button onclick="loadQueue()" class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">REFRESH</button>
+                <button onclick="loadQueue()" class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase">Refresh</button>
             </div>
             <div id="queueContainer" class="space-y-3 pb-10"></div>
         </div>
@@ -119,119 +119,163 @@
     </div>
 
     <script>
+        // INISIALISASI SUPABASE
         const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
         const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+        
         let userUID = "";
         let userProfileData = null;
 
         async function init() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) return window.location.href = "login.html";
-            userUID = session.user.id;
-            await loadProfile();
-            await loadQueue();
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (!session || error) {
+                    window.location.href = "login.html";
+                    return;
+                }
+                userUID = session.user.id;
+                await loadProfile();
+                await loadQueue();
+            } catch (e) {
+                console.error("Init Error:", e);
+            }
         }
 
         async function loadProfile() {
-            const { data, error } = await supabase.from('profiles').select('*').eq('id', userUID).single();
-            if (data) {
-                userProfileData = data;
-                document.getElementById('pkgDisplay').innerText = data.package_type;
-                document.getElementById('userEmailDisplay').innerText = data.email;
-                document.getElementById('userInitial').innerText = data.email[0].toUpperCase();
-                document.getElementById('detPkg').innerText = data.package_type;
-                document.getElementById('detSub').innerText = data.subscription_type || "NONE";
-                document.getElementById('detPkgExp').innerText = "S/D " + new Date(data.expired_at).toLocaleDateString('id-ID');
-                document.getElementById('detSubExp').innerText = "S/D " + (data.sub_expired_at ? new Date(data.sub_expired_at).toLocaleDateString('id-ID') : "--/--/--");
-                
-                const badge = document.getElementById('badgePaket');
-                badge.innerText = data.package_type;
-                badge.className = `inline-block text-[9px] font-black px-3 py-1 rounded-full uppercase ${data.package_type.includes('TRIAL') ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}`;
+            try {
+                const { data, error } = await supabase.from('profiles').select('*').eq('id', userUID).single();
+                if (error) throw error;
 
-                if(data.add_on_image) {
-                    document.getElementById('boxImg').className = "bg-emerald-500/20 border border-emerald-500/30 p-4 rounded-3xl cursor-pointer";
-                    document.getElementById('txtImg').innerText = "AKTIF";
-                    document.getElementById('txtImg').classList.add("text-emerald-400");
+                if (data) {
+                    userProfileData = data;
+                    
+                    // Update Dashboard
+                    document.getElementById('pkgDisplay').innerText = data.package_type || "BASIC";
+                    
+                    // Update Modal
+                    document.getElementById('userEmailDisplay').innerText = data.email || "";
+                    document.getElementById('userInitial').innerText = (data.email ? data.email[0].toUpperCase() : "?");
+                    document.getElementById('detPkg').innerText = data.package_type || "TRIAL";
+                    document.getElementById('detSub').innerText = data.subscription_type || "NONE";
+                    
+                    if(data.expired_at) {
+                        document.getElementById('detPkgExp').innerText = "S/D " + new Date(data.expired_at).toLocaleDateString('id-ID');
+                    }
+                    if(data.sub_expired_at) {
+                        document.getElementById('detSubExp').innerText = "S/D " + new Date(data.sub_expired_at).toLocaleDateString('id-ID');
+                    }
+
+                    const badge = document.getElementById('badgePaket');
+                    badge.innerText = data.package_type || "TRIAL";
+                    badge.className = `inline-block text-[9px] font-black px-3 py-1 rounded-full uppercase ${data.package_type?.includes('TRIAL') ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}`;
+
+                    if(data.add_on_image) {
+                        document.getElementById('boxImg').classList.replace('bg-white/5', 'bg-emerald-500/20');
+                        document.getElementById('txtImg').innerText = "AKTIF";
+                        document.getElementById('txtImg').classList.add("text-emerald-400");
+                    }
+                    
+                    renderPhoneList(data.phone_numbers || []);
                 }
-                
-                renderPhoneList(data.phone_numbers || []);
+            } catch (err) {
+                console.error("Load Profile Error:", err);
+                document.getElementById('pkgDisplay').innerText = "ERROR LOAD";
             }
         }
 
         async function saveToQueue() {
-            const phoneVal = document.getElementById('phoneInput').value;
-            const category = document.getElementById('catInput').value || 'Umum';
-            const message = document.getElementById('msgInput').value;
+            const phoneVal = document.getElementById('phoneInput').value.trim();
+            const category = document.getElementById('catInput').value.trim() || 'Umum';
+            const message = document.getElementById('msgInput').value.trim();
             
-            // LOGIKA PEMBERSIHAN NOMOR (The 62 Guard)
+            if (!phoneVal || !message) {
+                alert("❌ Nomor & Pesan harus diisi!");
+                return;
+            }
+
+            // Validasi & Pembersihan Nomor (The 62 Guard)
             const rawPhones = phoneVal.split('\n').map(p => p.trim()).filter(p => p !== "");
             const cleanedPhones = rawPhones.map(num => {
-                let clean = num.replace(/[^0-9]/g, ''); // Hapus spasi/karakter non-angka
-                if (clean.startsWith('0')) clean = '62' + clean.slice(1); // Ubah 08 ke 628
-                if (clean.startsWith('8')) clean = '62' + clean; // Ubah 8 ke 628
+                let clean = num.replace(/[^0-9]/g, '');
+                if (clean.startsWith('0')) clean = '62' + clean.slice(1);
+                if (clean.startsWith('8')) clean = '62' + clean;
                 return clean;
             });
 
-            if (cleanedPhones.length === 0 || !message) return alert("❌ Nomor & Pesan harus diisi!");
-
-            // Cek Limit Trial
-            if (userProfileData.package_type === 'MODE TRIAL' && cleanedPhones.length > 5) {
-                return alert("❌ LIMIT TRIAL: Maksimal 5 nomor sekaligus.");
+            if (userProfileData?.package_type === 'MODE TRIAL' && cleanedPhones.length > 5) {
+                alert("❌ LIMIT TRIAL: Maksimal 5 nomor sekaligus.");
+                return;
             }
 
-            const payload = cleanedPhones.map(p => ({ user_id: userUID, phone: p, message_content: message, category_name: category }));
-            const { error } = await supabase.from('messages_queue').insert(payload);
+            try {
+                const payload = cleanedPhones.map(p => ({ 
+                    user_id: userUID, 
+                    phone: p, 
+                    message_content: message, 
+                    category_name: category 
+                }));
 
-            if (!error) {
+                const { error } = await supabase.from('messages_queue').insert(payload);
+                if (error) throw error;
+
                 document.getElementById('phoneInput').value = "";
                 document.getElementById('msgInput').value = "";
+                alert("✅ Tersimpan ke antrean!");
                 loadQueue();
-            } else { alert("Gagal Simpan: " + error.message); }
+            } catch (err) {
+                alert("Gagal Simpan: " + err.message);
+            }
         }
 
         async function loadQueue() {
             const container = document.getElementById('queueContainer');
-            const { data, error } = await supabase.from('messages_queue').select('*').eq('user_id', userUID).order('created_at', { ascending: false });
+            try {
+                const { data, error } = await supabase.from('messages_queue')
+                    .select('*')
+                    .eq('user_id', userUID)
+                    .order('created_at', { ascending: false });
 
-            if (!data || data.length === 0) {
-                container.innerHTML = `<div class="bg-slate-50 border-2 border-dashed border-slate-100 rounded-[2rem] p-10 text-center text-[10px] text-slate-400 font-bold uppercase">Antrean Kosong</div>`;
-                return;
-            }
+                if (error) throw error;
 
-            container.innerHTML = data.map(item => `
-                <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative group transition-all">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <p class="text-[12px] font-black text-slate-800 tracking-wider">${item.phone}</p>
-                            <span class="text-[8px] font-black bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md uppercase italic">${item.category_name}</span>
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<div class="bg-slate-50 border-2 border-dashed border-slate-100 rounded-[2rem] p-10 text-center text-[10px] text-slate-400 font-bold uppercase">Antrean Kosong</div>`;
+                    return;
+                }
+
+                container.innerHTML = data.map(item => `
+                    <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative group transition-all">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-[12px] font-black text-slate-800 tracking-wider">${item.phone}</p>
+                                <span class="text-[8px] font-black bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md uppercase italic">${item.category_name}</span>
+                            </div>
+                            <button onclick="deleteQueue('${item.id}')" class="text-slate-300 hover:text-red-500 p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
                         </div>
-                        <button onclick="deleteQueue('${item.id}')" class="text-slate-300 hover:text-red-500 p-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
+                        <p class="text-[10px] text-slate-500 line-clamp-2 mb-4 leading-relaxed">${item.message_content}</p>
+                        <button onclick="sendAndRemove('${item.id}', '${item.phone}', '${item.category_name}', \`${encodeURIComponent(item.message_content)}\`)" class="w-full bg-emerald-600 text-white text-[10px] font-black py-3 rounded-xl shadow-lg shadow-emerald-100 transition-all uppercase tracking-widest active:scale-95">Kirim Sekarang</button>
                     </div>
-                    <p class="text-[10px] text-slate-500 line-clamp-2 mb-4 leading-relaxed">${item.message_content}</p>
-                    <button onclick="sendAndRemove('${item.id}', '${item.phone}', '${item.category_name}', \`${encodeURIComponent(item.message_content)}\`)" class="w-full bg-emerald-600 text-white text-[10px] font-black py-3 rounded-xl shadow-lg shadow-emerald-100 transition-all uppercase tracking-widest active:scale-95">Kirim Sekarang</button>
-                </div>
-            `).join('');
+                `).join('');
+            } catch (err) {
+                container.innerHTML = `<p class="text-red-500 text-center text-xs">Gagal memuat antrean</p>`;
+            }
         }
 
         async function sendAndRemove(id, phone, cat, msg) {
-            // 1. Jalankan Buka WhatsApp (Link WA tetap menggunakan 62 yang sudah bersih)
             const finalMsg = `*${cat.toUpperCase()}*%0A%0A${msg}`;
             window.open(`https://wa.me/${phone}?text=${finalMsg}`, '_blank');
-
-            // 2. Hapus dari database Supabase
-            const { error } = await supabase.from('messages_queue').delete().eq('id', id);
             
-            // 3. Update tampilan antrean (Jeda 1 detik agar user sempat melihat aksi)
-            setTimeout(() => { loadQueue(); }, 1000);
+            // Langsung hapus setelah buka WA
+            const { error } = await supabase.from('messages_queue').delete().eq('id', id);
+            setTimeout(() => { loadQueue(); }, 1500);
         }
 
         async function deleteQueue(id) {
             if(!confirm("Hapus antrean ini?")) return;
-            const { error } = await supabase.from('messages_queue').delete().eq('id', id);
-            if (!error) loadQueue();
+            await supabase.from('messages_queue').delete().eq('id', id);
+            loadQueue();
         }
 
         function showProductInfo(type) {
@@ -258,6 +302,7 @@
 
         function renderPhoneList(phones) {
             const list = document.getElementById('phoneList');
+            if(!list) return;
             list.innerHTML = phones.map((p, i) => `
                 <div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-slate-100">
                     <div>
@@ -280,8 +325,12 @@
             }
         }
 
-        async function handleLogout() { await supabase.auth.signOut(); window.location.href = "login.html"; }
+        async function handleLogout() { 
+            await supabase.auth.signOut(); 
+            window.location.href = "login.html"; 
+        }
         
+        // JALANKAN INIT
         init();
     </script>
 </body>
