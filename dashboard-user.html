@@ -138,32 +138,55 @@
         }
 
         // 3. TAMBAH CS
-        async function processAddCS() {
-            const name = document.getElementById('csName').value;
-            const email = document.getElementById('csEmail').value;
-            const phone = document.getElementById('csPhone').value;
-            if (!name || !email || !phone) { alert("Lengkapi semua data!"); return; }
+       async function processAddCS() {
+    const name = document.getElementById('csName').value;
+    const email = document.getElementById('csEmail').value; // Mengambil email
+    const phone = document.getElementById('csPhone').value;
+    const btn = document.getElementById('btnSaveCS');
 
-            // Cek Limit Paket
-            const currentCS = (userProfile.phone_numbers || []).filter(p => p.role === 'cs').length;
-            const limits = { 'TRIAL': 1, 'S_BASIC': 1, 'S_PREMIX': 2, 'M_BASIC': 5, 'M_PREMIX': 10 };
-            if (currentCS >= (limits[userProfile.package_type] || 1)) {
-                alert("Slot CS penuh! Silakan upgrade paket Anda."); return;
-            }
+    if (!name || !email || !phone) { alert("Semua kolom wajib diisi!"); return; }
 
-            document.getElementById('btnSaveCS').disabled = true;
+    btn.disabled = true;
+    btn.innerText = "Memverifikasi...";
 
-            const { data: numExists } = await supabase.rpc('check_phone_number_exists', { target_number: phone });
-            if (numExists && numExists.length > 0) {
-                alert(`Nomor ini sudah digunakan oleh: ${numExists[0].owner_email}`);
-                document.getElementById('btnSaveCS').disabled = false; return;
-            }
-
-            const newList = [...(userProfile.phone_numbers || []), { number: phone, role: 'cs', email: email, name: name }];
-            const { error } = await supabase.from('profiles').update({ phone_numbers: newList }).eq('id', currentUser.id);
-
-            if (!error) { location.reload(); } else { alert(error.message); document.getElementById('btnSaveCS').disabled = false; }
+    try {
+        // 1. Cek Duplikasi (RPC tetap menggunakan parameter phone)
+        const { data: numExists } = await supabase.rpc('check_phone_number_exists', { target_number: phone });
+        if (numExists && numExists.length > 0) {
+            alert(`Nomor ini sudah dipakai oleh akun: ${numExists[0].owner_email}`);
+            return;
         }
+
+        // 2. Susun Data Baru (Sesuai keinginan kita: Nama, Nomor, Email)
+        // Kita gunakan key "number" agar konsisten dengan dashboard
+        const newCSData = { 
+            name: name, 
+            number: phone, 
+            email: email, 
+            role: 'cs' 
+        };
+
+        const newList = [...(userProfile.phone_numbers || []), newCSData];
+
+        // 3. Simpan ke Supabase
+        const { error: upError } = await supabase
+            .from('profiles')
+            .update({ phone_numbers: newList })
+            .eq('id', currentUser.id);
+
+        if (upError) throw upError;
+
+        alert("Berhasil! CS dengan Email kini terdaftar.");
+        closeModal();
+        fetchAllData(); // Refresh list agar email muncul
+
+    } catch (e) {
+        alert("Gagal: " + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Daftarkan CS";
+    }
+}
 
         // 4. HAPUS CS DENGAN OTP
         async function removeCS(index) {
