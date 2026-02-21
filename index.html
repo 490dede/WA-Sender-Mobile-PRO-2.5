@@ -80,6 +80,11 @@
         </div>
     </div>
 
+    <div class="relative">
+    <input type="password" id="password" placeholder="Password" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold text-sm">
+    <button type="button" onclick="togglePass()" class="absolute right-5 top-4 text-xl">👁️</button>
+</div>
+
     <div id="profileModal" class="fixed inset-0 z-[100] hidden">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="toggleProfile()"></div>
         <div id="profilePanel" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[3rem] p-8 shadow-2xl transition-transform duration-500 translate-y-full">
