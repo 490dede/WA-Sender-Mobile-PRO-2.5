@@ -20,7 +20,7 @@
             <div>
                 <h1 class="text-xl font-black text-slate-900">WA-Sender PRO 2.5</h1>
                 <div class="flex items-center gap-2 mt-1">
-                    <span id="statusBadge" class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-full uppercase transition-colors duration-500">TRIAL</span>
+                    <span id="statusBadge" class="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-black rounded-full uppercase transition-all duration-500">MEMUAT...</span>
                 </div>
             </div>
             <a href="delivery-chat.html" class="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center text-xl hover:scale-110 transition-all shadow-lg">🏠</a>
@@ -76,43 +76,40 @@
 
         const pricing = {
             'PRO': { name: 'PRO', price: 'Rp 150.000', qrCode: 'https://via.placeholder.com/300?text=QRIS+PRO' },
-            'MULTI': { name: 'MULTI USER', price: 'Rp 350.000', qrCode: 'https://via.placeholder.com/300?text=QRIS+MULTI' }
+            'MULTI': { name: 'MULTI', price: 'Rp 350.000', qrCode: 'https://via.placeholder.com/300?text=QRIS+MULTI' }
         };
 
-        // INISIALISASI
         async function init() {
             const { data: { session } } = await supabase.auth.getSession();
             if(!session) { window.location.href = 'auth-system.html'; return; }
             
             currentUser = session.user;
             document.getElementById('displayEmail').value = currentUser.email;
-
             await loadProfileData();
         }
 
-        // LOAD DATA TANPA REFRESH HALAMAN
         async function loadProfileData() {
-            const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+            const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
             
             if (profile) {
                 userProfile = profile;
                 document.getElementById('username').value = profile.username || '';
                 
-                // Pastikan penamaan paket bersih (TRIAL, PRO, atau MULTI)
-                const pkg = profile.package_type ? profile.package_type.toUpperCase() : 'TRIAL';
+                // Standarisasi Status Paket
+                const pkg = (profile.package_type || 'TRIAL').toUpperCase();
                 const badge = document.getElementById('statusBadge');
                 badge.innerText = pkg;
 
-                // Update Style Badge berdasarkan Paket
+                // Update Style Badge
                 if (pkg === 'TRIAL') {
                     badge.className = "px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-full uppercase";
                 } else {
                     badge.className = "px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full uppercase";
                 }
 
-                // Logika Tampilan Section CS
+                // Tampilkan Manajemen CS jika MULTI
                 const csSection = document.getElementById('csSection');
-                if(pkg.includes('MULTI')) {
+                if(pkg === 'MULTI') {
                     csSection.classList.remove('hidden');
                     renderCS();
                 } else {
@@ -121,11 +118,9 @@
             }
         }
 
-        // UPDATE PROFIL (REAL-TIME TANPA REFRESH)
         async function updateProfile() {
             const user_name = document.getElementById('username').value;
             const btn = document.getElementById('btnUpdate');
-            
             if(!user_name) return alert("Username wajib diisi!");
             
             btn.innerText = "MENYIMPAN...";
@@ -134,69 +129,60 @@
             const { error } = await supabase.from('profiles').update({ username: user_name }).eq('id', currentUser.id);
 
             if (!error) {
-                // Feedback Visual Berhasil
                 btn.innerText = "BERHASIL DISIMPAN! ✅";
                 btn.classList.replace('bg-slate-900', 'bg-emerald-600');
-                
-                // Update lokal variabel
                 userProfile.username = user_name;
-
-                // Kembalikan tombol ke status normal setelah 2 detik
                 setTimeout(() => {
-                    btn.innerText = "SIMPAN PROFIL";
+                    btn.innerText = "Simpan Profil";
                     btn.classList.replace('bg-emerald-600', 'bg-slate-900');
                     btn.disabled = false;
                 }, 2000);
             } else {
-                alert("Gagal menyimpan: " + error.message);
-                btn.innerText = "SIMPAN PROFIL";
+                alert("Gagal: " + error.message);
+                btn.innerText = "Simpan Profil";
                 btn.disabled = false;
             }
         }
 
-        // SISTEM PEMBAYARAN
         function selectPlan(planKey) {
             const plan = pricing[planKey];
             const paymentArea = `
                 <div id="paymentModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 text-center animate-fade-in">
                     <div class="bg-white max-w-sm w-full rounded-[3rem] p-10 relative shadow-2xl">
-                        <button onclick="document.getElementById('paymentModal').remove()" class="absolute right-6 top-6 text-slate-300 hover:text-red-500 text-xl transition-colors">✕</button>
-                        <h2 class="font-black text-xl mb-2 text-slate-900">Aktivasi Paket ${plan.name}</h2>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-6 tracking-widest">Scan QRIS Untuk Melanjutkan</p>
-                        <div class="bg-slate-50 p-4 rounded-3xl mb-6 border border-slate-100">
+                        <button onclick="document.getElementById('paymentModal').remove()" class="absolute right-6 top-6 text-slate-300 hover:text-red-500 text-xl">✕</button>
+                        <h2 class="font-black text-xl mb-2">Aktivasi Paket ${plan.name}</h2>
+                        <div class="bg-slate-50 p-4 rounded-3xl mb-6 border border-slate-100 mt-4">
                             <img src="${plan.qrCode}" class="w-full rounded-2xl border-4 border-white shadow-sm">
                             <p class="mt-4 font-black text-2xl text-indigo-600">${plan.price}</p>
                         </div>
-                        <button onclick="confirmPayment('${planKey}')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs shadow-xl active:scale-95 transition-all">Saya Sudah Bayar</button>
+                        <button onclick="confirmPayment('${planKey}')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs">Saya Sudah Bayar</button>
                     </div>
                 </div>`;
             document.body.insertAdjacentHTML('beforeend', paymentArea);
         }
 
         async function confirmPayment(planKey) {
-            alert("Terima kasih! Admin akan melakukan validasi dan mengaktifkan paket Anda.");
+            alert("Konfirmasi Terkirim! Admin akan segera memproses.");
             document.getElementById('paymentModal').remove();
             await supabase.from('message_logs').insert([{ user_id: currentUser.id, pesan: `REQ_AKTIVASI: ${planKey}` }]);
         }
 
-        // MANAJEMEN CS (REAL-TIME)
         function renderCS() {
             const container = document.getElementById('csList');
-            const list = userProfile.phone_numbers || [];
-            const csData = list.filter(x => x.role === 'cs');
+            const csData = (userProfile.phone_numbers || []).filter(x => x.role === 'cs');
 
             if(csData.length === 0) {
-                container.innerHTML = `<p class="text-center text-[10px] font-bold text-slate-300 uppercase py-8 border-2 border-dashed border-slate-50 rounded-3xl">Belum ada Pasukan CS terdaftar</p>`;
+                container.innerHTML = `<p class="text-center text-[10px] font-bold text-slate-300 uppercase py-8 border-2 border-dashed border-slate-50 rounded-3xl">Belum ada CS</p>`;
                 return;
             }
 
             container.innerHTML = csData.map((m, i) => `
-                <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-md transition-all">
+                <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                     <div>
                         <p class="font-black text-slate-800 text-sm">${m.name}</p>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">${m.phone} • ${m.email}</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">${m.phone} • ${m.email}</p>
                     </div>
-                    <button onclick="deleteCS(${i})" class="w-10 h-10 flex items-center justify-center bg-white text-red-500 rounded-xl border border-red-50 hover:bg-red-50 transition-all shadow-sm">🗑️</button>
+                    <button onclick="deleteCS(${i})" class="text-red-500 w-10 h-10 bg-white rounded-xl border border-red-50">🗑️</button>
                 </div>`).join('');
         }
 
@@ -204,41 +190,21 @@
             const name = document.getElementById('csName').value;
             const email = document.getElementById('csEmail').value;
             const phone = document.getElementById('csPhone').value;
-            
-            if(!name || !email || !phone) return alert("Mohon lengkapi semua kolom CS!");
+            if(!name || !email || !phone) return alert("Isi semua data!");
 
             const newList = [...(userProfile.phone_numbers || []), { name, email, phone, role: 'cs' }];
-            
-            const { error } = await supabase.from('profiles').update({ phone_numbers: newList }).eq('id', currentUser.id);
-            
-            if(!error) {
-                userProfile.phone_numbers = newList; // Update local state
-                renderCS(); // Render ulang list
-                // Bersihkan input
-                document.getElementById('csName').value = '';
-                document.getElementById('csEmail').value = '';
-                document.getElementById('csPhone').value = '';
-            } else {
-                alert("Gagal menambah CS: " + error.message);
-            }
-        }
-
-        async function deleteCS(index) {
-            if(!confirm("Hapus CS ini dari pasukan Anda?")) return;
-            
-            const currentList = userProfile.phone_numbers || [];
-            const newList = currentList.filter((_, i) => i !== index);
-            
             const { error } = await supabase.from('profiles').update({ phone_numbers: newList }).eq('id', currentUser.id);
             
             if(!error) {
                 userProfile.phone_numbers = newList;
                 renderCS();
+                document.getElementById('csName').value = '';
+                document.getElementById('csEmail').value = '';
+                document.getElementById('csPhone').value = '';
             }
         }
 
-        // Jalankan Inisialisasi
-        init();
-    </script>
-</body>
-</html>
+        async function deleteCS(index) {
+            if(!confirm("Hapus CS?")) return;
+            const newList = userProfile.phone_numbers.filter((_, i) => i !== index);
+            const { error } = await supabase.from('profiles').update({ phone_numbers: newList }).eq('id', currentUser.id);
