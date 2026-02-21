@@ -72,21 +72,23 @@
         let userProfile = null;
 
         async function init() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if(!user) { window.location.href = 'auth-system.html'; return; }
+    const { data: { user } } = await supabase.auth.getUser();
+    if(!user) { window.location.href = 'auth-system.html'; return; }
+    
+    currentUser = user; // Masukkan data user ke variabel global
+    
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    userProfile = profile;
 
-            const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-            userProfile = profile;
+    document.getElementById('displayEmail').value = user.email;
+    document.getElementById('username').value = profile.username || '';
+    document.getElementById('statusBadge').innerText = profile.package_type || 'TRIAL';
 
-            document.getElementById('displayEmail').value = user.email;
-            document.getElementById('username').value = profile.username || '';
-            document.getElementById('statusBadge').innerText = profile.package_type || 'TRIAL';
-
-            if(profile.package_type === 'MULTI') {
-                document.getElementById('csSection').classList.remove('hidden');
-                renderCS();
-            }
-        }
+    if(profile.package_type === 'MULTI') {
+        document.getElementById('csSection').classList.remove('hidden');
+        renderCS();
+    }
+}
 
         async function updateProfile() {
     const username = document.getElementById('username').value;
