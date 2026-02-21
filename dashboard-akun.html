@@ -8,25 +8,35 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; }
-        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: #F8FAFC; 
+            color: #1E293B;
+        }
+        .glass-card { 
+            background: white; 
+            border: 1px solid #F1F5F9; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
+        }
+        .animate-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="p-4 md:p-10">
 
-    <div class="max-w-4xl mx-auto space-y-8">
-        <header class="flex justify-between items-center bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+    <div class="max-w-4xl mx-auto space-y-8 animate-in">
+        
+        <header class="glass-card p-8 rounded-[2.5rem] flex justify-between items-center">
             <div>
                 <h1 class="text-xl font-black text-slate-900">WA-Sender PRO 2.5</h1>
                 <div class="flex items-center gap-2 mt-1">
-                    <span id="statusBadge" class="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-black rounded-full uppercase transition-all duration-500">MEMUAT...</span>
+                    <span id="statusBadge" class="px-3 py-1 bg-slate-100 text-slate-400 text-[10px] font-black rounded-full uppercase tracking-widest">Memuat Status...</span>
                 </div>
             </div>
-            <a href="delivery-chat.html" class="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center text-xl hover:scale-110 transition-all shadow-lg">🏠</a>
+            <a href="delivery-chat.html" class="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center text-xl hover:scale-110 transition-all shadow-lg shadow-slate-200">🏠</a>
         </header>
 
-        <section class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100">
+        <section class="glass-card p-10 rounded-[3rem]">
             <h3 class="font-black text-slate-800 mb-8 uppercase tracking-widest text-sm">Informasi Akun</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -35,34 +45,39 @@
                 </div>
                 <div>
                     <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Email (Terkunci)</label>
-                    <input type="text" id="displayEmail" disabled class="w-full p-4 bg-slate-100 border border-slate-100 rounded-2xl font-bold mt-2 text-slate-500">
+                    <input type="text" id="displayEmail" disabled class="w-full p-4 bg-slate-100 border border-slate-100 rounded-2xl font-bold mt-2 text-slate-400 cursor-not-allowed">
                 </div>
             </div>
-            <button onclick="updateProfile()" id="btnUpdate" class="mt-8 px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs shadow-xl active:scale-95 transition-all disabled:opacity-50">Simpan Profil</button>
+            <button onclick="updateProfile()" id="btnUpdate" class="mt-8 px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs shadow-xl active:scale-95 transition-all">Simpan Profil</button>
         </section>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div onclick="selectPlan('PRO')" class="bg-white p-8 rounded-[2.5rem] border border-slate-100 cursor-pointer hover:border-indigo-500 transition-all group">
+            <div onclick="selectPlan('PRO')" class="glass-card p-8 rounded-[2.5rem] cursor-pointer hover:border-indigo-500 transition-all group border-2 border-transparent">
                 <h4 class="font-black text-slate-900 group-hover:text-indigo-600">Paket PRO</h4>
                 <p class="text-[10px] font-bold text-slate-400 uppercase">Single User / Perorangan</p>
                 <p class="mt-4 text-xl font-black text-indigo-600">Rp 150.000 <span class="text-xs text-slate-400">/bulan</span></p>
             </div>
-            <div onclick="selectPlan('MULTI')" class="bg-white p-8 rounded-[2.5rem] border border-slate-100 cursor-pointer hover:border-indigo-500 transition-all group">
+            <div onclick="selectPlan('MULTI')" class="glass-card p-8 rounded-[2.5rem] cursor-pointer hover:border-indigo-500 transition-all group border-2 border-transparent">
                 <h4 class="font-black text-slate-900 group-hover:text-indigo-600">Paket MULTI</h4>
                 <p class="text-[10px] font-bold text-slate-400 uppercase">Team / Unlimited CS</p>
                 <p class="mt-4 text-xl font-black text-indigo-600">Rp 350.000 <span class="text-xs text-slate-400">/bulan</span></p>
             </div>
         </div>
 
-        <section id="csSection" class="hidden animate-fade-in bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100">
-            <h3 class="font-black text-slate-800 mb-8 uppercase tracking-widest text-sm">Manajemen Pasukan CS</h3>
-            <div class="flex flex-col md:flex-row gap-4 mb-8">
-                <input type="text" id="csName" placeholder="Nama CS" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500">
-                <input type="email" id="csEmail" placeholder="Email CS" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500">
-                <input type="text" id="csPhone" placeholder="Nomor WA (62...)" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500">
-                <button onclick="addCS()" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] active:scale-95 transition-all shadow-lg">+ Tambah</button>
+        <section id="csSection" class="hidden glass-card p-10 rounded-[3rem] border-2 border-indigo-50 shadow-sm">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="font-black text-slate-800 uppercase tracking-widest text-sm italic">Manajemen Pasukan CS</h3>
+                <span class="px-3 py-1 bg-indigo-100 text-indigo-600 text-[9px] font-black rounded-full uppercase">Fitur Multi Aktif</span>
             </div>
-            <div id="csList" class="space-y-4"></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <input type="text" id="csName" placeholder="Nama CS" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-semibold">
+                <input type="email" id="csEmail" placeholder="Email CS" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-semibold">
+                <input type="text" id="csPhone" placeholder="Nomor WA (62...)" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-semibold">
+            </div>
+            <button onclick="addCS()" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] active:scale-95 transition-all shadow-lg">+ Tambah Pasukan</button>
+            
+            <div id="csList" class="mt-8 space-y-4">
+                </div>
         </section>
     </div>
 
@@ -95,19 +110,18 @@
                 userProfile = profile;
                 document.getElementById('username').value = profile.username || '';
                 
-                // Standarisasi Status Paket
                 const pkg = (profile.package_type || 'TRIAL').toUpperCase();
                 const badge = document.getElementById('statusBadge');
                 badge.innerText = pkg;
 
-                // Update Style Badge
+                // UI Styling berdasarkan paket
                 if (pkg === 'TRIAL') {
-                    badge.className = "px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-full uppercase";
+                    badge.className = "px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-full uppercase tracking-widest shadow-sm";
                 } else {
-                    badge.className = "px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full uppercase";
+                    badge.className = "px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full uppercase tracking-widest shadow-sm";
                 }
 
-                // Tampilkan Manajemen CS jika MULTI
+                // Tampilkan Manajemen CS hanya jika paket MULTI
                 const csSection = document.getElementById('csSection');
                 if(pkg === 'MULTI') {
                     csSection.classList.remove('hidden');
@@ -133,38 +147,15 @@
                 btn.classList.replace('bg-slate-900', 'bg-emerald-600');
                 userProfile.username = user_name;
                 setTimeout(() => {
-                    btn.innerText = "Simpan Profil";
+                    btn.innerText = "SIMPAN PROFIL";
                     btn.classList.replace('bg-emerald-600', 'bg-slate-900');
                     btn.disabled = false;
                 }, 2000);
             } else {
                 alert("Gagal: " + error.message);
-                btn.innerText = "Simpan Profil";
+                btn.innerText = "SIMPAN PROFIL";
                 btn.disabled = false;
             }
-        }
-
-        function selectPlan(planKey) {
-            const plan = pricing[planKey];
-            const paymentArea = `
-                <div id="paymentModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 text-center animate-fade-in">
-                    <div class="bg-white max-w-sm w-full rounded-[3rem] p-10 relative shadow-2xl">
-                        <button onclick="document.getElementById('paymentModal').remove()" class="absolute right-6 top-6 text-slate-300 hover:text-red-500 text-xl">✕</button>
-                        <h2 class="font-black text-xl mb-2">Aktivasi Paket ${plan.name}</h2>
-                        <div class="bg-slate-50 p-4 rounded-3xl mb-6 border border-slate-100 mt-4">
-                            <img src="${plan.qrCode}" class="w-full rounded-2xl border-4 border-white shadow-sm">
-                            <p class="mt-4 font-black text-2xl text-indigo-600">${plan.price}</p>
-                        </div>
-                        <button onclick="confirmPayment('${planKey}')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs">Saya Sudah Bayar</button>
-                    </div>
-                </div>`;
-            document.body.insertAdjacentHTML('beforeend', paymentArea);
-        }
-
-        async function confirmPayment(planKey) {
-            alert("Konfirmasi Terkirim! Admin akan segera memproses.");
-            document.getElementById('paymentModal').remove();
-            await supabase.from('message_logs').insert([{ user_id: currentUser.id, pesan: `REQ_AKTIVASI: ${planKey}` }]);
         }
 
         function renderCS() {
@@ -172,17 +163,17 @@
             const csData = (userProfile.phone_numbers || []).filter(x => x.role === 'cs');
 
             if(csData.length === 0) {
-                container.innerHTML = `<p class="text-center text-[10px] font-bold text-slate-300 uppercase py-8 border-2 border-dashed border-slate-50 rounded-3xl">Belum ada CS</p>`;
+                container.innerHTML = `<p class="text-center text-[10px] font-bold text-slate-300 uppercase py-8 border-2 border-dashed border-slate-50 rounded-3xl tracking-[0.2em]">Belum ada Pasukan CS</p>`;
                 return;
             }
 
             container.innerHTML = csData.map((m, i) => `
-                <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                <div class="flex justify-between items-center p-5 bg-white rounded-2xl border border-slate-100 hover:shadow-md transition-all">
                     <div>
                         <p class="font-black text-slate-800 text-sm">${m.name}</p>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">${m.phone} • ${m.email}</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">${m.phone} • ${m.email}</p>
                     </div>
-                    <button onclick="deleteCS(${i})" class="text-red-500 w-10 h-10 bg-white rounded-xl border border-red-50">🗑️</button>
+                    <button onclick="deleteCS(${i})" class="w-10 h-10 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all flex items-center justify-center font-bold shadow-sm">✕</button>
                 </div>`).join('');
         }
 
@@ -201,10 +192,45 @@
                 document.getElementById('csName').value = '';
                 document.getElementById('csEmail').value = '';
                 document.getElementById('csPhone').value = '';
+            } else {
+                alert("Gagal: " + error.message);
             }
         }
 
         async function deleteCS(index) {
-            if(!confirm("Hapus CS?")) return;
+            if(!confirm("Hapus CS ini?")) return;
             const newList = userProfile.phone_numbers.filter((_, i) => i !== index);
             const { error } = await supabase.from('profiles').update({ phone_numbers: newList }).eq('id', currentUser.id);
+            if(!error) {
+                userProfile.phone_numbers = newList;
+                renderCS();
+            }
+        }
+
+        function selectPlan(planKey) {
+            const plan = pricing[planKey];
+            const paymentArea = `
+                <div id="paymentModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 text-center animate-in">
+                    <div class="bg-white max-w-sm w-full rounded-[3rem] p-10 relative shadow-2xl">
+                        <button onclick="document.getElementById('paymentModal').remove()" class="absolute right-6 top-6 text-slate-300 hover:text-red-500 text-xl font-bold">✕</button>
+                        <h2 class="font-black text-xl mb-2">Aktivasi Paket ${plan.name}</h2>
+                        <div class="bg-slate-50 p-4 rounded-3xl mb-6 border border-slate-100 mt-4">
+                            <img src="${plan.qrCode}" class="w-full rounded-2xl border-4 border-white shadow-sm">
+                            <p class="mt-4 font-black text-2xl text-indigo-600">${plan.price}</p>
+                        </div>
+                        <button onclick="confirmPayment('${planKey}')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs">Saya Sudah Bayar</button>
+                    </div>
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', paymentArea);
+        }
+
+        async function confirmPayment(planKey) {
+            alert("Konfirmasi Terkirim! Admin akan memproses aktivasi Anda.");
+            document.getElementById('paymentModal').remove();
+            await supabase.from('message_logs').insert([{ user_id: currentUser.id, pesan: `REQ_AKTIVASI: ${planKey}` }]);
+        }
+
+        init();
+    </script>
+</body>
+</html>
