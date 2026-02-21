@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Akun - WA-Sender PRO 2.5</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div class="max-w-4xl mx-auto space-y-8">
+        <header class="flex justify-between items-center bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+            <div>
+                <h1 class="text-xl font-black text-slate-900">WA-Sender PRO 2.5</h1>
+                <div class="flex items-center gap-2 mt-1">
+                    <span id="statusBadge" class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-full uppercase">TRIAL</span>
+                </div>
+            </div>
+            <a href="delivery-chat.html" class="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center text-xl hover:scale-110 transition-all">🏠</a>
+        </header>
+
+        <section class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100">
+            <h3 class="font-black text-slate-800 mb-8 uppercase tracking-widest text-sm">Informasi Akun</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Username</label>
+                    <input type="text" id="username" placeholder="Buat Username" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold mt-2">
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Email (Terkunci)</label>
+                    <input type="text" id="displayEmail" disabled class="w-full p-4 bg-slate-100 border border-slate-100 rounded-2xl font-bold mt-2 text-slate-500">
+                </div>
+            </div>
+            <button onclick="updateProfile()" class="mt-8 px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs shadow-xl">Simpan Profil</button>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div onclick="selectPlan('PRO')" class="bg-white p-8 rounded-[2.5rem] border-2 border-transparent hover:border-indigo-600 cursor-pointer transition-all shadow-sm">
+                <h4 class="font-black text-xl mb-2">Paket PRO</h4>
+                <p class="text-xs text-slate-400 font-bold uppercase mb-6">Single User / Perorangan</p>
+                <div class="text-2xl font-black text-indigo-600">Rp 150.000<span class="text-xs text-slate-400">/bulan</span></div>
+            </div>
+            <div onclick="selectPlan('MULTI')" class="bg-white p-8 rounded-[2.5rem] border-2 border-transparent hover:border-indigo-600 cursor-pointer transition-all shadow-sm">
+                <h4 class="font-black text-xl mb-2">Paket MULTI</h4>
+                <p class="text-xs text-slate-400 font-bold uppercase mb-6">Team / Unlimited CS</p>
+                <div class="text-2xl font-black text-indigo-600">Rp 350.000<span class="text-xs text-slate-400">/bulan</span></div>
+            </div>
+        </section>
+
+        <section id="csSection" class="hidden bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100">
+            <h3 class="font-black text-slate-800 mb-8 uppercase tracking-widest text-sm">Manajemen Pasukan CS</h3>
+            <div class="flex flex-col md:flex-row gap-4 mb-8">
+                <input type="text" id="csName" placeholder="Nama CS" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none">
+                <input type="email" id="csEmail" placeholder="Email CS" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none">
+                <input type="text" id="csPhone" placeholder="Nomor WA" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none">
+                <button onclick="addCS()" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px]">+ Tambah</button>
+            </div>
+            <div id="csList" class="space-y-4"></div>
+        </section>
+    </div>
+
+    <script>
+        const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
+        const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+        let userProfile = null;
+
+        async function init() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if(!user) { window.location.href = 'auth-system.html'; return; }
+
+            const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+            userProfile = profile;
+
+            document.getElementById('displayEmail').value = user.email;
+            document.getElementById('username').value = profile.username || '';
+            document.getElementById('statusBadge').innerText = profile.package_type || 'TRIAL';
+
+            if(profile.package_type === 'MULTI') {
+                document.getElementById('csSection').classList.remove('hidden');
+                renderCS();
+            }
+        }
+
+        async function updateProfile() {
+            const username = document.getElementById('username').value;
+            const { error } = await supabase.from('profiles').update({ username }).eq('id', userProfile.id);
+            if(!error) alert("Profil Diperbarui!");
+        }
+
+        async function addCS() {
+            const name = document.getElementById('csName').value;
+            const email = document.getElementById('csEmail').value;
+            const number = document.getElementById('csPhone').value;
+
+            const newList = [...(userProfile.phone_numbers || []), { name, email, number, role: 'cs' }];
+            const { error } = await supabase.from('profiles').update({ phone_numbers: newList }).eq('id', userProfile.id);
+            if(!error) location.reload();
+        }
+
+        function renderCS() {
+            const list = userProfile.phone_numbers || [];
+            document.getElementById('csList').innerHTML = list.filter(x => x.role === 'cs').map((m, i) => `
+                <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div>
+                        <p class="font-black text-sm">${m.name} (${m.number})</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">${m.email}</p>
+                    </div>
+                    <button onclick="deleteCS(${i})" class="text-red-500 font-bold text-xs uppercase">Hapus</button>
+                </div>
+            `).join('');
+        }
+
+        init();
+    </script>
+</body>
+</html>
