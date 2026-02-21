@@ -90,28 +90,32 @@
     }
 }
 
-        async function updateProfile() {
-    const username = document.getElementById('username').value;
+       async function updateProfile() {
+    const user_name = document.getElementById('username').value;
     const btn = document.querySelector('button[onclick="updateProfile()"]');
     
-    if(!username) return alert("Username tidak boleh kosong!");
+    if(!user_name) return alert("Username wajib diisi!");
     
-    btn.innerText = "Menyimpan...";
+    btn.innerText = "MENYIMPAN...";
     btn.disabled = true;
 
     try {
-        // Menggunakan currentUser.id yang didapat dari auth
         const { error } = await supabase
             .from('profiles')
-            .update({ username: username })
+            .update({ 
+                username: user_name // Mengupdate kolom username
+            })
             .eq('id', currentUser.id);
 
         if (error) throw error;
-        alert("Profil Berhasil Diperbarui!");
+        alert("Berhasil! Username '" + user_name + "' telah disimpan.");
+        
+        // Update tampilan badge status secara instan
+        document.getElementById('statusBadge').innerText = userProfile.package_type || 'TRIAL';
     } catch (e) {
-        alert("Gagal menyimpan: " + e.message);
+        alert("Gagal: " + e.message);
     } finally {
-        btn.innerText = "Simpan Profil";
+        btn.innerText = "SIMPAN PROFIL";
         btn.disabled = false;
     }
 }
