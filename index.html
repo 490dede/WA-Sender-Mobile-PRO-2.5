@@ -318,6 +318,11 @@
             `).join('');
         }
 
+        function togglePass() {
+    const p = document.getElementById('password');
+    p.type = p.type === 'password' ? 'text' : 'password';
+}
+
         function toggleProfile() {
             const modal = document.getElementById('profileModal');
             const panel = document.getElementById('profilePanel');
