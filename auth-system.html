@@ -1,72 +1,22 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - WA-Sender PRO 2.5</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; }
-    </style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-6">
+<div class="relative group">
+    <input type="password" id="password" placeholder="Password" 
+           class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold text-sm pr-12">
+    <button type="button" onclick="togglePassword()" 
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors">
+        <span id="eyeIcon" class="text-xl">👁️</span>
+    </button>
+</div>
 
-    <div class="w-full max-w-md bg-white p-10 rounded-[3rem] shadow-xl border border-slate-100">
-        <div class="text-center mb-10">
-            <h1 class="text-2xl font-black text-slate-900 mb-2">WA-Sender PRO 2.5</h1>
-            <p id="formStatus" class="text-xs font-bold text-slate-400 uppercase tracking-widest">Silakan Masuk ke Akun Anda</p>
-        </div>
-
-        <div class="space-y-4">
-            <input type="email" id="email" placeholder="Alamat Email" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold text-sm">
-            <input type="password" id="password" placeholder="Password" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold text-sm">
-            
-            <button onclick="handleAuth('login')" id="btnLogin" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs shadow-lg shadow-indigo-100">Masuk Sekarang</button>
-            
-            <div class="relative py-4">
-                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
-                <div class="relative flex justify-center text-[10px] uppercase font-black text-slate-300"><span class="bg-white px-2">Atau</span></div>
-            </div>
-
-            <button onclick="handleAuth('signup')" id="btnSignup" class="w-full py-4 border-2 border-slate-100 text-slate-400 rounded-2xl font-black uppercase text-xs hover:bg-slate-50 transition-all">Daftar Akun Baru</button>
-        </div>
-    </div>
-
-    <script>
-        const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
-        const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
-        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
-
-        async function handleAuth(type) {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            if(!email || !password) return alert("Isi email dan password!");
-
-            const btn = type === 'login' ? document.getElementById('btnLogin') : document.getElementById('btnSignup');
-            btn.innerText = "Memproses...";
-            btn.disabled = true;
-
-            try {
-                if(type === 'signup') {
-                    const { data, error } = await supabase.auth.signUp({ email, password });
-                    if(error) throw error;
-                    alert("Pendaftaran Berhasil! Profil otomatis dibuat sebagai TRIAL.");
-                    // Profil otomatis dibuat via Trigger Database (atau kita buat manual di sini jika belum ada trigger)
-                    await supabase.from('profiles').insert([{ id: data.user.id, email: email, package_type: 'TRIAL', role: 'owner' }]);
-                } else {
-                    const { error } = await supabase.auth.signInWithPassword({ email, password });
-                    if(error) throw error;
-                }
-                window.location.href = 'dashboard-akun.html';
-            } catch (e) {
-                alert(e.message);
-            } finally {
-                btn.innerText = type === 'login' ? "Masuk Sekarang" : "Daftar Akun Baru";
-                btn.disabled = false;
-            }
-        }
-    </script>
-</body>
-</html>
+<script>
+function togglePassword() {
+    const passInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+    if (passInput.type === 'password') {
+        passInput.type = 'text';
+        eyeIcon.innerText = '🔒';
+    } else {
+        passInput.type = 'password';
+        eyeIcon.innerText = '👁️';
+    }
+}
+</script>
