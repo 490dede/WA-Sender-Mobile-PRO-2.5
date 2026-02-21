@@ -36,17 +36,17 @@
                     <input type="text" id="displayEmail" disabled class="w-full p-4 bg-slate-100 border border-slate-100 rounded-2xl font-bold mt-2 text-slate-500">
                 </div>
             </div>
-            <button onclick="updateProfile()" class="mt-8 px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs shadow-xl">Simpan Profil</button>
+            <button onclick="updateProfile()" id="btnUpdate" class="mt-8 px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs shadow-xl active:scale-95 transition-all">Simpan Profil</button>
         </section>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div onclick="selectPlan('PRO')" class="bg-white p-8 rounded-[2.5rem] border border-slate-100 cursor-pointer hover:border-indigo-500 transition-all">
-                <h4 class="font-black text-slate-900">Paket PRO</h4>
+            <div onclick="selectPlan('PRO')" class="bg-white p-8 rounded-[2.5rem] border border-slate-100 cursor-pointer hover:border-indigo-500 transition-all group">
+                <h4 class="font-black text-slate-900 group-hover:text-indigo-600">Paket PRO</h4>
                 <p class="text-[10px] font-bold text-slate-400 uppercase">Single User / Perorangan</p>
                 <p class="mt-4 text-xl font-black text-indigo-600">Rp 150.000 <span class="text-xs text-slate-400">/bulan</span></p>
             </div>
-            <div onclick="selectPlan('MULTI')" class="bg-white p-8 rounded-[2.5rem] border border-slate-100 cursor-pointer hover:border-indigo-500 transition-all">
-                <h4 class="font-black text-slate-900">Paket MULTI</h4>
+            <div onclick="selectPlan('MULTI')" class="bg-white p-8 rounded-[2.5rem] border border-slate-100 cursor-pointer hover:border-indigo-500 transition-all group">
+                <h4 class="font-black text-slate-900 group-hover:text-indigo-600">Paket MULTI</h4>
                 <p class="text-[10px] font-bold text-slate-400 uppercase">Team / Unlimited CS</p>
                 <p class="mt-4 text-xl font-black text-indigo-600">Rp 350.000 <span class="text-xs text-slate-400">/bulan</span></p>
             </div>
@@ -58,189 +58,129 @@
                 <input type="text" id="csName" placeholder="Nama CS" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none">
                 <input type="email" id="csEmail" placeholder="Email CS" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none">
                 <input type="text" id="csPhone" placeholder="Nomor WA (62...)" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none">
-                <button onclick="addCS()" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px]">+ Tambah</button>
+                <button onclick="addCS()" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] active:scale-95 transition-all">+ Tambah</button>
             </div>
             <div id="csList" class="space-y-4"></div>
         </section>
     </div>
 
     <script>
-        // KONFIGURASI SUPABASE
-const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
-const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
-const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+        const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
+        const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-let currentUser = null;
-let userProfile = null;
+        let currentUser = null;
+        let userProfile = null;
 
-// DATA PRICING
-const pricing = {
-    'PRO': { name: 'PRO (Single)', price: 'Rp 150.000', qrCode: 'https://via.placeholder.com/300?text=SCAN+QRIS+PRO' },
-    'MULTI': { name: 'MULTI (Team)', price: 'Rp 350.000', qrCode: 'https://via.placeholder.com/300?text=SCAN+QRIS+MULTI' }
-};
+        const pricing = {
+            'PRO': { name: 'PRO', price: 'Rp 150.000', qrCode: 'https://via.placeholder.com/300?text=QRIS+PRO' },
+            'MULTI': { name: 'MULTI USER', price: 'Rp 350.000', qrCode: 'https://via.placeholder.com/300?text=QRIS+MULTI' }
+        };
 
-// INISIALISASI HALAMAN (DIPERBAIKI)
-async function init() {
-    // 1. Ambil Session User
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-        window.location.href = 'auth-system.html';
-        return;
-    }
+        async function init() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if(!session) { window.location.href = 'auth-system.html'; return; }
+            
+            currentUser = session.user;
+            document.getElementById('displayEmail').value = currentUser.email;
 
-    currentUser = session.user;
+            const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+            
+            if (profile) {
+                userProfile = profile;
+                document.getElementById('username').value = profile.username || '';
+                const pkg = profile.package_type || 'TRIAL';
+                document.getElementById('statusBadge').innerText = pkg;
 
-    // 2. Ambil Profil dari Database
-    const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUser.id)
-        .single();
+                if(pkg !== 'TRIAL') {
+                    document.getElementById('statusBadge').className = "px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full uppercase";
+                }
 
-    if (error) {
-        console.error("Error Profil:", error);
-    } else {
-        userProfile = profile;
-        
-        // 3. Tempel data ke layar (MENGISI FIELD YANG KOSONG)
-        document.getElementById('displayEmail').value = currentUser.email;
-        document.getElementById('username').value = profile.username || '';
-        document.getElementById('statusBadge').innerText = profile.package_type || 'TRIAL';
-
-        // Ganti warna badge jika bukan TRIAL
-        if(profile.package_type !== 'TRIAL') {
-            document.getElementById('statusBadge').classList.replace('bg-indigo-50', 'bg-emerald-50');
-            document.getElementById('statusBadge').classList.replace('text-indigo-600', 'text-emerald-600');
+                // Tampilkan CS Section jika paket mengandung kata MULTI
+                if(pkg.includes('MULTI')) {
+                    document.getElementById('csSection').classList.remove('hidden');
+                    renderCS();
+                }
+            }
         }
 
-        // Tampilkan CS Section jika MULTI
-        if(profile.package_type === 'MULTI') {
-            document.getElementById('csSection').classList.remove('hidden');
-            renderCS();
+        async function updateProfile() {
+            const user_name = document.getElementById('username').value;
+            const btn = document.getElementById('btnUpdate');
+            
+            if(!user_name) return alert("Username wajib diisi!");
+            btn.innerText = "MENYIMPAN...";
+            btn.disabled = true;
+
+            const { error } = await supabase.from('profiles').update({ username: user_name }).eq('id', currentUser.id);
+
+            if (!error) {
+                alert("Profil diperbarui!");
+                location.reload();
+            } else {
+                alert("Gagal: " + error.message);
+            }
+            btn.innerText = "SIMPAN PROFIL";
+            btn.disabled = false;
         }
-    }
-}
 
-// UPDATE PROFIL (DIPERBAIKI)
-async function updateProfile() {
-    const user_name = document.getElementById('username').value;
-    const btn = document.querySelector('button[onclick="updateProfile()"]');
-    
-    if(!user_name) return alert("Username wajib diisi!");
-    
-    btn.innerText = "MENYIMPAN...";
-    btn.disabled = true;
+        function selectPlan(planKey) {
+            const plan = pricing[planKey];
+            const paymentArea = `
+                <div id="paymentModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 text-center">
+                    <div class="bg-white max-w-sm w-full rounded-[3rem] p-10 relative shadow-2xl animate-bounce-in">
+                        <button onclick="document.getElementById('paymentModal').remove()" class="absolute right-6 top-6 text-slate-300 hover:text-red-500 text-xl">✕</button>
+                        <h2 class="font-black text-xl mb-2">Aktivasi ${plan.name}</h2>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-6">Scan QRIS untuk Upgrade</p>
+                        <div class="bg-slate-50 p-4 rounded-3xl mb-6 border border-slate-100">
+                            <img src="${plan.qrCode}" class="w-full rounded-2xl">
+                            <p class="mt-4 font-black text-2xl text-indigo-600">${plan.price}</p>
+                        </div>
+                        <button onclick="confirmPayment('${planKey}')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs">Saya Sudah Bayar</button>
+                    </div>
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', paymentArea);
+        }
 
-    try {
-        const { error } = await supabase
-            .from('profiles')
-            .update({ username: user_name })
-            .eq('id', currentUser.id);
+        async function confirmPayment(planKey) {
+            alert("Konfirmasi terkirim ke Admin!");
+            document.getElementById('paymentModal').remove();
+            await supabase.from('message_logs').insert([{ user_id: currentUser.id, pesan: `UPGRADE: ${planKey}` }]);
+        }
 
-        if (error) throw error;
-        alert("Username '" + user_name + "' Berhasil disimpan!");
-        
-        // Update local data agar tidak perlu reload berat
-        userProfile.username = user_name;
-    } catch (e) {
-        alert("Gagal: " + e.message);
-    } finally {
-        btn.innerText = "SIMPAN PROFIL";
-        btn.disabled = false;
-    }
-}
+        function renderCS() {
+            const container = document.getElementById('csList');
+            const list = userProfile.phone_numbers || [];
+            const csData = list.filter(x => x.role === 'cs');
 
-// SISTEM PEMBAYARAN QRIS (TETAP)
-function selectPlan(planKey) {
-    const plan = pricing[planKey];
-    const paymentArea = `
-        <div id="paymentModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 text-center">
-            <div class="bg-white max-w-sm w-full rounded-[3rem] p-10 relative shadow-2xl animate-in fade-in zoom-in duration-300">
-                <button onclick="document.getElementById('paymentModal').remove()" class="absolute right-6 top-6 text-slate-300 hover:text-red-500 text-xl">✕</button>
-                <h2 class="font-black text-xl mb-2 text-slate-900">Aktivasi Paket ${plan.name}</h2>
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-6 tracking-widest">Silakan Scan QRIS</p>
-                <div class="bg-slate-50 p-4 rounded-3xl mb-6">
-                    <img src="${plan.qrCode}" alt="QRIS" class="w-full rounded-2xl border-4 border-white">
-                    <p class="mt-4 font-black text-2xl text-indigo-600">${plan.price}</p>
-                </div>
-                <button onclick="confirmPayment('${planKey}')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs shadow-xl">Saya Sudah Bayar</button>
-            </div>
-        </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', paymentArea);
-}
+            if(csData.length === 0) {
+                container.innerHTML = `<p class="text-center text-[10px] font-bold text-slate-300 uppercase py-4">Belum ada Pasukan CS</p>`;
+                return;
+            }
 
-async function confirmPayment(planKey) {
-    alert("Terima kasih! Admin akan segera memproses aktivasi Anda.");
-    document.getElementById('paymentModal').remove();
-    
-    await supabase.from('message_logs').insert([{ 
-        user_id: currentUser.id, 
-        pesan: `MINTA AKTIVASI: ${planKey}` 
-    }]);
-}
+            container.innerHTML = csData.map((m, i) => `
+                <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div>
+                        <p class="font-black text-slate-800 text-sm">${m.name}</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">${m.phone} • ${m.email}</p>
+                    </div>
+                    <button onclick="deleteCS(${i})" class="text-red-500 hover:scale-110 transition-all">🗑️</button>
+                </div>`).join('');
+        }
 
-// MANAJEMEN CS (MENGGUNAKAN NAMA KOLOM YANG BENAR)
-async function addCS() {
-    const name = document.getElementById('csName').value;
-    const email = document.getElementById('csEmail').value;
-    const number = document.getElementById('csPhone').value;
+        async function addCS() {
+            const name = document.getElementById('csName').value;
+            const email = document.getElementById('csEmail').value;
+            const phone = document.getElementById('csPhone').value;
+            if(!name || !email || !phone) return alert("Isi semua data!");
 
-    if(!name || !email || !number) return alert("Lengkapi data CS!");
+            const newList = [...(userProfile.phone_numbers || []), { name, email, phone, role: 'cs' }];
+            const { error } = await supabase.from('profiles').update({ phone_numbers: newList }).eq('id', currentUser.id);
+            
+            if(!error) { location.reload(); }
+        }
 
-    const newList = [...(userProfile.phone_numbers || []), { name, email, phone: number, role: 'cs' }];
-    
-    const { error } = await supabase
-        .from('profiles')
-        .update({ phone_numbers: newList })
-        .eq('id', currentUser.id);
-
-    if(!error) {
-        userProfile.phone_numbers = newList;
-        renderCS();
-        // Reset input
-        document.getElementById('csName').value = '';
-        document.getElementById('csEmail').value = '';
-        document.getElementById('csPhone').value = '';
-    } else {
-        alert("Gagal tambah CS: " + error.message);
-    }
-}
-
-function renderCS() {
-    const list = userProfile.phone_numbers || [];
-    const container = document.getElementById('csList');
-    
-    const csData = list.filter(x => x.role === 'cs');
-    
-    if(csData.length === 0) {
-        container.innerHTML = `<p class="text-center text-[10px] font-bold text-slate-300 uppercase py-4">Belum ada CS terdaftar</p>`;
-        return;
-    }
-
-    container.innerHTML = csData.map((m, i) => `
-        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 shadow-sm">
-            <div>
-                <p class="font-black text-sm text-slate-800">${m.name} (${m.phone})</p>
-                <p class="text-[10px] font-bold text-slate-400 uppercase">${m.email}</p>
-            </div>
-            <button onclick="deleteCS(${i})" class="w-8 h-8 flex items-center justify-center bg-white text-red-500 rounded-xl border border-red-50 hover:bg-red-50 transition-colors shadow-sm">🗑️</button>
-        </div>
-    `).join('');
-}
-
-async function deleteCS(index) {
-    if(!confirm("Hapus CS ini?")) return;
-    
-    const newList = userProfile.phone_numbers.filter((_, i) => i !== index);
-    const { error } = await supabase.from('profiles').update({ phone_numbers: newList }).eq('id', currentUser.id);
-    
-    if(!error) {
-        userProfile.phone_numbers = newList;
-        renderCS();
-    }
-}
-
-// JALANKAN INIT SAAT HALAMAN DIBUKA
-init();
+        init();
+    </script>
+</body>
+</html>
