@@ -39,53 +39,25 @@
             <button onclick="updateProfile()" class="mt-8 px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs shadow-xl">Simpan Profil</button>
         </section>
 
-        // Data Harga & QRIS (Bisa Anda ubah nilainya di sini kapan saja)
-const pricing = {
-    'PRO': { name: 'PRO (Single)', price: 'Rp 5.000', qrCode: 'URL_GAMBAR_QRIS_ANDA' },
-    'MULTI': { name: 'MULTI (Team)', price: 'Rp 20.000', qrCode: 'URL_GAMBAR_QRIS_ANDA' }
-};
-
-function selectPlan(planKey) {
-    const plan = pricing[planKey];
-    
-    // Tampilkan Modal atau Area Pembayaran
-    const paymentArea = `
-        <div id="paymentModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-            <div class="bg-white max-w-sm w-full rounded-[3rem] p-10 text-center relative shadow-2xl">
-                <button onclick="this.parentElement.parentElement.remove()" class="absolute right-6 top-6 text-slate-300 hover:text-red-500 text-xl">✕</button>
-                <h2 class="font-black text-xl mb-2">Aktivasi Paket ${plan.name}</h2>
-                <p class="text-xs font-bold text-slate-400 uppercase mb-6">Silakan Scan & Transfer</p>
-                
-                <div class="bg-slate-50 p-4 rounded-3xl mb-6">
-                    <img src="${plan.qrCode}" alt="QRIS" class="w-full rounded-2xl border-4 border-white shadow-sm">
-                    <p class="mt-4 font-black text-2xl text-indigo-600">${plan.price}</p>
-                </div>
-
-                <button onclick="confirmPayment('${planKey}')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs shadow-xl">Saya Sudah Bayar</button>
-                <p class="mt-4 text-[9px] text-slate-400 leading-relaxed font-bold uppercase">Aktivasi akan dicek manual oleh Admin dalam 1x24 jam.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div onclick="selectPlan('PRO')" class="bg-white p-8 rounded-[2.5rem] border border-slate-100 cursor-pointer hover:border-indigo-500 transition-all">
+                <h4 class="font-black text-slate-900">Paket PRO</h4>
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Single User / Perorangan</p>
+                <p class="mt-4 text-xl font-black text-indigo-600">Rp 150.000 <span class="text-xs text-slate-400">/bulan</span></p>
+            </div>
+            <div onclick="selectPlan('MULTI')" class="bg-white p-8 rounded-[2.5rem] border border-slate-100 cursor-pointer hover:border-indigo-500 transition-all">
+                <h4 class="font-black text-slate-900">Paket MULTI</h4>
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Team / Unlimited CS</p>
+                <p class="mt-4 text-xl font-black text-indigo-600">Rp 350.000 <span class="text-xs text-slate-400">/bulan</span></p>
             </div>
         </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', paymentArea);
-}
-
-async function confirmPayment(planKey) {
-    alert("Konfirmasi terkirim! Admin akan segera memverifikasi pembayaran Anda.");
-    document.getElementById('paymentModal').remove();
-    
-    // Logika Opsional: Simpan log permintaan ke database agar Anda tahu siapa yang minta aktivasi
-    await supabase.from('messages_log').insert([{ 
-        user_id: currentUser.id, 
-        pesan: `MINTA AKTIVASI: ${planKey}` 
-    }]);
-}
 
         <section id="csSection" class="hidden bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100">
             <h3 class="font-black text-slate-800 mb-8 uppercase tracking-widest text-sm">Manajemen Pasukan CS</h3>
             <div class="flex flex-col md:flex-row gap-4 mb-8">
                 <input type="text" id="csName" placeholder="Nama CS" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none">
                 <input type="email" id="csEmail" placeholder="Email CS" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none">
-                <input type="text" id="csPhone" placeholder="Nomor WA" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none">
+                <input type="text" id="csPhone" placeholder="Nomor WA (62...)" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none">
                 <button onclick="addCS()" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px]">+ Tambah</button>
             </div>
             <div id="csList" class="space-y-4"></div>
@@ -93,85 +65,71 @@ async function confirmPayment(planKey) {
     </div>
 
     <script>
+        // KONFIGURASI SUPABASE
         const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
         const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
+        let currentUser = null;
         let userProfile = null;
 
+        // DATA PRICING
+        const pricing = {
+            'PRO': { name: 'PRO (Single)', price: 'Rp 150.000', qrCode: 'https://via.placeholder.com/300?text=SCAN+QRIS+PRO' },
+            'MULTI': { name: 'MULTI (Team)', price: 'Rp 350.000', qrCode: 'https://via.placeholder.com/300?text=SCAN+QRIS+MULTI' }
+        };
+
+        // INISIALISASI HALAMAN
         async function init() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if(!user) { window.location.href = 'auth-system.html'; return; }
-    
-    currentUser = user; // Masukkan data user ke variabel global
-    
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-    userProfile = profile;
+            const { data: { user } } = await supabase.auth.getUser();
+            if(!user) { window.location.href = 'auth-system.html'; return; }
+            
+            currentUser = user;
+            
+            const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+            userProfile = profile;
 
-    document.getElementById('displayEmail').value = user.email;
-    document.getElementById('username').value = profile.username || '';
-    document.getElementById('statusBadge').innerText = profile.package_type || 'TRIAL';
+            document.getElementById('displayEmail').value = user.email;
+            document.getElementById('username').value = profile.username || '';
+            document.getElementById('statusBadge').innerText = profile.package_type || 'TRIAL';
 
-    if(profile.package_type === 'MULTI') {
-        document.getElementById('csSection').classList.remove('hidden');
-        renderCS();
-    }
-}
-
-       async function updateProfile() {
-    const user_name = document.getElementById('username').value;
-    const btn = document.querySelector('button[onclick="updateProfile()"]');
-    
-    if(!user_name) return alert("Username wajib diisi!");
-    
-    btn.innerText = "MENYIMPAN...";
-    btn.disabled = true;
-
-    try {
-        const { error } = await supabase
-            .from('profiles')
-            .update({ 
-                username: user_name // Mengupdate kolom username
-            })
-            .eq('id', currentUser.id);
-
-        if (error) throw error;
-        alert("Berhasil! Username '" + user_name + "' telah disimpan.");
-        
-        // Update tampilan badge status secara instan
-        document.getElementById('statusBadge').innerText = userProfile.package_type || 'TRIAL';
-    } catch (e) {
-        alert("Gagal: " + e.message);
-    } finally {
-        btn.innerText = "SIMPAN PROFIL";
-        btn.disabled = false;
-    }
-}
-
-        async function addCS() {
-            const name = document.getElementById('csName').value;
-            const email = document.getElementById('csEmail').value;
-            const number = document.getElementById('csPhone').value;
-
-            const newList = [...(userProfile.phone_numbers || []), { name, email, number, role: 'cs' }];
-            const { error } = await supabase.from('profiles').update({ phone_numbers: newList }).eq('id', userProfile.id);
-            if(!error) location.reload();
+            if(profile.package_type === 'MULTI') {
+                document.getElementById('csSection').classList.remove('hidden');
+                renderCS();
+            }
         }
 
-        function renderCS() {
-            const list = userProfile.phone_numbers || [];
-            document.getElementById('csList').innerHTML = list.filter(x => x.role === 'cs').map((m, i) => `
-                <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <div>
-                        <p class="font-black text-sm">${m.name} (${m.number})</p>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">${m.email}</p>
-                    </div>
-                    <button onclick="deleteCS(${i})" class="text-red-500 font-bold text-xs uppercase">Hapus</button>
-                </div>
-            `).join('');
+        // UPDATE PROFIL
+        async function updateProfile() {
+            const user_name = document.getElementById('username').value;
+            const btn = document.querySelector('button[onclick="updateProfile()"]');
+            
+            if(!user_name) return alert("Username wajib diisi!");
+            btn.innerText = "MENYIMPAN...";
+            btn.disabled = true;
+
+            try {
+                const { error } = await supabase
+                    .from('profiles')
+                    .update({ username: user_name })
+                    .eq('id', currentUser.id);
+
+                if (error) throw error;
+                alert("Berhasil disimpan!");
+                location.reload();
+            } catch (e) {
+                alert("Gagal: " + e.message);
+            } finally {
+                btn.innerText = "SIMPAN PROFIL";
+                btn.disabled = false;
+            }
         }
 
-        init();
-    </script>
-</body>
-</html>
+        // SISTEM PEMBAYARAN QRIS
+        function selectPlan(planKey) {
+            const plan = pricing[planKey];
+            const paymentArea = `
+                <div id="paymentModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 text-center">
+                    <div class="bg-white max-w-sm w-full rounded-[3rem] p-10 relative shadow-2xl">
+                        <button onclick="document.getElementById('paymentModal').remove()" class="absolute right-6 top-6 text-slate-300 hover:text-red-500 text-xl">✕</button>
+                        <h2 class="font-black text-xl mb-2">Aktivasi Paket
