@@ -3,59 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Akun Baru - WA-Sender PRO 2.5</title>
+    <title>Join Now - Daftar Sekarang</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; }
-        .input-group:focus-within label { color: #6366F1; }
+        .input-focus:focus-within { border-color: #6366F1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.05); }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6">
 
     <div class="max-w-md w-full bg-white rounded-[3rem] shadow-xl border border-slate-100 p-10">
         <header class="text-center mb-10">
-            <h1 class="text-2xl font-black text-slate-900">Bergabung Sekarang</h1>
-            <p class="text-sm font-bold text-slate-400 mt-2 uppercase tracking-widest">Dapatkan Akses Akun TRIAL Gratis</p>
+            <h1 class="text-3xl font-black text-slate-900 leading-tight">JOIN NOW</h1>
+            <h1 class="text-3xl font-black text-slate-900 leading-tight border-b-2 border-slate-900 pb-2 mb-4">JOIN SEKARANG</h1>
+            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">REGISTER FOR A FREE TRIAL ACCOUNT</p>
+            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-loose">DAFTAR AKUN TRIAL GRATIS</p>
         </header>
 
         <form id="regForm" class="space-y-5">
             <input type="hidden" id="userCountry" value="Unknown">
-            <input type="hidden" id="userCurrency" value="USD">
-
-            <div class="input-group">
-                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Username</label>
+            
+            <div class="space-y-1">
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Username / Nama Pengguna</label>
                 <input type="text" id="regUsername" required placeholder="pilih_username" 
-                    class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold mt-1">
+                    class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold input-focus">
             </div>
 
-            <div class="input-group">
-                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Email Resmi</label>
+            <div class="space-y-1">
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Official Email / Email Resmi</label>
                 <input type="email" id="regEmail" required placeholder="anda@email.com" 
-                    class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold mt-1">
+                    class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold input-focus">
             </div>
 
-            <div class="input-group">
-                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">WhatsApp (Gunakan 62...)</label>
+            <div class="space-y-1">
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">WhatsApp Number / Nomor WhatsApp</label>
                 <input type="text" id="regWA" required placeholder="62812345678" 
-                    class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold mt-1">
+                    class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold input-focus">
             </div>
 
-            <div class="input-group">
-                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Password</label>
-                <input type="password" id="regPass" required placeholder="••••••••" 
-                    class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold mt-1">
+            <div class="space-y-1">
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Password / Kata Sandi</label>
+                <div class="relative flex items-center">
+                    <input type="password" id="regPass" required placeholder="••••••••" 
+                        class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold input-focus pr-12">
+                    <button type="button" onclick="togglePass('regPass', 'eyeReg')" class="absolute right-4 text-slate-400 hover:text-indigo-600 transition-colors">
+                        <i id="eyeReg" class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
             </div>
 
-            <button type="submit" id="btnReg" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all mt-4">
-                Buat Akun TRIAL Gratis
+            <button type="submit" id="btnReg" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl active:scale-95 transition-all mt-4">
+                BUAT AKUN TRIAL GRATIS
             </button>
         </form>
 
         <footer class="mt-8 text-center">
-            <p class="text-xs font-bold text-slate-400">Sudah punya akun? 
-                <a href="login.html" class="text-indigo-600 underline">Masuk di sini</a>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                ALREADY HAVE AN ACCOUNT? / SUDAH PUNYA AKUN? 
+                <br>
+                <a href="login.html" class="text-indigo-600 underline">LOGIN HERE / MASUK DI SINI</a>
             </p>
         </footer>
     </div>
@@ -65,29 +74,27 @@
         const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        // --- 1. DETEKSI LOKASI & WILAYAH ---
+        function togglePass(inputId, eyeId) {
+            const input = document.getElementById(inputId);
+            const eye = document.getElementById(eyeId);
+            if (input.type === "password") {
+                input.type = "text";
+                eye.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = "password";
+                eye.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
         async function detectLocation() {
             try {
                 const res = await fetch('http://ip-api.com/json/');
                 const data = await res.json();
-                document.getElementById('userCountry').value = data.countryCode; // ID, US, DE, dll
-                
-                // Set Mata Uang Default
-                if(data.countryCode === 'ID') {
-                    document.getElementById('userCurrency').value = 'IDR';
-                } else if(['AT','BE','CY','EE','FI','FR','DE','GR','IE','IT','LV','LT','LU','MT','NL','PT','SK','SI','ES'].includes(data.countryCode)) {
-                    document.getElementById('userCurrency').value = 'EUR';
-                } else {
-                    document.getElementById('userCurrency').value = 'USD';
-                }
-                console.log("Lokasi Terdeteksi:", data.countryCode);
-            } catch (err) {
-                console.log("Gagal deteksi lokasi, menggunakan default USD");
-            }
+                document.getElementById('userCountry').value = data.countryCode;
+            } catch (err) { console.log("Geo error"); }
         }
         detectLocation();
 
-        // --- 2. LOGIKA PENDAFTARAN & ANTI-DUPLIKASI ---
         document.getElementById('regForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnReg');
@@ -98,51 +105,36 @@
             const country = document.getElementById('userCountry').value;
 
             btn.disabled = true;
-            btn.innerText = "MENGECEK DATA...";
+            btn.innerText = "CHECKING DATA / MENGECEK DATA...";
 
-            // Cek Duplikasi di Tabel Profiles
-            const { data: exist } = await supabase
-                .from('profiles')
-                .select('username, email, whatsapp_number')
-                .or(`username.eq.${user},email.eq.${email},whatsapp_number.eq.${wa}`);
-
+            const { data: exist } = await supabase.from('profiles').select('email, whatsapp_number').or(`email.eq.${email},whatsapp_number.eq.${wa}`);
             if (exist && exist.length > 0) {
-                alert("Pendaftaran Gagal: Username, Email, atau WhatsApp sudah terdaftar!");
+                alert("FAIL: Email or WhatsApp already registered! / GAGAL: Email atau WhatsApp sudah terdaftar!");
                 btn.disabled = false;
-                btn.innerText = "Buat Akun TRIAL Gratis";
+                btn.innerText = "BUAT AKUN TRIAL GRATIS";
                 return;
             }
 
-            // Eksekusi Auth Supabase
-            btn.innerText = "MENCIPTAKAN AKUN...";
             const { data: authData, error: authError } = await supabase.auth.signUp({
-                email: email,
-                password: pass,
-                options: { data: { username: user } }
+                email: email, password: pass, options: { data: { username: user } }
             });
 
             if (authError) {
-                alert("Auth Error: " + authError.message);
+                alert("Error: " + authError.message);
                 btn.disabled = false;
                 return;
             }
 
-            // Simpan ke Tabel Profiles (Otomatis TRIAL)
             const { error: profError } = await supabase.from('profiles').insert([{
-                id: authData.user.id,
-                username: user,
-                email: email,
-                whatsapp_number: wa,
-                package_type: 'TRIAL',
-                role: 'USER',
-                country_origin: country
+                id: authData.user.id, username: user, email: email, whatsapp_number: wa,
+                package_type: 'TRIAL', role: 'USER', country_origin: country
             }]);
 
             if (!profError) {
-                alert("Registrasi Berhasil! Silakan cek email untuk verifikasi atau langsung login.");
+                alert("Registration Successful! / Registrasi Berhasil!");
                 window.location.href = 'login.html';
             } else {
-                alert("Database Error: " + profError.message);
+                alert("DB Error: " + profError.message);
                 btn.disabled = false;
             }
         };
