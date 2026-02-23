@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Broadcast Harga</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0F172A; color: white; }
+        .glass-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; }
+    </style>
+</head>
+<body class="p-6 md:p-12">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-12 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter italic">ADMIN COMMAND CENTER</h1>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.3em] mt-1">Targeted Regional Pricing & Announcement</p>
+            </div>
+            <button onclick="logout()" class="px-6 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl font-bold text-xs uppercase">Logout</button>
+        </header>
+
+        <section class="bg-slate-900/50 border border-white/5 p-10 rounded-[3rem] shadow-2xl">
+            <h3 class="font-black text-indigo-400 mb-8 uppercase text-sm tracking-widest italic border-b border-white/5 pb-4">Buat Pengumuman Harga Baru</h3>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2">Judul Pengumuman</label>
+                    <input type="text" id="title" placeholder="Contoh: Update Harga Langganan 2026" class="w-full p-5 glass-input rounded-2xl outline-none focus:border-indigo-500 font-bold mt-2">
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2">Pesan Utama (Brief)</label>
+                    <textarea id="message" rows="3" placeholder="Tuliskan alasan perubahan atau promo..." class="w-full p-5 glass-input rounded-2xl outline-none focus:border-indigo-500 font-bold mt-2"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                    <div class="p-6 bg-emerald-500/5 border border-emerald-500/10 rounded-[2rem]">
+                        <label class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Harga IDR (Indonesia)</label>
+                        <input type="text" id="price_idr" placeholder="Contoh: 150.000" class="w-full bg-transparent border-b border-emerald-500/20 py-2 outline-none font-black text-xl text-white">
+                    </div>
+                    <div class="p-6 bg-blue-500/5 border border-blue-500/10 rounded-[2rem]">
+                        <label class="text-[9px] font-black text-blue-500 uppercase tracking-widest">Harga EUR (Eropa)</label>
+                        <input type="text" id="price_eur" placeholder="Contoh: 15" class="w-full bg-transparent border-b border-blue-500/20 py-2 outline-none font-black text-xl text-white">
+                    </div>
+                    <div class="p-6 bg-amber-500/5 border border-amber-500/10 rounded-[2rem]">
+                        <label class="text-[9px] font-black text-amber-500 uppercase tracking-widest">Harga USD (USA/Global)</label>
+                        <input type="text" id="price_usd" placeholder="Contoh: 19" class="w-full bg-transparent border-b border-amber-500/20 py-2 outline-none font-black text-xl text-white">
+                    </div>
+                </div>
+
+                <button onclick="postBroadcast()" id="btnPost" class="w-full py-6 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.2em] shadow-2xl shadow-indigo-500/20 transition-all active:scale-95 mt-8">
+                    Publikasikan Ke Seluruh Wilayah
+                </button>
+            </div>
+        </section>
+
+        <div id="historyList" class="mt-12 space-y-4">
+            </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
+        const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+        // Proteksi Admin (Hanya Email Anda)
+        async function checkAdmin() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user || user.email !== 'adeali490@gmail.com') {
+                alert("AKSES DITOLAK: Halaman ini hanya untuk Super Admin.");
+                window.location.href = 'login.html';
+            }
+            loadHistory();
+        }
+        checkAdmin();
+
+        async function postBroadcast() {
+            const btn = document.getElementById('btnPost');
+            const data = {
+                title: document.getElementById('title').value,
+                message: document.getElementById('message').value,
+                price_idr: document.getElementById('price_idr').value,
+                price_eur: document.getElementById('price_eur').value,
+                price_usd: document.getElementById('price_usd').value
+            };
+
+            if(!data.title || !data.price_idr) return alert("Minimal judul dan harga IDR harus diisi!");
+
+            btn.innerText = "MENGIRIM BROADCAST...";
+            btn.disabled = true;
+
+            const { error } = await supabase.from('announcements').insert([data]);
+
+            if(!error) {
+                alert("Pengumuman Terkirim! User akan melihat harga sesuai wilayah mereka.");
+                location.reload();
+            } else {
+                alert("Gagal: " + error.message);
+                btn.disabled = false;
+            }
+        }
+
+        async function loadHistory() {
+            const { data } = await supabase.from('announcements').select('*').order('created_at', { ascending: false });
+            const container = document.getElementById('historyList');
+            
+            if(data) {
+                container.innerHTML = `<h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Riwayat Broadcast</h4>` + 
+                data.map(item => `
+                    <div class="p-6 bg-white/5 border border-white/5 rounded-2xl flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-slate-200">${item.title}</p>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold">IDR: ${item.price_idr} | EUR: ${item.price_eur} | USD: ${item.price_usd}</p>
+                        </div>
+                        <button onclick="deletePost('${item.id}')" class="text-red-500 text-xs font-bold uppercase">Hapus</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function deletePost(id) {
+            if(!confirm("Hapus pengumuman ini?")) return;
+            await supabase.from('announcements').delete().eq('id', id);
+            loadHistory();
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
