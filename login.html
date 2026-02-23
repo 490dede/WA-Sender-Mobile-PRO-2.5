@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - WA-Sender PRO 2.5</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <div class="max-w-md w-full bg-white rounded-[3rem] shadow-xl border border-slate-100 p-10">
+        <header class="text-center mb-10">
+            <h1 class="text-2xl font-black text-slate-900 italic">WA-Sender PRO 2.5</h1>
+            <p class="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-[0.2em]">Selamat Datang Kembali</p>
+        </header>
+
+        <form id="loginForm" class="space-y-6">
+            <div class="input-group">
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Email Terdaftar</label>
+                <input type="email" id="logEmail" required placeholder="anda@email.com" 
+                    class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold mt-1">
+            </div>
+
+            <div class="input-group">
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Password</label>
+                <input type="password" id="logPass" required placeholder="••••••••" 
+                    class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold mt-1">
+            </div>
+
+            <button type="submit" id="btnLogin" class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-indigo-100 active:scale-95 transition-all mt-4">
+                Masuk ke Dashboard
+            </button>
+        </form>
+
+        <footer class="mt-10 text-center border-t border-slate-50 pt-8">
+            <p class="text-xs font-bold text-slate-400 italic">Belum punya akun User? 
+                <a href="register.html" class="text-indigo-600 underline">Daftar Akun TRIAL</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
+        const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnLogin');
+            const email = document.getElementById('logEmail').value;
+            const pass = document.getElementById('logPass').value;
+
+            btn.disabled = true;
+            btn.innerText = "MEMVALIDASI...";
+
+            // 1. Proses Sign In Supabase Auth
+            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: pass
+            });
+
+            if (authError) {
+                alert("Login Gagal: " + authError.message);
+                btn.disabled = false;
+                btn.innerText = "Masuk ke Dashboard";
+                return;
+            }
+
+            // 2. Cek Role di Tabel Profiles
+            const { data: profile, error: profError } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', authData.user.id)
+                .single();
+
+            if (profError || !profile) {
+                alert("Profil tidak ditemukan. Hubungi Admin.");
+                btn.disabled = false;
+                return;
+            }
+
+            // 3. Pengalihan Berdasarkan Role
+            if (profile.role === 'CS') {
+                // Akun Team diarahkan ke Dashboard khusus CS
+                window.location.href = 'dashboard-cs.html';
+            } else {
+                // Akun User (Owner) diarahkan ke Dashboard User
+                window.location.href = 'dashboard-user.html';
+            }
+        };
+
+        // Proteksi: Jika sudah login, langsung lempar ke dashboard yang sesuai
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single();
+                
+                if (profile) {
+                    window.location.href = (profile.role === 'CS') ? 'dashboard-cs.html' : 'dashboard-user.html';
+                }
+            }
+        }
+        checkSession();
+    </script>
+</body>
+</html>
