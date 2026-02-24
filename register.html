@@ -16,51 +16,32 @@
 
     <div class="max-w-md w-full bg-white rounded-[3rem] shadow-2xl border border-slate-100 p-10">
         <header class="text-center mb-10">
-            <h1 class="text-3xl font-black text-slate-900 leading-none italic uppercase">Join Now</h1>
+            <h1 class="text-3xl font-black text-slate-900 italic uppercase">Join Now</h1>
             <div class="w-12 h-[2px] bg-slate-900 mx-auto my-2"></div>
-            <h1 class="text-3xl font-black text-slate-900 leading-none italic uppercase">Join Sekarang</h1>
-            
-            <div class="mt-4 space-y-1">
-                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Register for a Free Trial Account</p>
-                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Daftar Akun Trial Gratis</p>
-            </div>
+            <h1 class="text-3xl font-black text-slate-900 italic uppercase">Join Sekarang</h1>
+            <p class="text-[9px] font-bold text-slate-400 mt-4 uppercase tracking-[0.2em]">Daftar Akun Trial Gratis</p>
         </header>
 
         <form id="regForm" class="space-y-5">
-            <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-500 uppercase ml-2 tracking-widest">Username / Nama Pengguna</label>
-                <input type="text" id="regUser" required placeholder="Ex: budi_wa" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
-            </div>
-
-            <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-500 uppercase ml-2 tracking-widest">Official Email / Email Resmi</label>
-                <input type="email" id="regEmail" required placeholder="budi@gmail.com" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
-            </div>
-
-            <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-500 uppercase ml-2 tracking-widest">WhatsApp Number / Nomor WA (62...)</label>
-                <input type="text" id="regWA" required placeholder="62812xxxx" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
-            </div>
-
-            <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-500 uppercase ml-2 tracking-widest">Create Password / Buat Kata Sandi</label>
-                <div class="relative flex items-center">
-                    <input type="password" id="regPass" required placeholder="••••••••" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all pr-12 text-sm">
-                    <button type="button" onclick="togglePass('regPass', 'eyeReg')" class="absolute right-4 text-slate-400 hover:text-indigo-600 transition-colors">
-                        <i id="eyeReg" class="fa-solid fa-eye"></i>
-                    </button>
-                </div>
+            <input type="text" id="regUser" required placeholder="Username / Nama Pengguna" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
+            <input type="email" id="regEmail" required placeholder="Official Email / Email Resmi" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
+            <input type="text" id="regWA" required placeholder="WhatsApp Number (62...)" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
+            
+            <div class="relative">
+                <input type="password" id="regPass" required placeholder="Create Password / Kata Sandi" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all pr-12 text-sm">
+                <button type="button" onclick="togglePass('regPass', 'eyeReg')" class="absolute right-4 top-4 text-slate-400">
+                    <i id="eyeReg" class="fa-solid fa-eye"></i>
+                </button>
             </div>
 
             <button type="submit" id="btnReg" class="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.15em] shadow-xl active:scale-95 transition-all mt-4 leading-tight text-center">
                 Create Free Trial Account & Login Now <br>
-                <span class="opacity-60 font-medium">Buat Akun Trial Gratis & Login Sekarang</span>
+                <span class="opacity-60 font-medium text-[8px]">Buat Akun Trial Gratis & Login Sekarang</span>
             </button>
         </form>
 
         <footer class="mt-10 text-center pt-6 border-t border-slate-50">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Already have an account? / Sudah punya akun?</p>
-            <a href="login.html" class="text-indigo-600 font-black text-[11px] uppercase underline decoration-2 underline-offset-4">Log In Here / Masuk Disini</a>
+            <a href="login.html" class="text-indigo-600 font-black text-[11px] uppercase underline underline-offset-4">Log In Here / Masuk Disini</a>
         </footer>
     </div>
 
@@ -69,54 +50,54 @@
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        function togglePass(inputId, eyeId) {
-            const input = document.getElementById(inputId);
-            const eye = document.getElementById(eyeId);
-            if (input.type === "password") {
-                input.type = "text";
-                eye.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                input.type = "password";
-                eye.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+        function togglePass(id, eye) {
+            const x = document.getElementById(id);
+            const e = document.getElementById(eye);
+            if (x.type === "password") { x.type = "text"; e.classList.replace('fa-eye', 'fa-eye-slash'); }
+            else { x.type = "password"; e.classList.replace('fa-eye-slash', 'fa-eye'); }
         }
 
         document.getElementById('regForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnReg');
-            const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerText = "PROCESSING...";
+            btn.innerText = "SINKRONISASI DATA...";
 
-            try {
-                // Proses Sign Up
-                const { data, error: authError } = await supabase.auth.signUp({
-                    email: document.getElementById('regEmail').value,
-                    password: document.getElementById('regPass').value
-                });
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPass').value;
+            const username = document.getElementById('regUser').value;
+            const wa = document.getElementById('regWA').value;
 
-                if (authError) throw authError;
+            // 1. Sign Up
+            const { data, error: authError } = await supabase.auth.signUp({ email, password });
 
-                if (data.user) {
-                    // Masukkan data ke Profile
-                    const { error: profError } = await supabase.from('profiles').insert([{
+            if (authError) {
+                alert("Auth Error: " + authError.message);
+                btn.disabled = false;
+                btn.innerHTML = "Create Free Trial Account...<br><span>Buat Akun Trial...</span>";
+                return;
+            }
+
+            if (data.user) {
+                // 2. Insert Profile (Pakai timeout kecil agar Auth selesai dulu)
+                setTimeout(async () => {
+                    const { error: profError } = await supabase.from('profiles').upsert([{
                         id: data.user.id,
-                        username: document.getElementById('regUser').value,
-                        email: document.getElementById('regEmail').value,
-                        whatsapp_number: document.getElementById('regWA').value,
-                        package_type: 'TRIAL',
-                        role: 'USER'
+                        username: username,
+                        email: email,
+                        whatsapp_number: wa,
+                        role: 'USER',
+                        package_type: 'TRIAL'
                     }]);
 
-                    if (profError) throw profError;
-
-                    alert("Registration Successful! Please Log In.\nRegistrasi Berhasil! Silakan Login.");
-                    window.location.href = 'login.html';
-                }
-            } catch (err) {
-                alert("Error: " + err.message);
-                btn.disabled = false;
-                btn.innerHTML = originalText;
+                    if (profError) {
+                        alert("Profile Error: " + profError.message);
+                    } else {
+                        alert("Sukses! Akun Trial Anda Aktif.\nSilakan Login.");
+                        window.location.href = 'login.html';
+                    }
+                    btn.disabled = false;
+                }, 1000);
             }
         };
     </script>
