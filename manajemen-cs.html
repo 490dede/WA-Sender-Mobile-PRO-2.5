@@ -3,182 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Pasukan CS - WA-Sender PRO 2.5</title>
+    <title>Manajemen CS - WA-Sender PRO 2.5</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; color: #1E293B; }
-        .card-cs { background: white; border-radius: 2.5rem; border: 1px solid #F1F5F9; transition: all 0.3s; }
-        .card-cs:hover { border-color: #6366F1; transform: translateY(-3px); }
-        .input-field { background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 1.25rem; padding: 1rem; font-weight: 700; outline: none; width: 100%; transition: 0.2s; }
-        .input-field:focus { border-color: #6366F1; background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.05); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; }
+        .input-field { background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 1.25rem; padding: 1rem; font-weight: 700; outline: none; width: 100%; }
     </style>
 </head>
-<body class="p-4 md:p-10">
-
-    <div class="max-w-5xl mx-auto space-y-8">
-        
-        <header class="flex justify-between items-center bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-            <div class="flex items-center gap-4">
-                <a href="dashboard-user.html" class="w-12 h-12 bg-slate-100 text-slate-900 rounded-2xl flex items-center justify-center text-xl hover:bg-slate-900 hover:text-white transition-all">⬅</a>
-                <div>
-                    <h1 class="text-2xl font-black text-slate-900 italic">Pasukan CS</h1>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kelola Tim & Keamanan Login</p>
-                </div>
-            </div>
-            <div class="hidden md:block px-6 py-2 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">Multi-User Active</div>
+<body class="p-6 md:p-12">
+    <div class="max-w-4xl mx-auto space-y-8">
+        <header class="flex items-center gap-4 bg-white p-8 rounded-[2.5rem] shadow-sm">
+            <a href="dashboard-user.html" class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-xl hover:bg-slate-900 hover:text-white transition-all">⬅</a>
+            <h1 class="text-2xl font-black italic">Pasukan CS</h1>
         </header>
 
-        <section class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100">
-            <h3 class="font-black text-slate-800 mb-8 uppercase tracking-[0.2em] text-xs italic">Daftarkan Anggota Tim Baru</h3>
+        <section class="bg-white p-10 rounded-[3rem] shadow-sm">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Nama Lengkap CS</label>
-                    <input type="text" id="csName" placeholder="Contoh: Budi CS1" class="input-field">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Username CS</label>
-                    <input type="text" id="csUser" placeholder="username_cs_bebas" class="input-field">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Email Login CS (Unik)</label>
-                    <input type="email" id="csEmail" placeholder="cs@perusahaan.com" class="input-field">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">WhatsApp CS (62...)</label>
-                    <input type="text" id="csWA" placeholder="62812xxx" class="input-field">
-                </div>
-                <div class="space-y-2 md:col-span-2">
-                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Password Login CS</label>
-                    <input type="password" id="csPass" placeholder="Tentukan Password CS" class="input-field">
-                </div>
+                <input type="text" id="csUser" placeholder="Username CS" class="input-field">
+                <input type="email" id="csEmail" placeholder="Email CS" class="input-field">
+                <input type="text" id="csWA" placeholder="WA CS (62...)" class="input-field">
+                <input type="password" id="csPass" placeholder="Password CS" class="input-field">
             </div>
-            <button onclick="registerCS()" id="btnRegCS" class="mt-8 px-10 py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all">
-                Daftarkan Pasukan CS
-            </button>
+            <button onclick="registerCS()" id="btnReg" class="mt-8 px-10 py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest shadow-xl shadow-indigo-100 active:scale-95 transition-all">Daftarkan Pasukan CS</button>
         </section>
 
-        <div id="csGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            </div>
+        <div id="csGrid" class="grid grid-cols-1 gap-4"></div>
     </div>
 
     <script>
-        const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
-        const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
+        const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
+        const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        let currentUser = null;
-
-        async function init() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if(!session) return window.location.href = 'login.html';
-            currentUser = session.user;
-
-            // Proteksi: Hanya paket MULTI yang bisa di sini
-            const { data: profile } = await supabase.from('profiles').select('package_type').eq('id', currentUser.id).single();
-            if(!profile.package_type.includes('MULTI')) {
-                alert("Akses Terbatas: Hanya untuk Paket MULTI");
-                window.location.href = 'dashboard-user.html';
-                return;
-            }
-            loadCSList();
-        }
-
         async function registerCS() {
-            const btn = document.getElementById('btnRegCS');
-            const data = {
-                name: document.getElementById('csName').value,
-                user: document.getElementById('csUser').value,
-                email: document.getElementById('csEmail').value,
-                wa: document.getElementById('csWA').value,
-                pass: document.getElementById('csPass').value
-            };
-
-            if(!data.email || !data.pass || !data.wa) return alert("Email, WA, dan Password wajib diisi!");
+            const btn = document.getElementById('btnReg');
+            const { data: { session } } = await supabase.auth.getSession();
+            const email = document.getElementById('csEmail').value;
+            const pass = document.getElementById('csPass').value;
 
             btn.disabled = true;
-            btn.innerText = "MENGECEK INTEGRITAS DATA...";
+            btn.innerText = "Mendaftarkan...";
 
-            // 1. CEK DUPLIKASI GLOBAL (Garis Merah Fitur)
-            const { data: exist } = await supabase
-                .from('profiles')
-                .select('email, whatsapp_number')
-                .or(`email.eq.${data.email},whatsapp_number.eq.${data.wa}`);
+            const { data: authData, error: authError } = await supabase.auth.signUp({ email, password: pass });
+            if(authError) { alert(authError.message); btn.disabled = false; return; }
 
-            if (exist && exist.length > 0) {
-                alert("Gagal: Email atau WhatsApp sudah digunakan oleh pengguna lain!");
-                btn.disabled = false;
-                btn.innerText = "Daftarkan Pasukan CS";
-                return;
-            }
-
-            // 2. DAFTARKAN KE AUTH (SignUp CS)
-            btn.innerText = "MENCIPTAKAN AKSES LOGIN...";
-            const { data: authData, error: authError } = await supabase.auth.signUp({
-                email: data.email,
-                password: data.pass
-            });
-
-            if (authError) {
-                alert("Gagal Mendaftar: " + authError.message);
-                btn.disabled = false;
-                return;
-            }
-
-            // 3. SIMPAN KE PROFILES SEBAGAI ROLE CS
             const { error: profError } = await supabase.from('profiles').insert([{
                 id: authData.user.id,
-                username: data.user,
-                email: data.email,
-                whatsapp_number: data.wa,
+                username: document.getElementById('csUser').value,
+                email: email,
+                whatsapp_number: document.getElementById('csWA').value,
                 role: 'CS',
-                package_type: 'TEAM_MEMBER',
-                added_by: currentUser.id
+                package_type: 'TEAM',
+                added_by: session.user.id
             }]);
 
-            if(!profError) {
-                alert("Pasukan CS Berhasil Didaftarkan!");
-                location.reload();
-            } else {
-                alert("Database Error: " + profError.message);
-                btn.disabled = false;
-            }
+            if(!profError) { alert("CS Berhasil!"); location.reload(); }
         }
 
-        async function loadCSList() {
-            const { data: csList } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('added_by', currentUser.id)
-                .eq('role', 'CS');
-
-            const container = document.getElementById('csGrid');
-            if(csList && csList.length > 0) {
-                container.innerHTML = csList.map(cs => `
-                    <div class="card-cs p-8 flex justify-between items-center">
-                        <div>
-                            <h4 class="font-black text-slate-800 uppercase text-sm">${cs.username}</h4>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mt-1 tracking-tighter">${cs.email} • ${cs.whatsapp_number}</p>
-                        </div>
-                        <div class="flex gap-2">
-                             <button onclick="deleteCS('${cs.id}')" class="w-10 h-10 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all flex items-center justify-center font-bold">✕</button>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                container.innerHTML = `<div class="md:col-span-2 text-center py-20 opacity-30 font-black uppercase tracking-widest text-xs italic">Belum ada tim terdaftar</div>`;
-            }
+        async function loadCS() {
+            const { data: { session } } = await supabase.auth.getSession();
+            const { data: list } = await supabase.from('profiles').select('*').eq('added_by', session.user.id);
+            const grid = document.getElementById('csGrid');
+            grid.innerHTML = list.map(cs => `<div class="p-6 bg-white rounded-2xl border border-slate-100 font-bold">${cs.username} (${cs.email})</div>`).join('');
         }
-
-        async function deleteCS(id) {
-            if(!confirm("Hapus akses login CS ini?")) return;
-            // Catatan: Di Supabase, hapus di tabel profiles akan trigger cascade ke auth jika disetting
-            const { error } = await supabase.from('profiles').delete().eq('id', id);
-            if(!error) location.reload();
-        }
-
-        init();
+        loadCS();
     </script>
 </body>
 </html>
