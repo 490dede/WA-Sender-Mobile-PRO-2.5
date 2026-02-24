@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome Back - Selamat Datang Kembali</title>
+    <title>Login - WA-Sender PRO 2.5</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -18,19 +18,18 @@
     <div class="max-w-md w-full bg-white rounded-[3rem] shadow-xl border border-slate-100 p-10">
         <header class="text-center mb-10">
             <h1 class="text-3xl font-black text-slate-900 leading-tight italic">WA-Sender PRO 2.5</h1>
-            <p class="text-[11px] font-black text-slate-400 mt-2 uppercase tracking-[0.2em] leading-none">WELCOME BACK</p>
-            <p class="text-[11px] font-black text-slate-400 mt-2 uppercase tracking-[0.2em] leading-loose">SELAMAT DATANG KEMBALI</p>
+            <p class="text-[11px] font-black text-slate-400 mt-2 uppercase tracking-[0.2em]">SELAMAT DATANG KEMBALI</p>
         </header>
 
         <form id="loginForm" class="space-y-6">
             <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Registered Email / Email Terdaftar</label>
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2">EMAIL TERDAFTAR</label>
                 <input type="email" id="logEmail" required placeholder="anda@email.com" 
                     class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold input-focus">
             </div>
 
             <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Password / Kata Sandi</label>
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2">PASSWORD</label>
                 <div class="relative flex items-center">
                     <input type="password" id="logPass" required placeholder="••••••••" 
                         class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold input-focus pr-12">
@@ -40,23 +39,21 @@
                 </div>
             </div>
 
-            <button type="submit" id="btnLogin" class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-indigo-100 active:scale-95 transition-all mt-4">
-                MASUK KE DASHBOARD / LOG IN
+            <button type="submit" id="btnLogin" class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-indigo-100 active:scale-95 transition-all">
+                MASUK KE DASHBOARD
             </button>
         </form>
 
-        <footer class="mt-10 text-center border-t border-slate-50 pt-8">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">
-                DON'T HAVE AN ACCOUNT? / BELUM PUNYA AKUN? 
-                <br>
-                <a href="register.html" class="text-indigo-600 underline">REGISTER TRIAL / DAFTAR AKUN TRIAL</a>
+        <footer class="mt-8 text-center">
+            <p class="text-[10px] font-bold text-slate-400">
+                Belum punya akun User? <a href="register.html" class="text-indigo-600 underline">Daftar Akun TRIAL</a>
             </p>
         </footer>
     </div>
 
     <script>
-        const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
-        const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
+        const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
+        const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
         function togglePass(inputId, eyeId) {
@@ -74,27 +71,21 @@
         document.getElementById('loginForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnLogin');
-            const email = document.getElementById('logEmail').value;
-            const pass = document.getElementById('logPass').value;
-
             btn.disabled = true;
-            btn.innerText = "VALIDATING / MEMVALIDASI...";
+            btn.innerText = "VALIDATING...";
 
-            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                email: email, password: pass
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: document.getElementById('logEmail').value,
+                password: document.getElementById('logPass').value
             });
 
-            if (authError) {
-                alert("Login Failed / Login Gagal: " + authError.message);
+            if (error) {
+                alert("Login Gagal: " + error.message);
                 btn.disabled = false;
-                btn.innerText = "MASUK KE DASHBOARD / LOG IN";
-                return;
-            }
-
-            const { data: profile } = await supabase.from('profiles').select('role').eq('id', authData.user.id).single();
-
-            if (profile) {
-                window.location.href = (profile.role === 'CS') ? 'dashboard-cs.html' : 'dashboard-user.html';
+                btn.innerText = "MASUK KE DASHBOARD";
+            } else {
+                const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
+                window.location.href = (profile && profile.role === 'CS') ? 'dashboard-cs.html' : 'dashboard-user.html';
             }
         };
     </script>
