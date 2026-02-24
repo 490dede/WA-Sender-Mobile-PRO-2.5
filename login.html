@@ -10,44 +10,44 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; }
-        .input-focus:focus-within { border-color: #6366F1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.05); }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6">
 
-    <div class="max-w-md w-full bg-white rounded-[3rem] shadow-xl border border-slate-100 p-10">
+    <div class="max-w-md w-full bg-white rounded-[3rem] shadow-2xl border border-slate-100 p-10">
         <header class="text-center mb-10">
-            <h1 class="text-3xl font-black text-slate-900 leading-tight italic">WA-Sender PRO 2.5</h1>
-            <p class="text-[11px] font-black text-slate-400 mt-2 uppercase tracking-[0.2em]">SELAMAT DATANG KEMBALI</p>
+            <h1 class="text-3xl font-black text-slate-900 leading-none italic uppercase">Welcome Back</h1>
+            <div class="w-12 h-[2px] bg-slate-900 mx-auto my-2"></div>
+            <h1 class="text-3xl font-black text-slate-900 leading-none italic uppercase text-indigo-600">Selamat Datang</h1>
+            
+            <p class="text-[9px] font-bold text-slate-400 mt-4 uppercase tracking-[0.3em]">WA-Sender PRO v2.5 Online Access</p>
         </header>
 
         <form id="loginForm" class="space-y-6">
             <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-400 uppercase ml-2">EMAIL TERDAFTAR</label>
-                <input type="email" id="logEmail" required placeholder="anda@email.com" 
-                    class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold input-focus">
+                <label class="text-[10px] font-black text-slate-500 uppercase ml-2 tracking-widest">Registered Email / Email Terdaftar</label>
+                <input type="email" id="logEmail" required placeholder="anda@email.com" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
             </div>
 
             <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-400 uppercase ml-2">PASSWORD</label>
+                <label class="text-[10px] font-black text-slate-500 uppercase ml-2 tracking-widest">Security Password / Kata Sandi</label>
                 <div class="relative flex items-center">
-                    <input type="password" id="logPass" required placeholder="••••••••" 
-                        class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold input-focus pr-12">
+                    <input type="password" id="logPass" required placeholder="••••••••" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all pr-12 text-sm">
                     <button type="button" onclick="togglePass('logPass', 'eyeLog')" class="absolute right-4 text-slate-400 hover:text-indigo-600 transition-colors">
                         <i id="eyeLog" class="fa-solid fa-eye"></i>
                     </button>
                 </div>
             </div>
 
-            <button type="submit" id="btnLogin" class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-indigo-100 active:scale-95 transition-all">
-                MASUK KE DASHBOARD
+            <button type="submit" id="btnLogin" class="w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-indigo-100 active:scale-95 transition-all leading-tight">
+                Log In to Dashboard <br>
+                <span class="opacity-60 font-medium">Masuk Ke Dashboard</span>
             </button>
         </form>
 
-        <footer class="mt-8 text-center">
-            <p class="text-[10px] font-bold text-slate-400">
-                Belum punya akun User? <a href="register.html" class="text-indigo-600 underline">Daftar Akun TRIAL</a>
-            </p>
+        <footer class="mt-10 text-center pt-6 border-t border-slate-50">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Don't have an account? / Belum punya akun?</p>
+            <a href="register.html" class="text-slate-900 font-black text-[11px] uppercase underline decoration-2 underline-offset-4">Create Trial Account / Daftar Akun Trial</a>
         </footer>
     </div>
 
@@ -72,7 +72,7 @@
             e.preventDefault();
             const btn = document.getElementById('btnLogin');
             btn.disabled = true;
-            btn.innerText = "VALIDATING...";
+            btn.innerText = "AUTHENTICATING...";
 
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: document.getElementById('logEmail').value,
@@ -80,12 +80,18 @@
             });
 
             if (error) {
-                alert("Login Gagal: " + error.message);
+                alert("Login Failed: " + error.message);
                 btn.disabled = false;
-                btn.innerText = "MASUK KE DASHBOARD";
+                btn.innerHTML = "Log In to Dashboard <br><span class='opacity-60 font-medium'>Masuk Ke Dashboard</span>";
             } else {
                 const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
-                window.location.href = (profile && profile.role === 'CS') ? 'dashboard-cs.html' : 'dashboard-user.html';
+                if (profile && profile.role === 'CS') {
+                    window.location.href = 'dashboard-cs.html';
+                } else if (profile && profile.role === 'ADMIN') {
+                    window.location.href = 'admin490-master-panel.html';
+                } else {
+                    window.location.href = 'dashboard-user.html';
+                }
             }
         };
     </script>
