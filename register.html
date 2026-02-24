@@ -71,7 +71,7 @@
             e.preventDefault();
             const btn = document.getElementById('btnReg');
             btn.disabled = true;
-            btn.innerText = "PROCESSING...";
+            btn.innerHTML = "CREATING ACCOUNT... / MENDAFTAR...";
 
             const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPass').value;
@@ -79,29 +79,46 @@
             const wa = document.getElementById('regWA').value;
 
             try {
-                // 1. Daftar Akun
-                const { data, error: authError } = await supabase.auth.signUp({ email, password });
+                // 1. Daftar ke Auth
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: email,
+                    password: password
+                });
+
                 if (authError) throw authError;
 
-                if (data.user) {
-                    // 2. Simpan Data Profil (Pastikan RLS sudah mati di Supabase)
-                    const { error: profError } = await supabase.from('profiles').insert([{
-                        id: data.user.id,
-                        username: username,
-                        email: email,
-                        whatsapp_number: wa,
-                        role: 'USER',
-                        package_type: 'TRIAL'
-                    }]);
-                    if (profError) throw profError;
+                if (authData.user) {
+                    // Beri jeda 1 detik untuk memastikan User terdaftar sempurna di sistem Auth
+                    btn.innerHTML = "FINALIZING PROFILE... / MENYIAPKAN PROFIL...";
+                    await new Promise(resolve => setTimeout(resolve, 1000));
 
-                    alert("Success! Please Login.\nBerhasil! Silakan Login.");
+                    // 2. Simpan Data ke Tabel Profiles
+                    const { error: profError } = await supabase
+                        .from('profiles')
+                        .insert([
+                            {
+                                id: authData.user.id,
+                                username: username,
+                                email: email,
+                                whatsapp_number: wa,
+                                role: 'USER',
+                                package_type: 'TRIAL',
+                                expired_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() // Set 3 hari dari sekarang
+                            }
+                        ]);
+
+                    if (profError) {
+                        console.error("Profile Error:", profError);
+                        throw new Error("Gagal menyimpan profil. Namun akun email berhasil terdaftar. Silakan hubungi admin.");
+                    }
+
+                    alert("Registration Successful!\nPendaftaran Berhasil! Silakan Login.");
                     window.location.href = 'login.html';
                 }
             } catch (err) {
-                alert("Error: " + err.message);
+                alert("Registration Error: " + err.message);
                 btn.disabled = false;
-                btn.innerHTML = "Create Account... <br><span>Buat Akun...</span>";
+                btn.innerHTML = "Create Free Trial Account & Login Now <br><span class='opacity-60 font-medium text-[8px]'>Buat Akun Trial Gratis & Login Sekarang</span>";
             }
         };
     </script>
