@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Chat - WA-Sender PRO 2.5</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; color: #1E293B; }
+        .glass-card { background: white; border-radius: 2.5rem; border: 1px solid #F1F5F9; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .input-style { background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 1.5rem; padding: 1.25rem; font-weight: 700; outline: none; width: 100%; transition: 0.3s; }
+        .input-style:focus { border-color: #6366F1; background: white; }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div class="max-w-4xl mx-auto space-y-6">
+        
+        <nav class="flex justify-between items-center bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+            <div class="flex items-center gap-4">
+                <button onclick="goBack()" class="w-10 h-10 bg-slate-100 text-slate-900 rounded-xl flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div>
+                    <h1 class="text-lg font-black text-slate-900 italic">Delivery Chat</h1>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <span data-en="Operator:" data-id="Petugas:">Petugas:</span> 
+                        <span id="opName" class="text-indigo-600">...</span>
+                    </p>
+                </div>
+            </div>
+            <button onclick="toggleLang()" id="langBtn" class="px-5 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-black text-[10px] uppercase tracking-widest border border-indigo-100">
+                Switch to English
+            </button>
+        </nav>
+
+        <main class="glass-card p-8 md:p-12 space-y-8">
+            <header class="border-b border-slate-50 pb-6 text-center">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight" data-en="Send New Message" data-id="Kirim Pesan Baru">Kirim Pesan Baru</h2>
+                <p class="text-xs font-bold text-slate-400 uppercase mt-2 tracking-widest italic" data-en="Safe manual delivery via wa.me" data-id="Pengiriman manual aman via wa.me">Pengiriman manual aman via wa.me</p>
+            </header>
+
+            <div class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest" data-en="Destination Numbers (One per line)" data-id="Nomor Tujuan (Satu per baris)">Nomor Tujuan (Satu per baris)</label>
+                    <textarea id="phoneList" placeholder="62812345678&#10;62898765432" rows="4" class="input-style h-32"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest" data-en="Message Content" data-id="Isi Pesan">Isi Pesan</label>
+                    <textarea id="messageText" placeholder="Halo, ini adalah pesan saya..." rows="5" class="input-style h-40"></textarea>
+                </div>
+
+                <button onclick="processQueue()" id="sendBtn" class="w-full py-6 bg-[#1E293B] text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.3em] shadow-2xl hover:bg-emerald-600 transition-all flex items-center justify-center gap-3 active:scale-95">
+                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                    <span data-en="LAUNCH DELIVERY" data-id="LUNCURKAN PENGIRIMAN">LUNCURKAN PENGIRIMAN</span>
+                </button>
+            </div>
+        </main>
+
+        <section class="glass-card p-8">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-50 pb-4" data-en="Current Session Queue" data-id="Antrean Sesi Ini">Antrean Sesi Ini</h3>
+            <div id="queueContainer" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                <div class="text-center py-6 opacity-20 italic font-bold text-xs" data-en="No active queue" data-id="Tidak ada antrean aktif">Tidak ada antrean aktif</div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
+        const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+        let currentLang = 'id';
+        let userRole = 'USER';
+
+        async function init() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if(!session) return window.location.href = 'login.html';
+
+            const { data: profile } = await supabase.from('profiles').select('username, role').eq('id', session.user.id).single();
+            if(profile) {
+                document.getElementById('opName').innerText = profile.username;
+                userRole = profile.role;
+            }
+            applyLang();
+        }
+
+        // --- LANGUAGE LOGIC ---
+        function toggleLang() {
+            currentLang = (currentLang === 'id') ? 'en' : 'id';
+            document.getElementById('langBtn').innerText = (currentLang === 'id') ? 'Switch to English' : 'Ubah ke Indonesia';
+            applyLang();
+        }
+
+        function applyLang() {
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.innerText = (currentLang === 'id') ? el.getAttribute('data-id') : el.getAttribute('data-en');
+            });
+        }
+
+        // --- DELIVERY LOGIC ---
+        function processQueue() {
+            const rawPhones = document.getElementById('phoneList').value;
+            const msg = encodeURIComponent(document.getElementById('messageText').value);
+            
+            if(!rawPhones || !msg) return alert(currentLang === 'id' ? "Mohon isi nomor dan pesan!" : "Please fill numbers and message!");
+
+            const phones = rawPhones.split('\n').filter(p => p.trim() !== "");
+            const container = document.getElementById('queueContainer');
+            container.innerHTML = ""; // Clear list
+
+            phones.forEach((phone, index) => {
+                const cleanPhone = phone.trim().replace('+', '').replace('-', '');
+                const waLink = `https://wa.me/${cleanPhone}?text=${msg}`;
+                
+                const item = document.createElement('div');
+                item.className = "flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100";
+                item.innerHTML = `
+                    <span class="font-bold text-slate-700 text-xs">${cleanPhone}</span>
+                    <a href="${waLink}" target="_blank" onclick="markDone(this)" class="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all">
+                        ${currentLang === 'id' ? 'Kirim' : 'Send'}
+                    </a>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function markDone(el) {
+            el.innerText = currentLang === 'id' ? 'Selesai' : 'Done';
+            el.className = "px-4 py-2 bg-slate-200 text-slate-500 rounded-xl font-black text-[10px] uppercase tracking-widest pointer-events-none";
+        }
+
+        function goBack() {
+            window.location.href = (userRole === 'CS') ? 'dashboard-cs.html' : 'dashboard-user.html';
+        }
+
+        init();
+    </script>
+</body>
+</html>
