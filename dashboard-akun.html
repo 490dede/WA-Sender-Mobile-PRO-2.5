@@ -3,53 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akun Saya - WA-Sender PRO 2.5</title>
+    <title>My Account - WA-Sender PRO 2.5</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; }
-        .glass-card { background: white; border-radius: 2.5rem; border: 1px solid #F1F5F9; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; color: #1E293B; }
+        .glass-card { background: white; border-radius: 2rem; border: 1px solid #F1F5F9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); z-index: 50; backdrop-filter: blur(4px); }
     </style>
 </head>
-<body class="p-6 md:p-12">
-    <div class="max-w-4xl mx-auto space-y-8">
-        <header class="flex justify-between items-center">
-            <h1 class="text-2xl font-black italic">PENGATURAN AKUN</h1>
-            <a href="dashboard-user.html" class="px-5 py-2 bg-slate-100 rounded-xl font-black text-[10px] uppercase">Kembali</a>
-        </header>
+<body class="p-4 md:p-10">
 
-        <section class="glass-card p-10 space-y-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+        <div class="flex items-center justify-between">
+            <button onclick="window.location.href='dashboard-user.html'" class="p-3 bg-white rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all">
+                <i class="fa-solid fa-arrow-left mr-2"></i> <span class="text-[10px] font-black uppercase italic">Back / Kembali</span>
+            </button>
+            <h2 class="text-xl font-black italic uppercase italic">Account Settings / Pengaturan Akun</h2>
+        </div>
+
+        <div class="glass-card p-8 space-y-6 border-b-4 border-b-indigo-500">
+            <div class="flex items-center gap-6">
+                <div class="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center text-white text-3xl italic font-black shadow-lg">
+                    <span id="initials">...</span>
+                </div>
+                <div>
+                    <h3 id="displayUsername" class="text-2xl font-black italic">...</h3>
+                    <p id="displayEmail" class="text-slate-400 font-bold text-xs uppercase tracking-widest">...</p>
+                    <div id="badgeStatus" class="inline-block mt-2 px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-[9px] font-black uppercase tracking-tighter italic">
+                        TRIAL ACCOUNT
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 border-t border-slate-50">
+                <div>
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">WhatsApp Connection / Koneksi WA</p>
+                    <p id="displayWA" class="font-bold text-slate-700 font-mono text-sm italic">...</p>
+                </div>
+                <div>
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Valid Until / Berlaku Sampai</p>
+                    <p id="displayExpiry" class="font-bold text-red-500 italic text-sm">...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+            <div class="z-10 text-center md:text-left">
+                <h4 class="text-xl font-black uppercase italic italic leading-none">Unlock Pro Features</h4>
+                <div class="h-[1px] w-8 bg-indigo-500 my-1"></div>
+                <h4 class="text-xl font-black uppercase italic italic leading-none text-indigo-400">Buka Fitur Pro</h4>
+                <p class="text-[10px] font-medium text-slate-400 mt-2 uppercase tracking-widest">Enjoy broadcast limits and management tools / Nikmati limit broadcast dan alat manajemen.</p>
+            </div>
+            <button onclick="openModal()" class="z-10 px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-[0.15em] hover:scale-105 active:scale-95 transition-all shadow-lg">
+                Upgrade Now / Upgrade Sekarang
+            </button>
+            <i class="fa-solid fa-crown absolute right-[-20px] bottom-[-20px] text-9xl text-white opacity-5 rotate-12"></i>
+        </div>
+    </div>
+
+    <div id="upgradeModal" class="modal flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-4xl rounded-[3rem] p-8 md:p-12 relative overflow-y-auto max-h-[90vh]">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition-all text-xl">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+            
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-black italic uppercase italic leading-none">Choose Your Plan</h2>
+                <div class="h-[2px] w-12 bg-slate-900 mx-auto my-2"></div>
+                <h2 class="text-3xl font-black italic uppercase italic leading-none text-indigo-600">Pilih Paket Anda</h2>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Username</p>
-                    <h3 id="uName" class="text-xl font-bold">...</h3>
+                <div class="glass-card p-8 border-2 hover:border-indigo-500 transition-all cursor-pointer group" onclick="buyPackage('PRO')">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <span class="text-[10px] font-black bg-slate-100 px-3 py-1 rounded-full uppercase tracking-widest">Personal Use</span>
+                    </div>
+                    <h3 class="text-2xl font-black italic italic uppercase italic">Professional / Pro</h3>
+                    <p class="text-xs text-slate-400 font-bold uppercase mb-4 tracking-tighter italic italic">Individual License / Lisensi Individu</p>
+                    <ul class="space-y-3 text-[11px] font-bold text-slate-600 uppercase italic italic">
+                        <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Unlimited Broadcasts</li>
+                        <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Priority Server Support</li>
+                        <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Lifetime Basic Updates</li>
+                    </ul>
+                    <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-2xl font-black italic italic">Rp 499.000</span>
+                        <span class="text-[9px] font-black text-indigo-600">BUY NOW / BELI</span>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Paket</p>
-                    <h3 id="uPkg" class="text-xl font-bold text-indigo-600">...</h3>
-                </div>
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">WhatsApp</p>
-                    <h3 id="uWA" class="text-xl font-bold">...</h3>
-                </div>
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Masa Aktif</p>
-                    <h3 id="uExp" class="text-xl font-bold text-red-500">...</h3>
-                </div>
-            </div>
-        </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="glass-card p-8 border-2 border-indigo-500">
-                <h4 class="font-black italic text-xl">PRO PLAN</h4>
-                <p class="text-xs text-slate-400 mb-6 font-bold">Fitur Broadcast Tak Terbatas</p>
-                <button onclick="alert('Hubungi Admin untuk Upgrade')" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest">Upgrade ke PRO</button>
-            </div>
-            <div class="glass-card p-8 bg-slate-900 text-white">
-                <h4 class="font-black italic text-xl text-indigo-400">MULTI PLAN</h4>
-                <p class="text-xs text-slate-500 mb-6 font-bold">Fitur Manajemen Tim CS</p>
-                <button onclick="alert('Hubungi Admin untuk Upgrade')" class="w-full py-4 bg-white text-slate-900 rounded-2xl font-black uppercase text-[10px] tracking-widest">Upgrade ke MULTI</button>
+                <div class="glass-card p-8 border-2 hover:border-indigo-500 transition-all cursor-pointer group bg-slate-50 shadow-inner" onclick="buyPackage('MULTI')">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center text-2xl">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <span class="text-[10px] font-black bg-indigo-600 text-white px-3 py-1 rounded-full uppercase tracking-widest">Recommended</span>
+                    </div>
+                    <h3 class="text-2xl font-black italic italic uppercase italic">Multi CS / Business</h3>
+                    <p class="text-xs text-slate-400 font-bold uppercase mb-4 tracking-tighter italic italic">Team License / Lisensi Tim</p>
+                    <ul class="space-y-3 text-[11px] font-bold text-slate-600 uppercase italic italic">
+                        <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i> Everything in Pro Plan</li>
+                        <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i> Manage Unlimited CS Agents</li>
+                        <li><i class="fa-solid fa-check text-indigo-500 mr-2"></i> Dedicated Server Line</li>
+                    </ul>
+                    <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-2xl font-black italic italic">Rp 1.499.000</span>
+                        <span class="text-[9px] font-black text-indigo-600">BUY NOW / BELI</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -59,17 +125,42 @@
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        async function loadProfile() {
+        let currentUser = null;
+
+        async function init() {
             const { data: { session } } = await supabase.auth.getSession();
+            if(!session) return window.location.href = 'login.html';
+
             const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
             if(profile) {
-                document.getElementById('uName').innerText = profile.username;
-                document.getElementById('uPkg').innerText = profile.package_type;
-                document.getElementById('uWA').innerText = profile.whatsapp_number;
-                document.getElementById('uExp').innerText = new Date(profile.expired_at).toLocaleDateString();
+                currentUser = profile;
+                document.getElementById('displayUsername').innerText = profile.username || 'User';
+                document.getElementById('displayEmail').innerText = profile.email;
+                document.getElementById('displayWA').innerText = "+" + profile.whatsapp_number;
+                document.getElementById('initials').innerText = profile.username ? profile.username.substring(0,2).toUpperCase() : 'WA';
+                
+                const badge = document.getElementById('badgeStatus');
+                badge.innerText = (profile.package_type || 'TRIAL') + " ACCOUNT";
+
+                // Format Tanggal
+                if(profile.expired_at) {
+                    const date = new Date(profile.expired_at);
+                    document.getElementById('displayExpiry').innerText = date.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+                }
             }
         }
-        loadProfile();
+
+        function openModal() { document.getElementById('upgradeModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('upgradeModal').style.display = 'none'; }
+
+        function buyPackage(pkgName) {
+            const adminWA = "628123456789"; // GANTI DENGAN NOMOR WA ADMIN ANDA
+            const msg = `Halo Admin, Saya ingin Upgrade ke Paket *${pkgName}*.\n\nDetail Akun:\n- Username: ${currentUser.username}\n- Email: ${currentUser.email}\n- WA: ${currentUser.whatsapp_number}\n\nMohon instruksi pembayarannya.`;
+            const url = `https://wa.me/${adminWA}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        }
+
+        init();
     </script>
 </body>
 </html>
