@@ -10,9 +10,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; color: #1E293B; }
-        .glass-card { background: white; border-radius: 2rem; border: 1px solid #F1F5F9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        /* Modal disembunyikan secara default */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 100; backdrop-filter: blur(8px); }
+        .glass-card { background: white; border-radius: 2rem; border: 1px solid #F1F5F9; }
+        /* Pastikan modal benar-benar tersembunyi di awal */
+        #upgradeModal { display: none; }
+        .modal-active { display: flex !important; }
     </style>
 </head>
 <body class="p-4 md:p-10">
@@ -22,31 +23,32 @@
             <button onclick="window.location.href='dashboard-user.html'" class="p-3 bg-white rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all">
                 <i class="fa-solid fa-arrow-left mr-2"></i> <span class="text-[10px] font-black uppercase italic">Back / Kembali</span>
             </button>
-            <h2 class="text-xl font-black italic uppercase text-slate-900">Account Settings / Pengaturan Akun</h2>
+            <h2 class="text-xl font-black italic uppercase">Account Settings / Pengaturan Akun</h2>
         </div>
 
-        <div class="glass-card p-8 space-y-6 border-b-4 border-b-indigo-500">
+        <div class="glass-card p-8 space-y-8 border-b-4 border-b-indigo-500 shadow-xl">
             <div class="flex items-center gap-6">
-                <div id="avatarBox" class="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center text-white text-3xl italic font-black shadow-lg">
-                    ...
-                </div>
+                <div id="avatarBox" class="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center text-white text-3xl font-black shadow-lg italic">...</div>
                 <div>
-                    <h3 id="displayUsername" class="text-2xl font-black italic uppercase">...</h3>
+                    <h3 id="displayUsername" class="text-2xl font-black italic uppercase text-slate-900">...</h3>
                     <p id="displayEmail" class="text-slate-400 font-bold text-xs uppercase tracking-widest">...</p>
-                    <div id="badgeStatus" class="inline-block mt-2 px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-[9px] font-black uppercase tracking-tighter italic">
-                        FETCHING DATA...
-                    </div>
+                    <div id="badgeStatus" class="inline-block mt-2 px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-[9px] font-black uppercase italic">TRIAL ACCOUNT</div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 border-t border-slate-50">
-                <div class="bg-slate-50 p-4 rounded-2xl">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">WhatsApp Connection / Koneksi WA</p>
-                    <p id="displayWA" class="font-bold text-slate-700 font-mono text-sm italic">...</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">WhatsApp Number / Nomor WA</label>
+                    <div class="relative flex gap-2">
+                        <input type="text" id="inputWA" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-indigo-500 transition-all italic">
+                        <button onclick="saveWA()" id="btnSaveWA" class="px-6 bg-slate-900 text-white rounded-2xl text-[9px] font-black uppercase hover:bg-indigo-600 transition-all">
+                            Save / Simpan
+                        </button>
+                    </div>
                 </div>
-                <div class="bg-slate-50 p-4 rounded-2xl">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Valid Until / Berlaku Sampai</p>
-                    <p id="displayExpiry" class="font-bold text-red-500 italic text-sm">...</p>
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Valid Until / Berlaku Sampai</label>
+                    <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-red-500 text-sm italic" id="displayExpiry">...</div>
                 </div>
             </div>
         </div>
@@ -54,65 +56,53 @@
         <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
             <div class="z-10 text-center md:text-left">
                 <h4 class="text-xl font-black uppercase italic leading-none">Unlock Pro Features</h4>
-                <div class="h-[1px] w-8 bg-indigo-500 my-1 mx-auto md:mx-0"></div>
+                <div class="h-[1px] w-8 bg-indigo-500 my-1"></div>
                 <h4 class="text-xl font-black uppercase italic leading-none text-indigo-400">Buka Fitur Pro</h4>
-                <p class="text-[10px] font-medium text-slate-400 mt-2 uppercase tracking-widest">Upgrade to get full control / Upgrade untuk akses penuh.</p>
             </div>
-            <button onclick="openModal()" class="z-10 px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.15em] hover:bg-indigo-500 active:scale-95 transition-all shadow-xl">
+            <button onclick="openModal()" class="z-10 px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500 active:scale-95 transition-all shadow-xl">
                 Upgrade Now / Upgrade Sekarang
             </button>
             <i class="fa-solid fa-crown absolute right-[-20px] bottom-[-20px] text-9xl text-white opacity-5 rotate-12"></i>
         </div>
     </div>
 
-    <div id="upgradeModal" class="modal flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-4xl rounded-[3rem] p-8 md:p-12 relative overflow-y-auto max-h-[90vh] shadow-inner">
-            <button onclick="closeModal()" class="absolute top-6 right-8 text-slate-300 hover:text-red-500 transition-all text-4xl p-2">
-                <i class="fa-solid fa-times-circle"></i>
+    <div id="upgradeModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[100] items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl rounded-[3rem] p-8 md:p-12 relative overflow-y-auto max-h-[90vh] shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-6 right-8 text-slate-300 hover:text-red-500 transition-all text-5xl">
+                <i class="fa-solid fa-circle-xmark"></i>
             </button>
             
             <div class="text-center mb-10">
-                <h2 class="text-3xl font-black italic uppercase leading-none text-slate-900">Choose Your Plan</h2>
-                <div class="h-[2px] w-12 bg-indigo-600 mx-auto my-2"></div>
-                <h2 class="text-3xl font-black italic uppercase leading-none text-indigo-600">Pilih Paket Anda</h2>
+                <h2 class="text-3xl font-black italic uppercase text-slate-900">Choose Your Plan</h2>
+                <h2 class="text-3xl font-black italic uppercase text-indigo-600">Pilih Paket Anda</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="glass-card p-8 border-2 border-slate-50 hover:border-indigo-500 transition-all cursor-pointer bg-slate-50/50" onclick="buyPackage('PRO')">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg">
-                            <i class="fa-solid fa-bolt"></i>
-                        </div>
-                        <span class="text-[10px] font-black bg-white border border-slate-200 px-3 py-1 rounded-full uppercase tracking-widest text-slate-400">PERSONAL</span>
+                <div class="glass-card p-8 border-2 border-slate-50 hover:border-indigo-500 transition-all cursor-pointer bg-slate-50/50 flex flex-col justify-between" onclick="buyPackage('PRO')">
+                    <div>
+                        <div class="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-lg"><i class="fa-solid fa-bolt"></i></div>
+                        <h3 class="text-2xl font-black italic uppercase">Professional / Pro</h3>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase mb-6 italic">Individual License / Lisensi Individu</p>
                     </div>
-                    <h3 class="text-2xl font-black italic uppercase">Professional / Pro</h3>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-6 tracking-tighter italic">Lisensi Individu</p>
-                    <ul class="space-y-3 text-[11px] font-bold text-slate-600 uppercase italic">
-                        <li><i class="fa-solid fa-circle-check text-green-500 mr-2"></i> Unlimited Broadcasts</li>
-                        <li><i class="fa-solid fa-circle-check text-green-500 mr-2"></i> Priority Support</li>
-                    </ul>
                     <div class="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between">
                         <span class="text-2xl font-black italic">Rp 499.000</span>
-                        <div class="bg-indigo-600 text-white p-2 rounded-xl text-[10px] px-4 font-black">BELI</div>
+                        <div class="bg-indigo-600 text-white p-3 rounded-xl text-[9px] px-5 font-black uppercase text-center leading-tight">
+                            BUY NOW<br><span class="opacity-60">BELI</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="glass-card p-8 border-2 border-slate-50 hover:border-indigo-600 transition-all cursor-pointer bg-slate-900 text-white shadow-2xl" onclick="buyPackage('MULTI')">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="w-12 h-12 bg-indigo-500 text-white rounded-2xl flex items-center justify-center text-2xl shadow-indigo-500/20 shadow-lg">
-                            <i class="fa-solid fa-users"></i>
-                        </div>
-                        <span class="text-[10px] font-black bg-indigo-600 text-white px-3 py-1 rounded-full uppercase tracking-widest">RECOMMENDED</span>
+                <div class="glass-card p-8 border-2 border-slate-50 hover:border-indigo-600 transition-all cursor-pointer bg-slate-900 text-white shadow-2xl flex flex-col justify-between" onclick="buyPackage('MULTI')">
+                    <div>
+                        <div class="w-12 h-12 bg-indigo-500 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-lg shadow-indigo-500/20"><i class="fa-solid fa-users"></i></div>
+                        <h3 class="text-2xl font-black italic uppercase">Multi CS / Business</h3>
+                        <p class="text-[10px] text-indigo-400 font-bold uppercase mb-6 italic">Team License / Lisensi Tim</p>
                     </div>
-                    <h3 class="text-2xl font-black italic uppercase">Multi CS / Business</h3>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-6 tracking-tighter italic text-indigo-400">Lisensi Tim</p>
-                    <ul class="space-y-3 text-[11px] font-bold text-slate-300 uppercase italic">
-                        <li><i class="fa-solid fa-circle-check text-indigo-400 mr-2"></i> Manage Unlimited CS</li>
-                        <li><i class="fa-solid fa-circle-check text-indigo-400 mr-2"></i> Dedicated Server Line</li>
-                    </ul>
                     <div class="mt-8 pt-6 border-t border-slate-700 flex items-center justify-between">
                         <span class="text-2xl font-black italic text-indigo-400">Rp 1.499.000</span>
-                        <div class="bg-white text-slate-900 p-2 rounded-xl text-[10px] px-4 font-black">BELI</div>
+                        <div class="bg-white text-slate-900 p-3 rounded-xl text-[9px] px-5 font-black uppercase text-center leading-tight">
+                            BUY NOW<br><span class="opacity-60">BELI</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -123,23 +113,21 @@
         const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
-
         let currentUser = null;
 
-        async function loadProfile() {
+        async function init() {
             const { data: { session } } = await supabase.auth.getSession();
             if(!session) return window.location.href = 'login.html';
 
             const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
             if(profile) {
                 currentUser = profile;
-                document.getElementById('displayUsername').innerText = profile.username || 'No Name';
+                document.getElementById('displayUsername').innerText = profile.username;
                 document.getElementById('displayEmail').innerText = profile.email;
-                document.getElementById('displayWA').innerText = "+" + (profile.whatsapp_number || '0');
+                document.getElementById('inputWA').value = profile.whatsapp_number;
                 document.getElementById('avatarBox').innerText = (profile.username || 'WA').substring(0,2).toUpperCase();
                 
                 const badge = document.getElementById('badgeStatus');
-                badge.className = `inline-block mt-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter italic ${profile.package_type === 'TRIAL' ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'}`;
                 badge.innerText = (profile.package_type || 'TRIAL') + " ACCOUNT";
 
                 if(profile.expired_at) {
@@ -149,17 +137,45 @@
             }
         }
 
-        // Fungsi Modal
-        function openModal() { document.getElementById('upgradeModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('upgradeModal').style.display = 'none'; }
+        async function saveWA() {
+            const newWA = document.getElementById('inputWA').value;
+            const btn = document.getElementById('btnSaveWA');
+            
+            if(!newWA) return alert("Please enter a valid number / Masukkan nomor valid");
+            
+            btn.innerText = "CHECKING...";
+            btn.disabled = true;
+
+            // Cek apakah nomor sudah dipakai orang lain
+            const { data: existing } = await supabase.from('profiles')
+                .select('id').eq('whatsapp_number', newWA).neq('id', currentUser.id);
+
+            if(existing && existing.length > 0) {
+                alert("Number already registered / Nomor sudah terdaftar pengguna lain");
+                btn.innerText = "Save / Simpan";
+                btn.disabled = false;
+                return;
+            }
+
+            const { error } = await supabase.from('profiles').update({ whatsapp_number: newWA }).eq('id', currentUser.id);
+
+            if(error) alert("Error: " + error.message);
+            else alert("WhatsApp Number Updated / Nomor WA Berhasil Diperbarui");
+            
+            btn.innerText = "Save / Simpan";
+            btn.disabled = false;
+        }
+
+        function openModal() { document.getElementById('upgradeModal').classList.add('modal-active'); }
+        function closeModal() { document.getElementById('upgradeModal').classList.remove('modal-active'); }
 
         function buyPackage(pkgName) {
-            const adminWA = "6285161990373"; // Menggunakan nomor dari gambar registrasi Anda
+            const adminWA = "6285161990373";
             const msg = `Halo Admin, Saya ingin Upgrade ke Paket *${pkgName}*.\n\nDetail Akun:\n- Username: ${currentUser.username}\n- Email: ${currentUser.email}\n- WA: ${currentUser.whatsapp_number}\n\nMohon instruksi pembayarannya.`;
             window.open(`https://wa.me/${adminWA}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        loadProfile();
+        init();
     </script>
 </body>
 </html>
