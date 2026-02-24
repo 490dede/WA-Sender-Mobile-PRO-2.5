@@ -3,50 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join - WA-Sender PRO 2.5</title>
+    <title>Register - WA-Sender PRO 2.5</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; }
+        .divider { border-bottom: 1px solid #E2E8F0; margin: 4px 0; width: 40px; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6">
 
-    <div class="max-w-md w-full bg-white rounded-[3rem] shadow-xl border border-slate-100 p-10">
+    <div class="max-w-md w-full bg-white rounded-[3rem] shadow-2xl border border-slate-100 p-10">
         <header class="text-center mb-10">
-            <h1 class="text-4xl font-black text-slate-900 leading-none">JOIN NOW</h1>
-            <h1 class="text-4xl font-black text-slate-900 leading-tight border-b-2 border-slate-900 pb-2 mb-4">JOIN SEKARANG</h1>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">REGISTER FOR A FREE TRIAL ACCOUNT</p>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">DAFTAR AKUN TRIAL GRATIS</p>
+            <h1 class="text-3xl font-black text-slate-900 leading-none italic uppercase">Join Now</h1>
+            <div class="w-12 h-[2px] bg-slate-900 mx-auto my-2"></div>
+            <h1 class="text-3xl font-black text-slate-900 leading-none italic uppercase">Join Sekarang</h1>
+            
+            <div class="mt-4 space-y-1">
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Register for a Free Trial Account</p>
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Daftar Akun Trial Gratis</p>
+            </div>
         </header>
 
-        <form id="regForm" class="space-y-4">
+        <form id="regForm" class="space-y-5">
             <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-400 uppercase ml-2">USERNAME</label>
-                <input type="text" id="regUser" required placeholder="pilih_username" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold">
+                <label class="text-[10px] font-black text-slate-500 uppercase ml-2 tracking-widest">Username / Nama Pengguna</label>
+                <input type="text" id="regUser" required placeholder="Ex: budi_wa" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
             </div>
+
             <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-400 uppercase ml-2">EMAIL RESMI</label>
-                <input type="email" id="regEmail" required placeholder="anda@email.com" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold">
+                <label class="text-[10px] font-black text-slate-500 uppercase ml-2 tracking-widest">Official Email / Email Resmi</label>
+                <input type="email" id="regEmail" required placeholder="budi@gmail.com" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
             </div>
+
             <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-400 uppercase ml-2">WHATSAPP (62...)</label>
-                <input type="text" id="regWA" required placeholder="62812345678" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold">
+                <label class="text-[10px] font-black text-slate-500 uppercase ml-2 tracking-widest">WhatsApp Number / Nomor WA (62...)</label>
+                <input type="text" id="regWA" required placeholder="62812xxxx" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
             </div>
+
             <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-400 uppercase ml-2">PASSWORD</label>
+                <label class="text-[10px] font-black text-slate-500 uppercase ml-2 tracking-widest">Create Password / Buat Kata Sandi</label>
                 <div class="relative flex items-center">
-                    <input type="password" id="regPass" required placeholder="••••••••" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold pr-12">
-                    <button type="button" onclick="togglePass('regPass', 'eyeReg')" class="absolute right-4 text-slate-400"><i id="eyeReg" class="fa-solid fa-eye"></i></button>
+                    <input type="password" id="regPass" required placeholder="••••••••" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all pr-12 text-sm">
+                    <button type="button" onclick="togglePass('regPass', 'eyeReg')" class="absolute right-4 text-slate-400 hover:text-indigo-600 transition-colors">
+                        <i id="eyeReg" class="fa-solid fa-eye"></i>
+                    </button>
                 </div>
             </div>
-            <button type="submit" id="btnReg" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest mt-4">BUAT AKUN TRIAL GRATIS</button>
+
+            <button type="submit" id="btnReg" class="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.15em] shadow-xl active:scale-95 transition-all mt-4 leading-tight">
+                Create Free Trial Account & Login Now <br>
+                <span class="opacity-60 font-medium">Buat Akun Trial Gratis & Login Sekarang</span>
+            </button>
         </form>
 
-        <footer class="mt-8 text-center">
-            <p class="text-[10px] font-bold text-slate-400 uppercase">Sudah punya akun? <a href="login.html" class="text-indigo-600 underline">Masuk di sini</a></p>
+        <footer class="mt-10 text-center pt-6 border-t border-slate-50">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Already have an account? / Sudah punya akun?</p>
+            <a href="login.html" class="text-indigo-600 font-black text-[11px] uppercase underline decoration-2 underline-offset-4">Log In Here / Masuk Disini</a>
         </footer>
     </div>
 
@@ -58,14 +73,20 @@
         function togglePass(inputId, eyeId) {
             const input = document.getElementById(inputId);
             const eye = document.getElementById(eyeId);
-            if (input.type === "password") { input.type = "text"; eye.classList.replace('fa-eye', 'fa-eye-slash'); } 
-            else { input.type = "password"; eye.classList.replace('fa-eye-slash', 'fa-eye'); }
+            if (input.type === "password") {
+                input.type = "text";
+                eye.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = "password";
+                eye.classList.replace('fa-eye-slash', 'fa-eye');
+            }
         }
 
         document.getElementById('regForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnReg');
             btn.disabled = true;
+            btn.innerText = "PROCESSING...";
 
             const { data, error: authError } = await supabase.auth.signUp({
                 email: document.getElementById('regEmail').value,
@@ -73,8 +94,9 @@
             });
 
             if (authError) {
-                alert("Gagal: " + authError.message);
+                alert("Error: " + authError.message);
                 btn.disabled = false;
+                btn.innerHTML = "Create Free Trial Account & Login Now <br><span class='opacity-60 font-medium'>Buat Akun Trial Gratis & Login Sekarang</span>";
                 return;
             }
 
@@ -87,7 +109,10 @@
                 role: 'USER'
             }]);
 
-            if (!profError) { alert("Registrasi Berhasil!"); window.location.href = 'login.html'; }
+            if (!profError) {
+                alert("Registration Successful! / Registrasi Berhasil!");
+                window.location.href = 'login.html';
+            }
         };
     </script>
 </body>
