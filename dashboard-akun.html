@@ -1,181 +1,74 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Account - WA-Sender PRO 2.5</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; color: #1E293B; }
-        .glass-card { background: white; border-radius: 2rem; border: 1px solid #F1F5F9; }
-        /* Pastikan modal benar-benar tersembunyi di awal */
-        #upgradeModal { display: none; }
-        .modal-active { display: flex !important; }
-    </style>
-</head>
-<body class="p-4 md:p-10">
+// Ganti fungsi init() dan tambahkan fungsi upload di dalam script dashboard-akun.html
 
-    <div class="max-w-4xl mx-auto space-y-6">
-        <div class="flex items-center justify-between">
-            <button onclick="window.location.href='dashboard-user.html'" class="p-3 bg-white rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all">
-                <i class="fa-solid fa-arrow-left mr-2"></i> <span class="text-[10px] font-black uppercase italic">Back / Kembali</span>
-            </button>
-            <h2 class="text-xl font-black italic uppercase">Account Settings / Pengaturan Akun</h2>
-        </div>
+async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session) return window.location.href = 'login.html';
 
-        <div class="glass-card p-8 space-y-8 border-b-4 border-b-indigo-500 shadow-xl">
-            <div class="flex items-center gap-6">
-                <div id="avatarBox" class="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center text-white text-3xl font-black shadow-lg italic">...</div>
-                <div>
-                    <h3 id="displayUsername" class="text-2xl font-black italic uppercase text-slate-900">...</h3>
-                    <p id="displayEmail" class="text-slate-400 font-bold text-xs uppercase tracking-widest">...</p>
-                    <div id="badgeStatus" class="inline-block mt-2 px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-[9px] font-black uppercase italic">TRIAL ACCOUNT</div>
-                </div>
-            </div>
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+    if(profile) {
+        currentUser = profile;
+        document.getElementById('displayUsername').innerText = profile.username || 'User';
+        document.getElementById('displayEmail').innerText = profile.email;
+        document.getElementById('inputWA').value = profile.whatsapp_number || '';
+        
+        // Cek apakah ada Foto Profil
+        const avatarBox = document.getElementById('avatarBox');
+        const initials = document.getElementById('initials');
+        const avatarImg = document.getElementById('avatarImg');
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
-                <div class="space-y-2">
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">WhatsApp Number / Nomor WA</label>
-                    <div class="relative flex gap-2">
-                        <input type="text" id="inputWA" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-indigo-500 transition-all italic">
-                        <button onclick="saveWA()" id="btnSaveWA" class="px-6 bg-slate-900 text-white rounded-2xl text-[9px] font-black uppercase hover:bg-indigo-600 transition-all">
-                            Save / Simpan
-                        </button>
-                    </div>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Valid Until / Berlaku Sampai</label>
-                    <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-red-500 text-sm italic" id="displayExpiry">...</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
-            <div class="z-10 text-center md:text-left">
-                <h4 class="text-xl font-black uppercase italic leading-none">Unlock Pro Features</h4>
-                <div class="h-[1px] w-8 bg-indigo-500 my-1"></div>
-                <h4 class="text-xl font-black uppercase italic leading-none text-indigo-400">Buka Fitur Pro</h4>
-            </div>
-            <button onclick="openModal()" class="z-10 px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500 active:scale-95 transition-all shadow-xl">
-                Upgrade Now / Upgrade Sekarang
-            </button>
-            <i class="fa-solid fa-crown absolute right-[-20px] bottom-[-20px] text-9xl text-white opacity-5 rotate-12"></i>
-        </div>
-    </div>
-
-    <div id="upgradeModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[100] items-center justify-center p-4">
-        <div class="bg-white w-full max-w-4xl rounded-[3rem] p-8 md:p-12 relative overflow-y-auto max-h-[90vh] shadow-2xl">
-            <button onclick="closeModal()" class="absolute top-6 right-8 text-slate-300 hover:text-red-500 transition-all text-5xl">
-                <i class="fa-solid fa-circle-xmark"></i>
-            </button>
-            
-            <div class="text-center mb-10">
-                <h2 class="text-3xl font-black italic uppercase text-slate-900">Choose Your Plan</h2>
-                <h2 class="text-3xl font-black italic uppercase text-indigo-600">Pilih Paket Anda</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="glass-card p-8 border-2 border-slate-50 hover:border-indigo-500 transition-all cursor-pointer bg-slate-50/50 flex flex-col justify-between" onclick="buyPackage('PRO')">
-                    <div>
-                        <div class="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-lg"><i class="fa-solid fa-bolt"></i></div>
-                        <h3 class="text-2xl font-black italic uppercase">Professional / Pro</h3>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase mb-6 italic">Individual License / Lisensi Individu</p>
-                    </div>
-                    <div class="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between">
-                        <span class="text-2xl font-black italic">Rp 499.000</span>
-                        <div class="bg-indigo-600 text-white p-3 rounded-xl text-[9px] px-5 font-black uppercase text-center leading-tight">
-                            BUY NOW<br><span class="opacity-60">BELI</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass-card p-8 border-2 border-slate-50 hover:border-indigo-600 transition-all cursor-pointer bg-slate-900 text-white shadow-2xl flex flex-col justify-between" onclick="buyPackage('MULTI')">
-                    <div>
-                        <div class="w-12 h-12 bg-indigo-500 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-lg shadow-indigo-500/20"><i class="fa-solid fa-users"></i></div>
-                        <h3 class="text-2xl font-black italic uppercase">Multi CS / Business</h3>
-                        <p class="text-[10px] text-indigo-400 font-bold uppercase mb-6 italic">Team License / Lisensi Tim</p>
-                    </div>
-                    <div class="mt-8 pt-6 border-t border-slate-700 flex items-center justify-between">
-                        <span class="text-2xl font-black italic text-indigo-400">Rp 1.499.000</span>
-                        <div class="bg-white text-slate-900 p-3 rounded-xl text-[9px] px-5 font-black uppercase text-center leading-tight">
-                            BUY NOW<br><span class="opacity-60">BELI</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
-        const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
-        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
-        let currentUser = null;
-
-        async function init() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if(!session) return window.location.href = 'login.html';
-
-            const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-            if(profile) {
-                currentUser = profile;
-                document.getElementById('displayUsername').innerText = profile.username;
-                document.getElementById('displayEmail').innerText = profile.email;
-                document.getElementById('inputWA').value = profile.whatsapp_number;
-                document.getElementById('avatarBox').innerText = (profile.username || 'WA').substring(0,2).toUpperCase();
-                
-                const badge = document.getElementById('badgeStatus');
-                badge.innerText = (profile.package_type || 'TRIAL') + " ACCOUNT";
-
-                if(profile.expired_at) {
-                    const date = new Date(profile.expired_at);
-                    document.getElementById('displayExpiry').innerText = date.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
-                }
-            }
+        if(profile.avatar_url) {
+            avatarImg.src = profile.avatar_url;
+            avatarImg.classList.remove('hidden');
+            initials.classList.add('hidden');
+        } else {
+            initials.innerText = (profile.username || 'WA').substring(0,2).toUpperCase();
         }
+        
+        const badge = document.getElementById('badgeStatus');
+        badge.innerText = (profile.package_type || 'TRIAL') + " ACCOUNT";
 
-        async function saveWA() {
-            const newWA = document.getElementById('inputWA').value;
-            const btn = document.getElementById('btnSaveWA');
-            
-            if(!newWA) return alert("Please enter a valid number / Masukkan nomor valid");
-            
-            btn.innerText = "CHECKING...";
-            btn.disabled = true;
-
-            // Cek apakah nomor sudah dipakai orang lain
-            const { data: existing } = await supabase.from('profiles')
-                .select('id').eq('whatsapp_number', newWA).neq('id', currentUser.id);
-
-            if(existing && existing.length > 0) {
-                alert("Number already registered / Nomor sudah terdaftar pengguna lain");
-                btn.innerText = "Save / Simpan";
-                btn.disabled = false;
-                return;
-            }
-
-            const { error } = await supabase.from('profiles').update({ whatsapp_number: newWA }).eq('id', currentUser.id);
-
-            if(error) alert("Error: " + error.message);
-            else alert("WhatsApp Number Updated / Nomor WA Berhasil Diperbarui");
-            
-            btn.innerText = "Save / Simpan";
-            btn.disabled = false;
+        if(profile.expired_at) {
+            const date = new Date(profile.expired_at);
+            document.getElementById('displayExpiry').innerText = date.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
         }
+    }
+}
 
-        function openModal() { document.getElementById('upgradeModal').classList.add('modal-active'); }
-        function closeModal() { document.getElementById('upgradeModal').classList.remove('modal-active'); }
+async function uploadAvatar(input) {
+    if (!input.files || input.files.length === 0) return;
+    const btnSave = document.getElementById('avatarBox');
+    const file = input.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${currentUser.id}-${Math.random()}.${fileExt}`; // Nama unik untuk menghindari cache browser
 
-        function buyPackage(pkgName) {
-            const adminWA = "6285161990373";
-            const msg = `Halo Admin, Saya ingin Upgrade ke Paket *${pkgName}*.\n\nDetail Akun:\n- Username: ${currentUser.username}\n- Email: ${currentUser.email}\n- WA: ${currentUser.whatsapp_number}\n\nMohon instruksi pembayarannya.`;
-            window.open(`https://wa.me/${adminWA}?text=${encodeURIComponent(msg)}`, '_blank');
-        }
+    // Loading State
+    document.getElementById('initials').innerText = "⏳";
+    document.getElementById('initials').classList.remove('hidden');
+    document.getElementById('avatarImg').classList.add('hidden');
 
-        init();
-    </script>
-</body>
-</html>
+    try {
+        // 1. Upload ke Storage
+        const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(fileName, file, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // 2. Ambil URL
+        const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+
+        // 3. Update Tabel Profiles
+        const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ avatar_url: publicUrl })
+            .eq('id', currentUser.id);
+
+        if (updateError) throw updateError;
+
+        // Berhasil
+        location.reload(); // Refresh untuk melihat hasil
+    } catch (err) {
+        alert("Gagal upload: " + err.message);
+        init(); // Reset tampilan
+    }
+}
