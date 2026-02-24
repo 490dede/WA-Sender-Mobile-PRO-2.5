@@ -10,7 +10,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; }
-        .divider { border-bottom: 1px solid #E2E8F0; margin: 4px 0; width: 40px; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6">
@@ -53,7 +52,7 @@
                 </div>
             </div>
 
-            <button type="submit" id="btnReg" class="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.15em] shadow-xl active:scale-95 transition-all mt-4 leading-tight">
+            <button type="submit" id="btnReg" class="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.15em] shadow-xl active:scale-95 transition-all mt-4 leading-tight text-center">
                 Create Free Trial Account & Login Now <br>
                 <span class="opacity-60 font-medium">Buat Akun Trial Gratis & Login Sekarang</span>
             </button>
@@ -85,33 +84,39 @@
         document.getElementById('regForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnReg');
+            const originalText = btn.innerHTML;
             btn.disabled = true;
             btn.innerText = "PROCESSING...";
 
-            const { data, error: authError } = await supabase.auth.signUp({
-                email: document.getElementById('regEmail').value,
-                password: document.getElementById('regPass').value
-            });
+            try {
+                // Proses Sign Up
+                const { data, error: authError } = await supabase.auth.signUp({
+                    email: document.getElementById('regEmail').value,
+                    password: document.getElementById('regPass').value
+                });
 
-            if (authError) {
-                alert("Error: " + authError.message);
+                if (authError) throw authError;
+
+                if (data.user) {
+                    // Masukkan data ke Profile
+                    const { error: profError } = await supabase.from('profiles').insert([{
+                        id: data.user.id,
+                        username: document.getElementById('regUser').value,
+                        email: document.getElementById('regEmail').value,
+                        whatsapp_number: document.getElementById('regWA').value,
+                        package_type: 'TRIAL',
+                        role: 'USER'
+                    }]);
+
+                    if (profError) throw profError;
+
+                    alert("Registration Successful! Please Log In.\nRegistrasi Berhasil! Silakan Login.");
+                    window.location.href = 'login.html';
+                }
+            } catch (err) {
+                alert("Error: " + err.message);
                 btn.disabled = false;
-                btn.innerHTML = "Create Free Trial Account & Login Now <br><span class='opacity-60 font-medium'>Buat Akun Trial Gratis & Login Sekarang</span>";
-                return;
-            }
-
-            const { error: profError } = await supabase.from('profiles').insert([{
-                id: data.user.id,
-                username: document.getElementById('regUser').value,
-                email: document.getElementById('regEmail').value,
-                whatsapp_number: document.getElementById('regWA').value,
-                package_type: 'TRIAL',
-                role: 'USER'
-            }]);
-
-            if (!profError) {
-                alert("Registration Successful! / Registrasi Berhasil!");
-                window.location.href = 'login.html';
+                btn.innerHTML = originalText;
             }
         };
     </script>
