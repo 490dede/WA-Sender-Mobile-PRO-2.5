@@ -16,31 +16,42 @@
 
     <div class="max-w-md w-full bg-white rounded-[3rem] shadow-2xl border border-slate-100 p-10">
         <header class="text-center mb-10">
-            <h1 class="text-3xl font-black text-slate-900 italic uppercase">Join Now / Join Sekarang</h1>
-            <div class="w-12 h-[2px] bg-slate-900 mx-auto my-4"></div>
-            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Register for a Free Trial Account / Daftar Akun Trial Gratis</p>
+            <h1 class="text-3xl font-black text-slate-900 italic uppercase">Join Now</h1>
+            <div class="w-12 h-[2px] bg-slate-900 mx-auto my-1"></div>
+            <h1 class="text-3xl font-black text-slate-900 italic uppercase">Join Sekarang</h1>
+            <p class="text-[9px] font-bold text-slate-400 mt-4 uppercase tracking-[0.2em]">Register for a Free Trial Account / Daftar Akun Trial Gratis</p>
         </header>
 
         <form id="regForm" class="space-y-4">
-            <input type="text" id="regUser" required placeholder="Username / Nama Pengguna" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
-            <input type="email" id="regEmail" required placeholder="Official Email / Email Resmi" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
-            <input type="text" id="regWA" required placeholder="WhatsApp Number / Nomor WA (62...)" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
-            
-            <div class="relative">
-                <input type="password" id="regPass" required placeholder="Create Password / Buat Kata Sandi" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all pr-12 text-sm">
-                <button type="button" onclick="togglePass('regPass', 'eyeReg')" class="absolute right-4 top-4 text-slate-400">
-                    <i id="eyeReg" class="fa-solid fa-eye"></i>
-                </button>
+            <div>
+                <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Username / Nama Pengguna</label>
+                <input type="text" id="regUser" required class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 text-sm">
+            </div>
+            <div>
+                <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Email Resmi</label>
+                <input type="email" id="regEmail" required class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 text-sm">
+            </div>
+            <div>
+                <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">WhatsApp Number / Nomor WA (62...)</label>
+                <input type="text" id="regWA" required class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 text-sm">
+            </div>
+            <div>
+                <label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Password / Kata Sandi</label>
+                <div class="relative">
+                    <input type="password" id="regPass" required class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 pr-12 text-sm">
+                    <button type="button" onclick="togglePass()" class="absolute right-4 top-4 text-slate-400"><i id="eye" class="fa-solid fa-eye"></i></button>
+                </div>
             </div>
 
-            <button type="submit" id="btnReg" class="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.15em] shadow-xl active:scale-95 transition-all mt-4 leading-tight text-center">
-                Create Account & Login Now <br>
-                <span class="opacity-60 font-medium text-[8px]">Buat Akun & Login Sekarang</span>
+            <button type="submit" id="btnReg" class="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.15em] shadow-xl active:scale-95 transition-all mt-4 leading-tight">
+                Create Free Trial Account & Login Now <br>
+                <span class="opacity-60 font-medium text-[8px]">Buat Akun Trial Gratis & Login Sekarang</span>
             </button>
         </form>
 
-        <footer class="mt-10 text-center pt-6 border-t border-slate-50">
-            <a href="login.html" class="text-indigo-600 font-black text-[11px] uppercase underline underline-offset-4 decoration-2">Log In Here / Masuk Disini</a>
+        <footer class="mt-10 text-center pt-6 border-t border-slate-50 text-[10px] font-bold text-slate-400 uppercase">
+            Already have an account? / Sudah punya akun? <br>
+            <a href="login.html" class="text-indigo-600 font-black underline underline-offset-4 mt-2 inline-block">Log In Here / Masuk Disini</a>
         </footer>
     </div>
 
@@ -49,48 +60,48 @@
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        function togglePass(id, eye) {
-            const x = document.getElementById(id);
-            const e = document.getElementById(eye);
-            if (x.type === "password") { x.type = "text"; e.classList.replace('fa-eye', 'fa-eye-slash'); }
-            else { x.type = "password"; e.classList.replace('fa-eye-slash', 'fa-eye'); }
+        function togglePass() {
+            const p = document.getElementById('regPass');
+            const e = document.getElementById('eye');
+            p.type = p.type === 'password' ? 'text' : 'password';
+            e.className = p.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
         }
 
         document.getElementById('regForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnReg');
             btn.disabled = true;
-            btn.innerText = "SINKRONISASI...";
+            btn.innerText = "PROCESSING...";
 
-            const { data, error: authError } = await supabase.auth.signUp({
-                email: document.getElementById('regEmail').value,
-                password: document.getElementById('regPass').value
-            });
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPass').value;
+            const username = document.getElementById('regUser').value;
+            const wa = document.getElementById('regWA').value;
 
-            if (authError) {
-                alert(authError.message);
-                btn.disabled = false;
-                btn.innerHTML = "Create Account & Login Now <br><span class='opacity-60 text-[8px]'>Buat Akun & Login Sekarang</span>";
-                return;
-            }
+            try {
+                // 1. Daftar Akun
+                const { data, error: authError } = await supabase.auth.signUp({ email, password });
+                if (authError) throw authError;
 
-            if (data.user) {
-                const { error: profError } = await supabase.from('profiles').insert([{
-                    id: data.user.id,
-                    username: document.getElementById('regUser').value,
-                    email: document.getElementById('regEmail').value,
-                    whatsapp_number: document.getElementById('regWA').value,
-                    role: 'USER',
-                    package_type: 'TRIAL'
-                }]);
+                if (data.user) {
+                    // 2. Simpan Data Profil (Pastikan RLS sudah mati di Supabase)
+                    const { error: profError } = await supabase.from('profiles').insert([{
+                        id: data.user.id,
+                        username: username,
+                        email: email,
+                        whatsapp_number: wa,
+                        role: 'USER',
+                        package_type: 'TRIAL'
+                    }]);
+                    if (profError) throw profError;
 
-                if (!profError) {
-                    alert("Success! / Berhasil!");
+                    alert("Success! Please Login.\nBerhasil! Silakan Login.");
                     window.location.href = 'login.html';
-                } else {
-                    alert("Profile Error: " + profError.message);
-                    btn.disabled = false;
                 }
+            } catch (err) {
+                alert("Error: " + err.message);
+                btn.disabled = false;
+                btn.innerHTML = "Create Account... <br><span>Buat Akun...</span>";
             }
         };
     </script>
