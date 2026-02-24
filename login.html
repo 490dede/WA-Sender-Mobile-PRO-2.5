@@ -16,9 +16,9 @@
 
     <div class="max-w-md w-full bg-white rounded-[3rem] shadow-2xl border border-slate-100 p-10">
         <header class="text-center mb-10">
-            <h1 class="text-3xl font-black text-slate-900 italic uppercase">Welcome Back</h1>
-            <div class="w-12 h-[2px] bg-slate-900 mx-auto my-2"></div>
-            <h1 class="text-3xl font-black text-indigo-600 italic uppercase">Selamat Datang</h1>
+            <h1 class="text-3xl font-black text-slate-900 italic uppercase">Welcome Back / Selamat Datang</h1>
+            <div class="w-12 h-[2px] bg-indigo-600 mx-auto my-4"></div>
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.3em]">WA-Sender PRO v2.5 Online Access</p>
         </header>
 
         <form id="loginForm" class="space-y-6">
@@ -38,7 +38,7 @@
         </form>
 
         <footer class="mt-10 text-center pt-6 border-t border-slate-50">
-            <a href="register.html" class="text-slate-900 font-black text-[11px] uppercase underline underline-offset-4 tracking-tighter">Create Trial Account / Daftar Akun Trial</a>
+            <a href="register.html" class="text-slate-900 font-black text-[11px] uppercase underline underline-offset-4 decoration-2">Create Trial Account / Daftar Akun Trial</a>
         </footer>
     </div>
 
@@ -66,28 +66,17 @@
             });
 
             if (error) {
-                alert("Login Gagal: " + error.message);
+                alert(error.message);
                 btn.disabled = false;
-                btn.innerHTML = "Log In...<br><span>Masuk...</span>";
+                btn.innerHTML = "Log In to Dashboard <br><span class='opacity-60 text-[8px]'>Masuk Ke Dashboard</span>";
                 return;
             }
 
-            if (data.user) {
-                // Ambil data profile dengan filter ID
-                const { data: profile, error: profErr } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', data.user.id)
-                    .maybeSingle(); // Pakai maybeSingle agar tidak error jika JSON kosong
-
-                if (profErr || !profile) {
-                    alert("Data profil belum siap. Silakan coba login kembali dalam 5 detik.");
-                    btn.disabled = false;
-                } else {
-                    if (profile.role === 'ADMIN') window.location.href = 'admin490-master-panel.html';
-                    else if (profile.role === 'CS') window.location.href = 'dashboard-cs.html';
-                    else window.location.href = 'dashboard-user.html';
-                }
+            const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
+            if (profile) {
+                if (profile.role === 'ADMIN') window.location.href = 'admin490-master-panel.html';
+                else if (profile.role === 'CS') window.location.href = 'dashboard-cs.html';
+                else window.location.href = 'dashboard-user.html';
             }
         };
     </script>
