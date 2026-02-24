@@ -16,37 +16,29 @@
 
     <div class="max-w-md w-full bg-white rounded-[3rem] shadow-2xl border border-slate-100 p-10">
         <header class="text-center mb-10">
-            <h1 class="text-3xl font-black text-slate-900 leading-none italic uppercase">Welcome Back</h1>
+            <h1 class="text-3xl font-black text-slate-900 italic uppercase">Welcome Back</h1>
             <div class="w-12 h-[2px] bg-slate-900 mx-auto my-2"></div>
-            <h1 class="text-3xl font-black text-slate-900 leading-none italic uppercase text-indigo-600">Selamat Datang</h1>
-            <p class="text-[9px] font-bold text-slate-400 mt-4 uppercase tracking-[0.3em]">WA-Sender PRO v2.5 Online Access</p>
+            <h1 class="text-3xl font-black text-indigo-600 italic uppercase">Selamat Datang</h1>
         </header>
 
         <form id="loginForm" class="space-y-6">
-            <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-500 uppercase ml-2 tracking-widest">Registered Email / Email Terdaftar</label>
-                <input type="email" id="logEmail" required placeholder="anda@email.com" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
+            <input type="email" id="logEmail" required placeholder="Registered Email / Email Terdaftar" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
+            
+            <div class="relative">
+                <input type="password" id="logPass" required placeholder="Security Password / Kata Sandi" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all pr-12 text-sm">
+                <button type="button" onclick="togglePass('logPass', 'eyeLog')" class="absolute right-4 top-4 text-slate-400">
+                    <i id="eyeLog" class="fa-solid fa-eye"></i>
+                </button>
             </div>
 
-            <div class="space-y-1">
-                <label class="text-[10px] font-black text-slate-500 uppercase ml-2 tracking-widest">Security Password / Kata Sandi</label>
-                <div class="relative flex items-center">
-                    <input type="password" id="logPass" required placeholder="••••••••" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all pr-12 text-sm">
-                    <button type="button" onclick="togglePass('logPass', 'eyeLog')" class="absolute right-4 text-slate-400 hover:text-indigo-600 transition-colors">
-                        <i id="eyeLog" class="fa-solid fa-eye"></i>
-                    </button>
-                </div>
-            </div>
-
-            <button type="submit" id="btnLogin" class="w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-indigo-100 active:scale-95 transition-all leading-tight text-center">
+            <button type="submit" id="btnLogin" class="w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.2em] shadow-xl active:scale-95 transition-all text-center leading-tight">
                 Log In to Dashboard <br>
-                <span class="opacity-60 font-medium">Masuk Ke Dashboard</span>
+                <span class="opacity-60 font-medium text-[8px]">Masuk Ke Dashboard</span>
             </button>
         </form>
 
         <footer class="mt-10 text-center pt-6 border-t border-slate-50">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Don't have an account? / Belum punya akun?</p>
-            <a href="register.html" class="text-slate-900 font-black text-[11px] uppercase underline decoration-2 underline-offset-4">Create Trial Account / Daftar Akun Trial</a>
+            <a href="register.html" class="text-slate-900 font-black text-[11px] uppercase underline underline-offset-4 tracking-tighter">Create Trial Account / Daftar Akun Trial</a>
         </footer>
     </div>
 
@@ -55,54 +47,47 @@
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        function togglePass(inputId, eyeId) {
-            const input = document.getElementById(inputId);
-            const eye = document.getElementById(eyeId);
-            if (input.type === "password") {
-                input.type = "text";
-                eye.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                input.type = "password";
-                eye.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+        function togglePass(id, eye) {
+            const x = document.getElementById(id);
+            const e = document.getElementById(eye);
+            if (x.type === "password") { x.type = "text"; e.classList.replace('fa-eye', 'fa-eye-slash'); }
+            else { x.type = "password"; e.classList.replace('fa-eye-slash', 'fa-eye'); }
         }
 
         document.getElementById('loginForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnLogin');
-            const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerText = "AUTHENTICATING...";
+            btn.innerText = "VERIFIKASI...";
 
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: document.getElementById('logEmail').value,
-                    password: document.getElementById('logPass').value
-                });
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: document.getElementById('logEmail').value,
+                password: document.getElementById('logPass').value
+            });
 
-                if (error) throw error;
-
-                if (data.user) {
-                    const { data: profile, error: profErr } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
-                    
-                    if (profErr) throw profErr;
-
-                    if (profile.role === 'ADMIN') {
-                        window.location.href = 'admin490-master-panel.html';
-                    } else if (profile.role === 'CS') {
-                        window.location.href = 'dashboard-cs.html';
-                    } else {
-                        window.location.href = 'dashboard-user.html';
-                    }
-                }
-            } catch (err) {
-                let msg = err.message;
-                if (msg.includes("Email not confirmed")) {
-                    msg = "Email not confirmed. Please check your inbox or disable confirmation in Supabase Settings.\nEmail belum dikonfirmasi.";
-                }
-                alert("Login Failed: " + msg);
+            if (error) {
+                alert("Login Gagal: " + error.message);
                 btn.disabled = false;
-                btn.innerHTML = originalText;
+                btn.innerHTML = "Log In...<br><span>Masuk...</span>";
+                return;
+            }
+
+            if (data.user) {
+                // Ambil data profile dengan filter ID
+                const { data: profile, error: profErr } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', data.user.id)
+                    .maybeSingle(); // Pakai maybeSingle agar tidak error jika JSON kosong
+
+                if (profErr || !profile) {
+                    alert("Data profil belum siap. Silakan coba login kembali dalam 5 detik.");
+                    btn.disabled = false;
+                } else {
+                    if (profile.role === 'ADMIN') window.location.href = 'admin490-master-panel.html';
+                    else if (profile.role === 'CS') window.location.href = 'dashboard-cs.html';
+                    else window.location.href = 'dashboard-user.html';
+                }
             }
         };
     </script>
