@@ -154,7 +154,7 @@
         function closeModal() { document.getElementById('upgradeModal').style.display = 'none'; }
 
         function buyPackage(pkgName) {
-            const adminWA = "628123456789"; // GANTI DENGAN NOMOR WA ADMIN ANDA
+            const adminWA = "6285161990373"; // GANTI DENGAN NOMOR WA ADMIN ANDA
             const msg = `Halo Admin, Saya ingin Upgrade ke Paket *${pkgName}*.\n\nDetail Akun:\n- Username: ${currentUser.username}\n- Email: ${currentUser.email}\n- WA: ${currentUser.whatsapp_number}\n\nMohon instruksi pembayarannya.`;
             const url = `https://wa.me/${adminWA}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
