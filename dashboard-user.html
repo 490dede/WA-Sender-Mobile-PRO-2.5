@@ -10,131 +10,38 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; color: #1E293B; }
         .glass-card { background: white; border-radius: 2.5rem; border: 1px solid #F1F5F9; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
-        .nav-btn { transition: all 0.3s ease; border-radius: 1.25rem; }
-        .nav-btn:hover { background: #F1F5F9; transform: translateY(-2px); }
     </style>
 </head>
 <body class="p-4 md:p-10">
-
     <div class="max-w-6xl mx-auto space-y-8">
-        
         <header class="glass-card p-8 flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="flex items-center gap-5">
-                <div class="w-16 h-16 bg-indigo-600 rounded-[1.5rem] flex items-center justify-center text-white text-2xl shadow-lg shadow-indigo-200">👤</div>
+                <div class="w-16 h-16 bg-indigo-600 rounded-[1.5rem] flex items-center justify-center text-white text-2xl shadow-lg">👤</div>
                 <div>
-                    <h1 class="text-2xl font-black tracking-tight">Halo, <span id="displayUser" class="text-indigo-600">...</span>!</h1>
+                    <h1 class="text-2xl font-black italic">Halo, <span id="displayUser" class="text-indigo-600">...</span>!</h1>
                     <div class="flex gap-2 mt-1">
-                        <span id="pkgBadge" class="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-black rounded-full uppercase tracking-widest italic">Memuat Paket...</span>
-                        <span id="regionBadge" class="px-3 py-1 bg-blue-50 text-blue-500 text-[10px] font-black rounded-full uppercase tracking-widest">...</span>
+                        <span id="pkgBadge" class="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-black rounded-full uppercase tracking-widest italic">Memuat...</span>
                     </div>
                 </div>
             </div>
-            <div class="flex gap-3">
-                <button onclick="logout()" class="px-6 py-3 bg-red-50 text-red-500 font-black rounded-2xl hover:bg-red-500 hover:text-white transition-all text-[10px] uppercase tracking-widest">Logout</button>
-            </div>
+            <button onclick="logout()" class="px-6 py-3 bg-red-50 text-red-500 font-black rounded-2xl hover:bg-red-500 hover:text-white transition-all text-[10px] uppercase tracking-widest">Logout</button>
         </header>
 
-        <section id="announcementBox" class="hidden bg-indigo-600 p-8 rounded-[3rem] text-white shadow-xl shadow-indigo-100 relative overflow-hidden">
-            <div class="relative z-10">
-                <h3 class="font-black uppercase tracking-[0.2em] text-[10px] opacity-80 mb-2">Pemberitahuan Khusus Wilayah Anda</h3>
-                <h2 id="annTitle" class="text-2xl font-black mb-4 italic">...</h2>
-                <div class="flex items-baseline gap-2">
-                    <p class="text-[10px] font-bold uppercase opacity-70">Harga Langganan Baru:</p>
-                    <p id="annPrice" class="text-4xl font-black tracking-tighter">...</p>
-                </div>
-            </div>
-            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+        <section id="announcementBox" class="hidden bg-indigo-600 p-8 rounded-[3rem] text-white shadow-xl relative overflow-hidden">
+            <h3 class="font-black uppercase tracking-[0.2em] text-[10px] opacity-80 mb-2">Pemberitahuan Harga Wilayah Anda</h3>
+            <p id="annPrice" class="text-4xl font-black tracking-tighter">...</p>
         </section>
 
         <main class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
             <a href="delivery-chat.html" class="glass-card p-10 flex flex-col items-center text-center group hover:border-indigo-500 transition-all">
                 <div class="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-[2rem] flex items-center justify-center text-3xl mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all">🚀</div>
                 <h4 class="font-black text-slate-800 uppercase tracking-widest text-sm">Delivery Chat</h4>
-                <p class="text-xs text-slate-400 mt-2 font-bold uppercase">Kirim Pesan via WA.ME</p>
             </a>
-
             <a href="dashboard-akun.html" class="glass-card p-10 flex flex-col items-center text-center group hover:border-indigo-500 transition-all">
                 <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-[2rem] flex items-center justify-center text-3xl mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all">⚙️</div>
                 <h4 class="font-black text-slate-800 uppercase tracking-widest text-sm">Akun Saya</h4>
-                <p class="text-xs text-slate-400 mt-2 font-bold uppercase">Upgrade & Detail Profil</p>
             </a>
-
-            <div id="csMenu" class="hidden glass-card p-10 flex flex-col items-center text-center group border-2 border-indigo-50 hover:border-indigo-500 transition-all bg-indigo-50/20">
-                <div class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-[2rem] flex items-center justify-center text-3xl mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-all">👥</div>
-                <h4 class="font-black text-slate-800 uppercase tracking-widest text-sm">Pasukan CS</h4>
-                <p class="text-xs text-slate-400 mt-2 font-bold uppercase italic text-indigo-500">Fitur Multi-User Aktif</p>
-                <button onclick="window.location.href='manajemen-cs.html'" class="mt-6 px-6 py-2 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest">Kelola Tim</button>
-            </div>
-
-        </main>
-    </div>
-
-    <script>
-        const SB_URL = "https://drdilgeztsubyukexpas.supabase.co";
-        const SB_KEY = "sb_publishable_7SV_sRVw9ePVjXjYHQA4_A_P42uGzWo";
-        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
-
-        let userProfile = null;
-
-        async function init() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if(!session) return window.location.href = 'login.html';
-
-            const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-            if(profile) {
-                userProfile = profile;
-                renderUI();
-                loadRegionalAnnouncement();
-            }
-        }
-
-        function renderUI() {
-            document.getElementById('displayUser').innerText = userProfile.username;
-            document.getElementById('regionBadge').innerText = userProfile.country_origin || 'Global';
-            
-            const pkg = (userProfile.package_type || 'TRIAL').toUpperCase();
-            const badge = document.getElementById('pkgBadge');
-            badge.innerText = pkg + " ACCOUNT";
-            
-            if(pkg === 'TRIAL') badge.classList.replace('text-slate-500', 'text-amber-500');
-            else badge.classList.replace('text-slate-500', 'text-emerald-500');
-
-            // Kontrol Menu MULTI
-            if(pkg.includes('MULTI')) {
-                document.getElementById('csMenu').classList.remove('hidden');
-            }
-        }
-
-        async function loadRegionalAnnouncement() {
-            const { data: ann } = await supabase.from('announcements').select('*').order('created_at', { ascending: false }).limit(1).single();
-            
-            if(ann) {
-                const box = document.getElementById('announcementBox');
-                const title = document.getElementById('annTitle');
-                const price = document.getElementById('annPrice');
-                
-                box.classList.remove('hidden');
-                title.innerText = ann.title;
-
-                // LOGIKA HARGA BERDASARKAN WILAYAH (Garis Merah Fitur)
-                const region = userProfile.country_origin;
-                if(region === 'ID') {
-                    price.innerText = "Rp " + ann.price_idr;
-                } else if(['FR','DE','IT','ES','BE'].includes(region)) { // Cek Eropa
-                    price.innerText = "€ " + ann.price_eur;
-                } else {
-                    price.innerText = "$ " + ann.price_usd;
-                }
-            }
-        }
-
-        async function logout() {
-            await supabase.auth.signOut();
-            window.location.href = 'login.html';
-        }
-
-        init();
-    </script>
-</body>
-</html>
+            <div id="csMenu" class="hidden glass-card p-10 flex flex-col items-center text-center bg-indigo-50/20 border-2 border-dashed border-indigo-200">
+                <div class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-[2rem] flex items-center justify-center text-3xl mb-6">👥</div>
+                <h4 class="font-black text-slate-800 uppercase tracking-widest text-sm italic">Pasukan CS</h4>
+                <button onclick="window.location.href='manajemen-cs.html'" class="mt-6 px-6 py-2 bg
