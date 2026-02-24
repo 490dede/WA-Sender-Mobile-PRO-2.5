@@ -19,7 +19,6 @@
             <h1 class="text-3xl font-black text-slate-900 leading-none italic uppercase">Welcome Back</h1>
             <div class="w-12 h-[2px] bg-slate-900 mx-auto my-2"></div>
             <h1 class="text-3xl font-black text-slate-900 leading-none italic uppercase text-indigo-600">Selamat Datang</h1>
-            
             <p class="text-[9px] font-bold text-slate-400 mt-4 uppercase tracking-[0.3em]">WA-Sender PRO v2.5 Online Access</p>
         </header>
 
@@ -39,7 +38,7 @@
                 </div>
             </div>
 
-            <button type="submit" id="btnLogin" class="w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-indigo-100 active:scale-95 transition-all leading-tight">
+            <button type="submit" id="btnLogin" class="w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-indigo-100 active:scale-95 transition-all leading-tight text-center">
                 Log In to Dashboard <br>
                 <span class="opacity-60 font-medium">Masuk Ke Dashboard</span>
             </button>
@@ -71,27 +70,39 @@
         document.getElementById('loginForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnLogin');
+            const originalText = btn.innerHTML;
             btn.disabled = true;
             btn.innerText = "AUTHENTICATING...";
 
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: document.getElementById('logEmail').value,
-                password: document.getElementById('logPass').value
-            });
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: document.getElementById('logEmail').value,
+                    password: document.getElementById('logPass').value
+                });
 
-            if (error) {
-                alert("Login Failed: " + error.message);
-                btn.disabled = false;
-                btn.innerHTML = "Log In to Dashboard <br><span class='opacity-60 font-medium'>Masuk Ke Dashboard</span>";
-            } else {
-                const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
-                if (profile && profile.role === 'CS') {
-                    window.location.href = 'dashboard-cs.html';
-                } else if (profile && profile.role === 'ADMIN') {
-                    window.location.href = 'admin490-master-panel.html';
-                } else {
-                    window.location.href = 'dashboard-user.html';
+                if (error) throw error;
+
+                if (data.user) {
+                    const { data: profile, error: profErr } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
+                    
+                    if (profErr) throw profErr;
+
+                    if (profile.role === 'ADMIN') {
+                        window.location.href = 'admin490-master-panel.html';
+                    } else if (profile.role === 'CS') {
+                        window.location.href = 'dashboard-cs.html';
+                    } else {
+                        window.location.href = 'dashboard-user.html';
+                    }
                 }
+            } catch (err) {
+                let msg = err.message;
+                if (msg.includes("Email not confirmed")) {
+                    msg = "Email not confirmed. Please check your inbox or disable confirmation in Supabase Settings.\nEmail belum dikonfirmasi.";
+                }
+                alert("Login Failed: " + msg);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         };
     </script>
