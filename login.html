@@ -16,20 +16,14 @@
 
     <div class="max-w-md w-full bg-white rounded-[3rem] shadow-2xl border border-slate-100 p-10">
         <header class="text-center mb-10">
-            <h1 class="text-3xl font-black text-slate-900 italic uppercase">Welcome Back / Selamat Datang</h1>
-            <div class="w-12 h-[2px] bg-indigo-600 mx-auto my-4"></div>
-            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.3em]">WA-Sender PRO v2.5 Online Access</p>
+            <h1 class="text-3xl font-black text-slate-900 italic uppercase leading-none">Welcome Back</h1>
+            <div class="w-12 h-[2px] bg-indigo-600 mx-auto my-3"></div>
+            <h1 class="text-3xl font-black text-indigo-600 italic uppercase leading-none">Selamat Datang</h1>
         </header>
 
         <form id="loginForm" class="space-y-6">
-            <input type="email" id="logEmail" required placeholder="Registered Email / Email Terdaftar" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all text-sm">
-            
-            <div class="relative">
-                <input type="password" id="logPass" required placeholder="Security Password / Kata Sandi" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 transition-all pr-12 text-sm">
-                <button type="button" onclick="togglePass('logPass', 'eyeLog')" class="absolute right-4 top-4 text-slate-400">
-                    <i id="eyeLog" class="fa-solid fa-eye"></i>
-                </button>
-            </div>
+            <input type="email" id="logEmail" required placeholder="Registered Email / Email Terdaftar" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 text-sm">
+            <input type="password" id="logPass" required placeholder="Password / Kata Sandi" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold focus:border-indigo-500 text-sm">
 
             <button type="submit" id="btnLogin" class="w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.2em] shadow-xl active:scale-95 transition-all text-center leading-tight">
                 Log In to Dashboard <br>
@@ -37,8 +31,9 @@
             </button>
         </form>
 
-        <footer class="mt-10 text-center pt-6 border-t border-slate-50">
-            <a href="register.html" class="text-slate-900 font-black text-[11px] uppercase underline underline-offset-4 decoration-2">Create Trial Account / Daftar Akun Trial</a>
+        <footer class="mt-10 text-center pt-6 border-t border-slate-50 text-[10px] font-bold text-slate-400 uppercase">
+            Don't have an account? / Belum punya akun? <br>
+            <a href="register.html" class="text-slate-900 font-black underline underline-offset-4 mt-2 inline-block">Create Trial Account / Daftar Akun Trial</a>
         </footer>
     </div>
 
@@ -47,18 +42,11 @@
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        function togglePass(id, eye) {
-            const x = document.getElementById(id);
-            const e = document.getElementById(eye);
-            if (x.type === "password") { x.type = "text"; e.classList.replace('fa-eye', 'fa-eye-slash'); }
-            else { x.type = "password"; e.classList.replace('fa-eye-slash', 'fa-eye'); }
-        }
-
         document.getElementById('loginForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnLogin');
             btn.disabled = true;
-            btn.innerText = "VERIFIKASI...";
+            btn.innerText = "AUTHENTICATING...";
 
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: document.getElementById('logEmail').value,
@@ -66,18 +54,16 @@
             });
 
             if (error) {
-                alert(error.message);
+                alert("Login Gagal: " + error.message);
                 btn.disabled = false;
-                btn.innerHTML = "Log In to Dashboard <br><span class='opacity-60 text-[8px]'>Masuk Ke Dashboard</span>";
+                btn.innerHTML = "Log In... <br><span>Masuk...</span>";
                 return;
             }
 
+            // Arahkan berdasarkan role
             const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
-            if (profile) {
-                if (profile.role === 'ADMIN') window.location.href = 'admin490-master-panel.html';
-                else if (profile.role === 'CS') window.location.href = 'dashboard-cs.html';
-                else window.location.href = 'dashboard-user.html';
-            }
+            if (profile?.role === 'ADMIN') window.location.href = 'admin490-master-panel.html';
+            else window.location.href = 'dashboard-user.html';
         };
     </script>
 </body>
