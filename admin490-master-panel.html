@@ -1,60 +1,61 @@
-// Pastikan bagian pengecekan admin tetap mengunci ke email Anda
-async function checkAdmin() {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    // Proteksi Berlapis: Cek sesi dan cek email spesifik Anda
-    if (!session || session.user.email !== 'adeali490@gmail.com') {
-        alert("ACCESS DENIED / AKSES DITOLAK!");
-        window.location.href = 'dashboard-user.html';
-        return;
-    }
-    fetchUsers();
-}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Admin - WA-Sender PRO</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0F172A; color: #F8FAFC; }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-2xl font-black uppercase italic italic mb-8">Master Panel / Panel Utama</h1>
+        <div class="bg-slate-800/50 rounded-[2rem] border border-white/5 overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-slate-900 text-[10px] uppercase font-black tracking-widest text-slate-400">
+                    <tr>
+                        <th class="p-6">User</th>
+                        <th class="p-6 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+            </table>
+        </div>
+    </div>
 
-// Tambahkan logika untuk menampilkan avatar kecil di tabel (opsional tapi keren)
-async function fetchUsers() {
-    const { data: users, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+    <script>
+        const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
+        const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-    if (error) return console.error(error);
+        // KODE JAVASCRIPT ANDA YANG TAMPIL DI GAMBAR SEHARUSNYA DI SINI
+        async function checkAdmin() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session || session.user.email !== 'adeali490@gmail.com') {
+                alert("ACCESS DENIED!");
+                window.location.href = 'dashboard-user.html';
+                return;
+            }
+            fetchUsers();
+        }
 
-    const tbody = document.getElementById('userTableBody');
-    tbody.innerHTML = '';
-
-    users.forEach(user => {
-        const expiryDate = user.expired_at ? new Date(user.expired_at).toLocaleDateString('id-ID') : 'N/A';
-        
-        // Logika tampilan avatar di tabel admin
-        const avatarDisplay = user.avatar_url 
-            ? `<img src="${user.avatar_url}" class="w-8 h-8 rounded-lg object-cover">`
-            : `<div class="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center text-[10px] font-black">${(user.username || 'U').substring(0,1)}</div>`;
-
-        const row = `
-            <tr class="hover:bg-white/5 transition-all">
-                <td class="px-8 py-4 flex items-center gap-3">
-                    ${avatarDisplay}
-                    <div>
-                        <div class="font-black italic text-white uppercase text-[12px]">${user.username}</div>
-                        <div class="text-[9px] text-slate-500">${user.email}</div>
-                    </div>
-                </td>
-                <td class="px-8 py-4 font-mono text-slate-400 text-[10px]">${user.whatsapp_number || '-'}</td>
-                <td class="px-8 py-4">
-                    <span class="px-2 py-0.5 rounded-md text-[8px] font-black italic ${user.package_type === 'TRIAL' ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'}">
-                        ${user.package_type}
-                    </span>
-                </td>
-                <td class="px-8 py-4 text-[10px] text-slate-400 italic">${expiryDate}</td>
-                <td class="px-8 py-4 text-right">
-                    <div class="flex justify-end gap-2">
-                        <button onclick="updatePackage('${user.id}', 'PRO')" class="px-3 py-1 bg-indigo-600 rounded-md text-[8px] font-black uppercase hover:bg-indigo-500 transition-all">SET PRO</button>
-                        <button onclick="updatePackage('${user.id}', 'MULTI')" class="px-3 py-1 bg-purple-600 rounded-md text-[8px] font-black uppercase hover:bg-purple-500 transition-all">SET MULTI</button>
-                    </div>
-                </td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
-    });
-}
+        async function fetchUsers() {
+            const { data: users, error } = await supabase.from('profiles').select('*');
+            if(error) return;
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = users.map(user => `
+                <tr class="border-t border-white/5">
+                    <td class="p-6 font-bold uppercase italic">${user.username} <br> <span class="text-[10px] text-slate-500">${user.email}</span></td>
+                    <td class="p-6 text-right font-black text-indigo-400">${user.package_type}</td>
+                </tr>
+            `).join('');
+        }
+        checkAdmin();
+    </script>
+</body>
+</html>
