@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade Power - WA-Sender PRO</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #060B18; color: #F1F5F9; }
+        .glass-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glass-card:hover { border-color: #3b82f6; transform: translateY(-10px); background: rgba(15, 23, 42, 0.8); }
+        .pro-glow { box-shadow: 0 0 30px rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); }
+        .btn-upgrade { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); transition: all 0.3s; }
+        .btn-upgrade:hover { opacity: 0.9; transform: scale(1.05); }
+    </style>
+</head>
+<body class="p-4 md:p-10 min-h-screen flex flex-col items-center">
+
+    <div class="max-w-6xl w-full mx-auto">
+        <div class="text-center mb-16">
+            <h1 class="text-5xl font-black italic uppercase tracking-tighter text-white mb-4">CHOOSE YOUR <span class="text-blue-500">POWER</span></h1>
+            <p class="text-slate-500 font-bold uppercase text-[10px] tracking-[0.3em]">Select a plan that fits your scale</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            
+            <div class="glass-card p-10 rounded-[3rem] flex flex-col">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Basic Access</p>
+                <h2 class="text-2xl font-black italic text-white uppercase mb-6">Trial Plan</h2>
+                <div class="mb-8">
+                    <span class="text-4xl font-black text-white">Rp 0</span>
+                    <span class="text-slate-500 text-[10px] font-bold uppercase ml-2">/ Life-time</span>
+                </div>
+                <ul class="space-y-4 mb-10 flex-grow">
+                    <li class="flex items-center text-xs font-bold text-slate-400"><i class="fa-solid fa-check text-blue-500 mr-3"></i> Single Instance</li>
+                    <li class="flex items-center text-xs font-bold text-slate-400"><i class="fa-solid fa-check text-blue-500 mr-3"></i> High Speed Delivery</li>
+                    <li class="flex items-center text-xs font-bold text-slate-400"><i class="fa-solid fa-check text-blue-500 mr-3"></i> Limited Broadcast</li>
+                    <li class="flex items-center text-xs font-bold text-slate-600"><i class="fa-solid fa-xmark mr-3"></i> No AI Automation</li>
+                </ul>
+                <div class="py-4 text-center text-[10px] font-black text-slate-500 uppercase italic tracking-widest bg-white/5 rounded-2xl">
+                    Current Active Plan
+                </div>
+            </div>
+
+            <div class="glass-card p-10 rounded-[3rem] pro-glow border-blue-500/30 bg-blue-500/[0.02] flex flex-col relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-blue-600 text-[8px] font-black px-4 py-1 rounded-bl-2xl uppercase tracking-widest text-white">Recommended</div>
+                <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Professional</p>
+                <h2 class="text-2xl font-black italic text-white uppercase mb-6">Pro Plan</h2>
+                <div class="mb-8">
+                    <span id="price-pro" class="text-4xl font-black text-white italic">Loading...</span>
+                    <span class="text-slate-500 text-[10px] font-bold uppercase ml-2">/ Life-time</span>
+                </div>
+                <ul class="space-y-4 mb-10 flex-grow">
+                    <li class="flex items-center text-xs font-bold text-slate-300"><i class="fa-solid fa-check text-blue-500 mr-3"></i> Single Instance</li>
+                    <li class="flex items-center text-xs font-bold text-slate-300"><i class="fa-solid fa-check text-blue-500 mr-3"></i> Unlimited Content</li>
+                    <li class="flex items-center text-xs font-bold text-slate-300"><i class="fa-solid fa-check text-blue-500 mr-3"></i> AI Auto Response</li>
+                    <li class="flex items-center text-xs font-bold text-slate-300"><i class="fa-solid fa-check text-blue-500 mr-3"></i> 24/7 Priority Support</li>
+                </ul>
+                <button onclick="orderPlan('PRO')" class="btn-upgrade w-full py-4 rounded-2xl text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/20">
+                    Upgrade to Pro
+                </button>
+            </div>
+
+            <div class="glass-card p-10 rounded-[3rem] flex flex-col">
+                <p class="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-2">Agency/Team</p>
+                <h2 class="text-2xl font-black italic text-white uppercase mb-6">Multi Plan</h2>
+                <div class="mb-8">
+                    <span id="price-multi" class="text-4xl font-black text-white italic">Loading...</span>
+                    <span class="text-slate-500 text-[10px] font-bold uppercase ml-2">/ Life-time</span>
+                </div>
+                <ul class="space-y-4 mb-10 flex-grow">
+                    <li class="flex items-center text-xs font-bold text-slate-300"><i class="fa-solid fa-check text-purple-500 mr-3"></i> Multi WA Instance</li>
+                    <li class="flex items-center text-xs font-bold text-slate-300"><i class="fa-solid fa-check text-purple-500 mr-3"></i> CS Team Management</li>
+                    <li class="flex items-center text-xs font-bold text-slate-300"><i class="fa-solid fa-check text-purple-500 mr-3"></i> Global Lead Scraper</li>
+                    <li class="flex items-center text-xs font-bold text-slate-300"><i class="fa-solid fa-check text-purple-500 mr-3"></i> Enterprise API Access</li>
+                </ul>
+                <button onclick="orderPlan('MULTI')" class="w-full py-4 bg-white/5 hover:bg-white/10 rounded-2xl text-white text-[10px] font-black uppercase tracking-[0.2em] transition-all">
+                    Get Multi Plan
+                </button>
+            </div>
+
+        </div>
+
+        <div class="text-center">
+            <a href="dashboard-user.html" class="text-[10px] font-black text-slate-600 uppercase tracking-widest hover:text-white transition-colors">
+                <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
+        const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+        const ADMIN_WA = "6285161990373"; // Nomor Master untuk konfirmasi bayar
+
+        async function loadPrices() {
+            // Ambil harga dari tabel 'settings' yang diset di Master Console
+            const { data, error } = await supabase.from('settings').select('*').single();
+            
+            if (data) {
+                document.getElementById('price-pro').innerText = "Rp " + parseInt(data.pro_price).toLocaleString('id-ID');
+                document.getElementById('price-multi').innerText = "Rp " + parseInt(data.multi_price).toLocaleString('id-ID');
+            } else {
+                // Fallback jika database belum ada isinya
+                document.getElementById('price-pro').innerText = "Rp 55.000";
+                document.getElementById('price-multi').innerText = "Rp 188.000";
+            }
+        }
+
+        async function orderPlan(plan) {
+            const { data: { session } } = await supabase.auth.getSession();
+            const userEmail = session?.user?.email || "User";
+            const price = document.getElementById(`price-${plan.toLowerCase()}`).innerText;
+
+            const message = `Halo Master! Saya ingin upgrade ke *${plan} PLAN*.\n\n` +
+                           `Email: ${userEmail}\n` +
+                           `Harga: ${price}\n\n` +
+                           `Mohon instruksi pembayarannya.`;
+
+            const waUrl = `https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        loadPrices();
+    </script>
+</body>
+</html>
