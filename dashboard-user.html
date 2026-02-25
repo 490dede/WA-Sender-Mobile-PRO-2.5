@@ -3,168 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard - WA-Sender PRO 2.5</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <title>Dashboard - WA-Sender PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; color: #1E293B; }
-        .glass-card { background: white; border-radius: 2.5rem; border: 1px solid #F1F5F9; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.03); transition: 0.3s; }
-        .glass-card:hover { transform: translateY(-5px); border-color: #6366F1; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0F172A; color: #F1F5F9; }
+        .glass-card { background: rgba(51, 65, 85, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .nav-card:hover { transform: translateY(-8px); border-color: #6366f1; background: rgba(99, 102, 241, 0.1); }
+        .text-sharp { text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body class="p-4 md:p-10">
-    <div class="max-w-6xl mx-auto space-y-8">
-        
-        <header class="glass-card p-8 flex flex-col md:flex-row justify-between items-center gap-6 border-b-4 border-b-indigo-500">
-            <div class="flex items-center gap-5">
-                <div class="w-16 h-16 bg-slate-900 rounded-[1.5rem] flex items-center justify-center text-white text-2xl shadow-xl italic font-black">WA</div>
-                <div>
-                    <h1 class="text-2xl font-black italic tracking-tight">
-                        Hello, <span id="displayUser" class="text-indigo-600">...</span>!
-                    </h1>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest -mt-1">Halo, Selamat Datang!</p>
-                    
-                    <div class="flex gap-3 mt-3">
-                        <div class="px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-[9px] font-black text-indigo-600 uppercase italic">
-                            <span id="pkgBadge">...</span> Account
-                        </div>
-                        <div id="expiryBox" class="px-3 py-1 bg-red-50 border border-red-100 rounded-full text-[9px] font-black text-red-500 uppercase italic">
-                            Active: <span id="expiryDays">...</span> Days Left
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button onclick="logout()" class="px-8 py-3 bg-red-50 text-red-500 font-black rounded-2xl hover:bg-red-500 hover:text-white transition-all text-[10px] uppercase tracking-[0.2em] border border-red-100 shadow-sm">
-                Log Out / Keluar
-            </button>
-        </header>
 
-        <section id="announcementBox" class="hidden bg-slate-900 p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-150 transition-all">
-                <i class="fa-solid fa-bullhorn text-6xl"></i>
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+            <div>
+                <h1 class="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-white text-sharp">
+                    COMMAND <span class="text-indigo-500">CENTER</span>
+                </h1>
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em] mt-3 flex items-center gap-2 italic">
+                    <i class="fa-solid fa-rocket text-indigo-500"></i> Global Automation Engine v2.2
+                </p>
             </div>
-            <h3 class="font-black uppercase tracking-[0.3em] text-[10px] text-indigo-400 mb-2 italic">Official Price Announcement / Info Harga Resmi</h3>
-            <p id="annPrice" class="text-4xl font-black tracking-tighter italic">...</p>
-            <p class="text-[10px] font-medium text-slate-400 mt-2 uppercase">Price may vary based on your region / Harga dapat berbeda di wilayah Anda.</p>
-        </section>
-
-        <main class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <a href="delivery-chat.html" class="glass-card p-10 flex flex-col items-center text-center group">
-                <div class="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-[2rem] flex items-center justify-center text-3xl mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
-                    <i class="fa-solid fa-paper-plane"></i>
+            
+            <a href="dashboard-akun.html" class="glass-card px-6 py-4 rounded-[2rem] flex items-center gap-4 hover:bg-slate-700/60 transition-all border-white/10 shadow-2xl">
+                <div class="text-right">
+                    <p id="userName" class="text-sm font-black italic uppercase text-white">Loading...</p>
+                    <p id="userTier" class="text-[9px] font-bold text-indigo-400 tracking-widest uppercase italic">Checking Tier...</p>
                 </div>
-                <h4 class="font-black text-slate-800 uppercase tracking-widest text-[11px]">Delivery Chat</h4>
-                <div class="h-[1px] w-8 bg-slate-200 my-2"></div>
-                <p class="text-[10px] font-bold text-slate-400 uppercase italic">Kirim Pesan Massal</p>
+                <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg">
+                    <i class="fa-solid fa-user-astronaut text-xl text-white"></i>
+                </div>
             </a>
+        </div>
 
-            <a href="dashboard-akun.html" class="glass-card p-10 flex flex-col items-center text-center group">
-                <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-[2rem] flex items-center justify-center text-3xl mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
-                    <i class="fa-solid fa-user-gear"></i>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="nav-card glass-card p-8 rounded-[2.5rem] flex flex-col items-center text-center transition-all cursor-pointer group">
+                <div class="w-16 h-16 bg-slate-900 rounded-[1.5rem] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-2xl border border-white/5">
+                    <i class="fa-solid fa-paper-plane text-3xl text-indigo-400"></i>
                 </div>
-                <h4 class="font-black text-slate-800 uppercase tracking-widest text-[11px]">My Account</h4>
-                <div class="h-[1px] w-8 bg-slate-200 my-2"></div>
-                <p class="text-[10px] font-bold text-slate-400 uppercase italic">Profil & Langganan</p>
-            </a>
-
-            <div id="csMenu" class="hidden glass-card p-10 flex flex-col items-center text-center bg-indigo-50/20 border-2 border-dashed border-indigo-200 group">
-                <div class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-[2rem] flex items-center justify-center text-3xl mb-6 shadow-sm">
-                    <i class="fa-solid fa-users-gear"></i>
-                </div>
-                <h4 class="font-black text-slate-800 uppercase tracking-widest text-[11px]">Team Management</h4>
-                <div class="h-[1px] w-8 bg-slate-200 my-2"></div>
-                <p class="text-[10px] font-bold text-slate-400 uppercase italic">Kelola Pasukan CS</p>
-                <button onclick="window.location.href='manajemen-cs.html'" class="mt-6 px-6 py-2 bg-indigo-600 text-white rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-900 transition-all">Manage Now</button>
+                <h3 class="text-sm font-black italic uppercase tracking-widest text-white mb-2">Bulk Sender</h3>
+                <p class="text-[9px] font-bold text-slate-500 uppercase leading-relaxed">Broadcast to thousands in seconds</p>
             </div>
-        </main>
+
+            <div class="nav-card glass-card p-8 rounded-[2.5rem] flex flex-col items-center text-center transition-all cursor-pointer group">
+                <div class="w-16 h-16 bg-slate-900 rounded-[1.5rem] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-2xl border border-white/5">
+                    <i class="fa-solid fa-robot text-3xl text-emerald-400"></i>
+                </div>
+                <h3 class="text-sm font-black italic uppercase tracking-widest text-white mb-2">Auto AI Reply</h3>
+                <p class="text-[9px] font-bold text-slate-500 uppercase leading-relaxed">Let the bot handle your leads 24/7</p>
+            </div>
+
+            <div class="nav-card glass-card p-8 rounded-[2.5rem] flex flex-col items-center text-center transition-all cursor-pointer group">
+                <div class="w-16 h-16 bg-slate-900 rounded-[1.5rem] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-2xl border border-white/5">
+                    <i class="fa-solid fa-magnifying-glass-chart text-3xl text-purple-400"></i>
+                </div>
+                <h3 class="text-sm font-black italic uppercase tracking-widest text-white mb-2">Data Scraper</h3>
+                <p class="text-[9px] font-bold text-slate-500 uppercase leading-relaxed">Find potential buyers everywhere</p>
+            </div>
+
+            <a href="upgrade.html" class="nav-card bg-indigo-600 p-8 rounded-[2.5rem] flex flex-col items-center text-center transition-all cursor-pointer group shadow-2xl shadow-indigo-600/30">
+                <div class="w-16 h-16 bg-white/20 rounded-[1.5rem] flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform shadow-lg">
+                    <i class="fa-solid fa-crown text-3xl text-white"></i>
+                </div>
+                <h3 class="text-sm font-black italic uppercase tracking-widest text-white mb-2">Go Professional</h3>
+                <p class="text-[9px] font-bold text-white/70 uppercase leading-relaxed tracking-tighter">Unlock unlimited potential</p>
+            </a>
+        </div>
+
+        <div class="mt-12 glass-card rounded-[3rem] p-10 overflow-hidden relative">
+            <h2 class="text-xl font-black italic uppercase mb-8 tracking-widest flex items-center gap-3">
+                <span class="w-2 h-8 bg-indigo-500 rounded-full"></span> System Performance
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="border-l border-white/10 pl-6">
+                    <p class="text-[10px] font-black text-slate-400 uppercase italic">Messages Sent</p>
+                    <p class="text-4xl font-black text-white italic mt-1">12,408</p>
+                </div>
+                <div class="border-l border-white/10 pl-6">
+                    <p class="text-[10px] font-black text-slate-400 uppercase italic">Response Rate</p>
+                    <p class="text-4xl font-black text-emerald-400 italic mt-1">84%</p>
+                </div>
+                <div class="border-l border-white/10 pl-6">
+                    <p class="text-[10px] font-black text-slate-400 uppercase italic">Leads Generated</p>
+                    <p class="text-4xl font-black text-purple-400 italic mt-1">2,105</p>
+                </div>
+            </div>
+            <i class="fa-solid fa-chart-line absolute right-[-20px] bottom-[-20px] text-[150px] text-white/5 pointer-events-none"></i>
+        </div>
     </div>
 
     <script>
-        const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
-        const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
-        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
-
-        async function init() {
-            // Cek Sesi
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-            if(!session || sessionError) return window.location.href = 'login.html';
-
-            // Ambil Data Profil
-            const { data: profile, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single();
-
-            if(error) {
-                console.error(error);
-                return;
-            }
-
-            if(profile) {
-                // Tampilkan Username
-                document.getElementById('displayUser').innerText = profile.username || "User";
-                
-                // Tampilkan Badge Paket
-                const pkg = profile.package_type || 'TRIAL';
-                document.getElementById('pkgBadge').innerText = pkg;
-
-                // Hitung Masa Aktif
-                if(profile.expired_at) {
-                    const now = new Date();
-                    const exp = new Date(profile.expired_at);
-                    const diffTime = exp - now;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    
-                    const dayLabel = document.getElementById('expiryDays');
-                    dayLabel.innerText = diffDays > 0 ? diffDays : "0";
-                    
-                    if(diffDays <= 3) {
-                        document.getElementById('expiryBox').classList.replace('bg-red-50', 'bg-red-500');
-                        document.getElementById('expiryBox').classList.replace('text-red-500', 'text-white');
-                    }
-                }
-
-                // Tampilkan Menu CS jika MULTI
-                if(pkg === 'MULTI') {
-                    document.getElementById('csMenu').classList.remove('hidden');
-                }
-
-                // Load Harga Regional
-                loadPrice(profile.country_origin);
-            }
-        }
-
-        async function loadPrice(region) {
-            const { data: ann } = await supabase
-                .from('announcements')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .single();
-
-            if(ann) {
-                document.getElementById('announcementBox').classList.remove('hidden');
-                const priceLabel = document.getElementById('annPrice');
-                // Logika Mata Uang
-                if(region === 'ID') {
-                    priceLabel.innerText = "Rp " + (ann.price_idr || "---");
-                } else {
-                    priceLabel.innerText = "$ " + (ann.price_usd || "---");
-                }
-            }
-        }
-
-        async function logout() {
-            const { error } = await supabase.auth.signOut();
-            if(!error) window.location.href = 'login.html';
-            else alert("Logout Error");
-        }
-
-        // Jalankan Inisialisasi
-        init();
+        // Simulasi load data dari Supabase nantinya
+        document.getElementById('userName').innerText = "Ade Ali";
+        document.getElementById('userTier').innerText = "Trial Account";
     </script>
 </body>
 </html>
