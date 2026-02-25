@@ -1,63 +1,60 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Admin - WA-Sender PRO 2.5</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0F172A; color: white; }
-    </style>
-</head>
-<body class="p-6 md:p-12">
-    <div class="max-w-5xl mx-auto">
-        <header class="mb-10 border-b border-white/10 pb-8">
-            <h1 class="text-3xl font-black italic">MASTER VERIFICATION</h1>
-        </header>
+// Pastikan bagian pengecekan admin tetap mengunci ke email Anda
+async function checkAdmin() {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    // Proteksi Berlapis: Cek sesi dan cek email spesifik Anda
+    if (!session || session.user.email !== 'adeali490@gmail.com') {
+        alert("ACCESS DENIED / AKSES DITOLAK!");
+        window.location.href = 'dashboard-user.html';
+        return;
+    }
+    fetchUsers();
+}
 
-        <div id="userList" class="space-y-4"></div>
-    </div>
+// Tambahkan logika untuk menampilkan avatar kecil di tabel (opsional tapi keren)
+async function fetchUsers() {
+    const { data: users, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    <script>
-        const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
-        const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
-        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+    if (error) return console.error(error);
 
-        async function fetchUsers() {
-            const { data: users } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
-            const list = document.getElementById('userList');
-            list.innerHTML = users.map(u => `
-                <div class="bg-white/5 p-6 rounded-3xl border border-white/10 flex justify-between items-center">
+    const tbody = document.getElementById('userTableBody');
+    tbody.innerHTML = '';
+
+    users.forEach(user => {
+        const expiryDate = user.expired_at ? new Date(user.expired_at).toLocaleDateString('id-ID') : 'N/A';
+        
+        // Logika tampilan avatar di tabel admin
+        const avatarDisplay = user.avatar_url 
+            ? `<img src="${user.avatar_url}" class="w-8 h-8 rounded-lg object-cover">`
+            : `<div class="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center text-[10px] font-black">${(user.username || 'U').substring(0,1)}</div>`;
+
+        const row = `
+            <tr class="hover:bg-white/5 transition-all">
+                <td class="px-8 py-4 flex items-center gap-3">
+                    ${avatarDisplay}
                     <div>
-                        <p class="font-black italic">${u.username}</p>
-                        <p class="text-xs text-slate-500">${u.email}</p>
+                        <div class="font-black italic text-white uppercase text-[12px]">${user.username}</div>
+                        <div class="text-[9px] text-slate-500">${user.email}</div>
                     </div>
-                    <div class="flex gap-4">
-                        <select onchange="updatePkg('${u.id}', this.value)" class="bg-slate-800 text-[10px] font-bold rounded-lg px-3">
-                            <option value="">${u.package_type}</option>
-                            <option value="PRO">PRO</option>
-                            <option value="MULTI">MULTI</option>
-                        </select>
-                        <button onclick="extend('${u.id}')" class="px-4 py-2 bg-emerald-500/20 text-emerald-500 rounded-lg text-[10px] font-black">EXTEND</button>
+                </td>
+                <td class="px-8 py-4 font-mono text-slate-400 text-[10px]">${user.whatsapp_number || '-'}</td>
+                <td class="px-8 py-4">
+                    <span class="px-2 py-0.5 rounded-md text-[8px] font-black italic ${user.package_type === 'TRIAL' ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'}">
+                        ${user.package_type}
+                    </span>
+                </td>
+                <td class="px-8 py-4 text-[10px] text-slate-400 italic">${expiryDate}</td>
+                <td class="px-8 py-4 text-right">
+                    <div class="flex justify-end gap-2">
+                        <button onclick="updatePackage('${user.id}', 'PRO')" class="px-3 py-1 bg-indigo-600 rounded-md text-[8px] font-black uppercase hover:bg-indigo-500 transition-all">SET PRO</button>
+                        <button onclick="updatePackage('${user.id}', 'MULTI')" class="px-3 py-1 bg-purple-600 rounded-md text-[8px] font-black uppercase hover:bg-purple-500 transition-all">SET MULTI</button>
                     </div>
-                </div>
-            `).join('');
-        }
-
-        async function updatePkg(id, pkg) {
-            await supabase.from('profiles').update({ package_type: pkg }).eq('id', id);
-            location.reload();
-        }
-
-        async function extend(id) {
-            const date = new Date(); date.setDate(date.getDate() + 30);
-            await supabase.from('profiles').update({ expired_at: date.toISOString() }).eq('id', id);
-            alert("Updated!");
-        }
-
-        fetchUsers();
-    </script>
-</body>
-</html>
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+}
