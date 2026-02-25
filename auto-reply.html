@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto AI Reply - WA-Sender PRO</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0F172A; color: #F1F5F9; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .input-glow:focus { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); outline: none; }
+        .active-pulse { position: relative; }
+        .active-pulse::after { content: ''; position: absolute; width: 8px; height: 8px; background: #10b981; border-radius: 50%; right: -12px; top: 50%; transform: translateY(-50%); box-shadow: 0 0 10px #10b981; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body class="p-4 md:p-10 bg-slate-950 min-h-screen">
+
+    <div class="max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-12">
+            <div>
+                <a href="dashboard-user.html" class="text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] hover:text-white transition-all">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Back to Command Center
+                </a>
+                <h1 class="text-4xl font-black italic uppercase tracking-tighter text-white mt-4 active-pulse inline-block">AUTO <span class="text-emerald-500">AI REPLY</span></h1>
+            </div>
+            <div class="glass-card px-6 py-3 rounded-2xl flex items-center gap-3">
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <p class="text-[9px] font-black text-slate-500 uppercase italic tracking-widest">Bot Status: <span class="text-emerald-400">Listening</span></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1 space-y-6">
+                <div class="glass-card p-8 rounded-[2.5rem] border-white/5">
+                    <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6 italic">Add New Rule</h3>
+                    
+                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Keyword Trigger</label>
+                    <input type="text" id="keyword" placeholder="e.g. 'Harga' or 'Info'" 
+                        class="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white input-glow mb-6">
+                    
+                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Auto Response</label>
+                    <textarea id="response" rows="4" placeholder="Halo! Harga layanan kami adalah..." 
+                        class="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white input-glow mb-8"></textarea>
+
+                    <button onclick="addRule()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all shadow-xl shadow-emerald-500/20">
+                        Deploy Rule
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="glass-card rounded-[2.5rem] border-white/5 overflow-hidden">
+                    <div class="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-white">Active Automation Rules</h3>
+                        <span id="rule-count" class="px-3 py-1 bg-slate-800 rounded-full text-[10px] font-black text-emerald-400">0 RULES</span>
+                    </div>
+                    
+                    <div id="rules-container" class="p-4 space-y-4 max-h-[500px] overflow-y-auto">
+                        <div class="text-center py-20">
+                            <i class="fa-solid fa-robot text-4xl text-slate-800 mb-4"></i>
+                            <p class="text-[10px] font-black text-slate-600 uppercase tracking-widest italic">No active rules. System idling...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
+        const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+        let rules = [];
+
+        async function loadRules() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            // Kita asumsikan ada tabel 'bot_rules' di Supabase
+            // Jika belum ada, sistem akan menampilkan data lokal untuk demo ini
+            const container = document.getElementById('rules-container');
+            const countLabel = document.getElementById('rule-count');
+            
+            if (rules.length === 0) {
+                container.innerHTML = `<div class="text-center py-20 text-slate-600 uppercase text-[10px] font-black">No rules deployed yet.</div>`;
+                return;
+            }
+
+            container.innerHTML = rules.map((r, index) => `
+                <div class="glass-card p-6 rounded-2xl border-white/5 flex justify-between items-center group">
+                    <div>
+                        <p class="text-[10px] font-black text-emerald-500 uppercase mb-1">Trigger: "${r.keyword}"</p>
+                        <p class="text-sm text-slate-300">${r.response}</p>
+                    </div>
+                    <button onclick="deleteRule(${index})" class="text-slate-600 hover:text-red-500 transition-colors">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `).join('');
+            
+            countLabel.innerText = `${rules.length} RULES`;
+        }
+
+        function addRule() {
+            const keyword = document.getElementById('keyword').value;
+            const response = document.getElementById('response').value;
+
+            if (!keyword || !response) return alert("Fill all fields!");
+
+            rules.push({ keyword, response });
+            document.getElementById('keyword').value = '';
+            document.getElementById('response').value = '';
+            
+            loadRules();
+            
+            // Simulasi Response Rate uplift di Dashboard
+            updateResponseStats();
+        }
+
+        async function updateResponseStats() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                // Memberikan efek simulasi bahwa bot bekerja meningkatkan performa
+                // Di sistem real, ini akan dihitung dari log pesan masuk/keluar
+            }
+        }
+
+        function deleteRule(index) {
+            rules.splice(index, 1);
+            loadRules();
+        }
+
+        loadRules();
+    </script>
+</body>
+</html>
