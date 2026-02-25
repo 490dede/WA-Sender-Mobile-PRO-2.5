@@ -23,13 +23,13 @@
                 <h1 class="text-4xl font-black italic uppercase tracking-tighter">Master Console <span class="text-indigo-500">v1</span></h1>
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Phase 1: User Management & Filtering</p>
             </div>
-            <div class="flex gap-4">
-                <div class="text-right">
+            <div class="flex gap-4 text-right">
+                <div>
                     <p class="text-[9px] font-black text-slate-500 uppercase">Total Users</p>
                     <h2 id="statTotal" class="text-2xl font-black italic">0</h2>
                 </div>
-                <div class="h-10 w-[1px] bg-slate-800"></div>
-                <div class="text-right">
+                <div class="h-10 w-[1px] bg-slate-800 mx-2"></div>
+                <div>
                     <p class="text-[9px] font-black text-emerald-500 uppercase">Active Pro/Multi</p>
                     <h2 id="statActive" class="text-2xl font-black italic text-emerald-400">0</h2>
                 </div>
@@ -39,11 +39,11 @@
         <div class="glass-card p-6 rounded-[2rem] grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
                 <label class="text-[8px] font-black text-slate-500 uppercase ml-2">Search / Cari</label>
-                <input type="text" id="searchUser" oninput="filterData()" placeholder="Username/Email..." class="w-full bg-slate-800 border-none rounded-xl p-3 text-xs font-bold focus:ring-2 ring-indigo-500 outline-none">
+                <input type="text" id="searchUser" oninput="filterData()" placeholder="Username/Email..." class="w-full bg-slate-800 border-none rounded-xl p-3 text-xs font-bold focus:ring-2 ring-indigo-500 outline-none text-white">
             </div>
             <div>
                 <label class="text-[8px] font-black text-slate-500 uppercase ml-2">Role Status</label>
-                <select id="filterRole" onchange="filterData()" class="w-full bg-slate-800 border-none rounded-xl p-3 text-xs font-bold outline-none">
+                <select id="filterRole" onchange="filterData()" class="w-full bg-slate-800 border-none rounded-xl p-3 text-xs font-bold outline-none text-white cursor-pointer">
                     <option value="ALL">ALL ROLES</option>
                     <option value="ADMIN">ADMIN</option>
                     <option value="USER">USER</option>
@@ -51,7 +51,7 @@
             </div>
             <div>
                 <label class="text-[8px] font-black text-slate-500 uppercase ml-2">Package / Paket</label>
-                <select id="filterPackage" onchange="filterData()" class="w-full bg-slate-800 border-none rounded-xl p-3 text-xs font-bold outline-none">
+                <select id="filterPackage" onchange="filterData()" class="w-full bg-slate-800 border-none rounded-xl p-3 text-xs font-bold outline-none text-white cursor-pointer">
                     <option value="ALL">ALL PACKAGES</option>
                     <option value="TRIAL">TRIAL</option>
                     <option value="PRO">PRO</option>
@@ -60,7 +60,7 @@
             </div>
             <div>
                 <label class="text-[8px] font-black text-slate-500 uppercase ml-2">Sort By Date</label>
-                <select id="filterSort" onchange="filterData()" class="w-full bg-slate-800 border-none rounded-xl p-3 text-xs font-bold outline-none">
+                <select id="filterSort" onchange="filterData()" class="w-full bg-slate-800 border-none rounded-xl p-3 text-xs font-bold outline-none text-white cursor-pointer">
                     <option value="NEWEST">NEWEST (Terbaru)</option>
                     <option value="OLDEST">OLDEST (Terlama)</option>
                 </select>
@@ -103,8 +103,15 @@
         }
 
         async function loadData() {
-            const { data, error } = await supabase.from('profiles').select('*');
-            if (error) return;
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                return;
+            }
             allUsers = data;
             filterData();
         }
@@ -116,18 +123,17 @@
             const sort = document.getElementById('filterSort').value;
 
             let filtered = allUsers.filter(u => {
-                const matchSearch = u.username?.toLowerCase().includes(search) || u.email?.toLowerCase().includes(search);
+                const matchSearch = (u.username || '').toLowerCase().includes(search) || (u.email || '').toLowerCase().includes(search);
                 const matchRole = role === 'ALL' || u.role === role;
                 const matchPkg = pkg === 'ALL' || u.package_type === pkg;
                 return matchSearch && matchRole && matchPkg;
             });
 
-            // Sorting
-            filtered.sort((a, b) => {
-                return sort === 'NEWEST' 
-                    ? new Date(b.created_at) - new Date(a.created_at)
-                    : new Date(a.created_at) - new Date(b.created_at);
-            });
+            if (sort === 'OLDEST') {
+                filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            } else {
+                filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
 
             renderTable(filtered);
         }
@@ -136,61 +142,15 @@
             const tbody = document.getElementById('userTableBody');
             tbody.innerHTML = '';
             
-            // Update Stats
             document.getElementById('statTotal').innerText = data.length;
             document.getElementById('statActive').innerText = data.filter(u => u.package_type !== 'TRIAL').length;
 
             data.forEach(u => {
                 const date = new Date(u.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+                const avatar = u.avatar_url 
+                    ? `<img src="${u.avatar_url}" class="w-10 h-10 rounded-2xl object-cover shadow-xl">` 
+                    : `<div class="w-10 h-10 bg-slate-800 rounded-2xl flex items-center justify-center font-black text-xs text-indigo-400">${(u.username || 'UN').substring(0,2).toUpperCase()}</div>`;
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-white/[0.02] transition-all group">
                         <td class="p-6">
-                            <div class="flex items-center gap-3">
-                                ${u.avatar_url ? `<img src="${u.avatar_url}" class="w-10 h-10 rounded-2xl object-cover shadow-xl">` : `<div class="w-10 h-10 bg-slate-800 rounded-2xl flex items-center justify-center font-black text-xs text-indigo-400">${u.username?.substring(0,2).toUpperCase()}</div>`}
-                                <div class="cursor-pointer" onclick="viewUser('${u.id}')">
-                                    <p class="font-black italic uppercase text-white group-hover:text-indigo-400 transition-colors">${u.username || 'No Name'}</p>
-                                    <p class="text-[9px] font-bold text-slate-500 uppercase">${u.email}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="p-6 font-mono text-[10px] text-slate-400">${u.whatsapp_number || '-'}</td>
-                        <td class="p-6">
-                            <span class="px-3 py-1 rounded-lg text-[8px] font-black italic uppercase ${u.package_type === 'TRIAL' ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'}">
-                                ${u.package_type}
-                            </span>
-                        </td>
-                        <td class="p-6 text-[10px] font-bold text-slate-500 italic">${date}</td>
-                        <td class="p-6 text-right space-x-1">
-                            <button onclick="quickUpdate('${u.id}', 'PRO')" class="px-3 py-2 bg-indigo-600 rounded-xl text-[8px] font-black uppercase hover:bg-indigo-500 active:scale-90 transition-all">Set PRO</button>
-                            <button onclick="quickUpdate('${u.id}', 'MULTI')" class="px-3 py-2 bg-purple-600 rounded-xl text-[8px] font-black uppercase hover:bg-purple-500 active:scale-90 transition-all">Set MULTI</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function quickUpdate(id, pkg) {
-            if(!confirm(`Upgrade user ke ${pkg}?`)) return;
-            const expiry = new Date();
-            expiry.setDate(expiry.getDate() + 30);
-            
-            const { error } = await supabase.from('profiles').update({ 
-                package_type: pkg, 
-                expired_at: expiry.toISOString() 
-            }).eq('id', id);
-            
-            if(error) alert(error.message);
-            else loadData();
-        }
-
-        function viewUser(userId) {
-            // Menyimpan ID user yang ingin dilihat ke session storage
-            sessionStorage.setItem('view_as_user_id', userId);
-            // Redirect ke halaman akun dengan mode View Only
-            window.location.href = 'dashboard-akun.html?mode=view';
-        }
-
-        checkAdmin();
-    </script>
-</body>
-</html>
