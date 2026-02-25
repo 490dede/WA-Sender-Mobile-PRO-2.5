@@ -11,20 +11,22 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0F172A; color: #F1F5F9; }
         .glass-card { background: rgba(51, 65, 85, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease; }
-        .currency-btn.active { background: #6366f1; border-color: #818cf8; shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
+        .currency-btn { border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; }
+        .currency-btn.active { background: #6366f1; border-color: #818cf8; color: white; box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
+        .text-sharp { text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body class="p-4 md:p-10">
 
     <div class="max-w-5xl mx-auto">
         <div class="text-center mb-12">
-            <h1 class="text-5xl font-black italic uppercase tracking-tighter text-white">Choose Your <span class="text-indigo-500">Power</span></h1>
+            <h1 class="text-5xl font-black italic uppercase tracking-tighter text-white text-sharp">Choose Your <span class="text-indigo-500">Power</span></h1>
             <p class="text-slate-400 font-bold mt-4 uppercase tracking-[0.2em] text-[10px]">Select a plan that fits your scale</p>
             
             <div class="flex justify-center gap-3 mt-8">
-                <button onclick="setCurrency('IDR')" id="btn-IDR" class="currency-btn px-6 py-2 rounded-full border border-white/10 text-[10px] font-black transition-all active">IDR (Rp)</button>
-                <button onclick="setCurrency('USD')" id="btn-USD" class="currency-btn px-6 py-2 rounded-full border border-white/10 text-[10px] font-black transition-all">USD ($)</button>
-                <button onclick="setCurrency('EUR')" id="btn-EUR" class="currency-btn px-6 py-2 rounded-full border border-white/10 text-[10px] font-black transition-all">EUR (€)</button>
+                <button onclick="setCurrency('IDR')" id="btn-IDR" class="currency-btn px-6 py-2 rounded-full text-[10px] font-black transition-all active">IDR (Rp)</button>
+                <button onclick="setCurrency('USD')" id="btn-USD" class="currency-btn px-6 py-2 rounded-full text-[10px] font-black transition-all">USD ($)</button>
+                <button onclick="setCurrency('EUR')" id="btn-EUR" class="currency-btn px-6 py-2 rounded-full text-[10px] font-black transition-all">EUR (€)</button>
             </div>
         </div>
 
@@ -39,25 +41,33 @@
         </div>
     </div>
 
-    <div id="paymentModal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+    <div id="paymentModal" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
         <div class="glass-card max-w-md w-full p-8 rounded-[3rem] text-center relative border-indigo-500/30">
-            <button onclick="closeModal()" class="absolute right-6 top-6 text-slate-500 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <h2 id="modalTitle" class="text-2xl font-black italic uppercase mb-2 text-white">Payment</h2>
+            <button onclick="closeModal()" class="absolute right-6 top-6 text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            
+            <h2 id="modalTitle" class="text-2xl font-black italic uppercase mb-2 text-white text-sharp">Payment Activation</h2>
             <p id="modalPrice" class="text-3xl font-black text-indigo-400 mb-6 italic">Rp 0</p>
             
             <div id="paymentInstructions" class="text-left space-y-4 mb-8">
                 </div>
 
-            <button onclick="confirmPayment()" class="w-full py-4 bg-indigo-600 rounded-2xl font-black uppercase text-sm italic shadow-xl shadow-indigo-600/30 hover:bg-indigo-500 transition-all">
+            <button onclick="confirmPayment()" class="w-full py-5 bg-indigo-600 rounded-[2rem] font-black uppercase text-sm italic shadow-2xl shadow-indigo-600/40 hover:bg-indigo-500 transition-all active:scale-95 text-white">
                 I've Already Paid / Saya Sudah Bayar
             </button>
+            <p class="mt-4 text-[9px] font-bold text-slate-500 uppercase italic">Admin will verify your payment within 24 hours</p>
         </div>
     </div>
 
     <script>
+        // --- SUPABASE CONFIG ---
         const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+        // --- ADMIN CONFIG ---
+        const ADMIN_WA = "6285161990373";
+        const PAYPAL_EMAIL = "adeali490@gmail.com";
+        const QRIS_IMAGE_URL = "https://your-domain.com/qris-static.jpg"; // GANTI DENGAN LINK QRIS DOKU/SEABANK
 
         let currentCurrency = 'IDR';
         let packageData = [];
@@ -84,9 +94,17 @@
             packageData.forEach(pkg => {
                 let priceDisplay = '';
                 let symbol = '';
-                if(currentCurrency === 'IDR') { symbol = 'Rp '; priceDisplay = pkg.price_idr.toLocaleString('id-ID'); }
-                else if(currentCurrency === 'USD') { symbol = '$'; priceDisplay = pkg.price_usd; }
-                else { symbol = '€'; priceDisplay = pkg.price_eur; }
+                
+                if(currentCurrency === 'IDR') { 
+                    symbol = 'Rp '; 
+                    priceDisplay = pkg.price_idr.toLocaleString('id-ID'); 
+                } else if(currentCurrency === 'USD') { 
+                    symbol = '$'; 
+                    priceDisplay = pkg.price_usd; 
+                } else { 
+                    symbol = '€'; 
+                    priceDisplay = pkg.price_eur; 
+                }
 
                 const isTrial = pkg.package_name === 'TRIAL';
 
@@ -94,19 +112,20 @@
                     <div class="glass-card p-10 rounded-[3rem] flex flex-col ${pkg.package_name === 'PRO' ? 'border-indigo-500 shadow-2xl shadow-indigo-600/20 scale-105 z-10' : ''}">
                         <h3 class="text-xs font-black uppercase tracking-[0.3em] text-slate-400 mb-2 italic">${pkg.package_name} Plan</h3>
                         <div class="mb-8">
-                            <span class="text-4xl font-black italic text-white">${symbol}${priceDisplay}</span>
-                            <span class="text-[10px] font-bold text-slate-500 uppercase">/ Life-time</span>
+                            <span class="text-4xl font-black italic text-white text-sharp">${symbol}${priceDisplay}</span>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">/ Life-time</span>
                         </div>
                         
                         <div class="space-y-4 mb-10 flex-1 text-[11px] font-bold uppercase tracking-wider text-slate-300">
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-check text-emerald-500"></i> ${pkg.package_name === 'MULTI' ? 'Multi WhatsApp Account' : 'Single Account'}</div>
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-check text-emerald-500"></i> High Speed Broadcast</div>
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-check text-emerald-500"></i> ${isTrial ? 'Limited Messages' : 'Unlimited Content'}</div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-check text-emerald-500"></i> ${pkg.package_name === 'MULTI' ? 'Multi WA Instance' : 'Single Instance'}</div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-check text-emerald-500"></i> High Speed Delivery</div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-check text-emerald-500"></i> ${isTrial ? 'Limited Broadcast' : 'Unlimited Content'}</div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-check text-emerald-500"></i> 24/7 Priority Support</div>
                         </div>
 
                         <button onclick="openPayment('${pkg.package_name}', '${symbol}${priceDisplay}')" 
-                                class="w-full py-4 ${isTrial ? 'bg-slate-700' : 'bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/30'} rounded-2xl font-black text-[11px] uppercase italic transition-all active:scale-95">
-                            ${isTrial ? 'Current Plan' : 'Get Started Now'}
+                                class="w-full py-4 ${isTrial ? 'bg-slate-800 opacity-50 cursor-default' : 'bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/30 active:scale-95'} rounded-2xl font-black text-[11px] uppercase italic transition-all text-white">
+                            ${isTrial ? 'Current Active Plan' : 'Get Started Now'}
                         </button>
                     </div>
                 `;
@@ -121,18 +140,22 @@
             const instr = document.getElementById('paymentInstructions');
             if(currentCurrency === 'IDR') {
                 instr.innerHTML = `
-                    <div class="bg-white p-4 rounded-2xl flex justify-center mb-4">
-                        <img src="YOUR_QRIS_URL_HERE" alt="QRIS" class="w-48 h-48">
+                    <div class="bg-white p-4 rounded-[2rem] flex flex-col items-center mb-4 border-4 border-indigo-500/20">
+                        <img src="${QRIS_IMAGE_URL}" alt="QRIS" class="w-56 h-auto">
+                        <p class="text-[8px] font-black text-slate-400 mt-2 uppercase tracking-tighter">Scan with GoPay, Dana, OVO, or M-Banking</p>
                     </div>
-                    <p class="text-[10px] font-bold text-slate-400 text-center uppercase">Silakan scan QRIS di atas dan kirim bukti transfer ke Admin via WhatsApp.</p>
+                    <div class="bg-indigo-500/10 p-4 rounded-2xl border border-indigo-500/30 text-center text-[10px] text-indigo-300 font-bold uppercase italic leading-relaxed">
+                        Silakan scan QRIS di atas. Setelah bayar, wajib klik tombol di bawah untuk kirim bukti transfer.
+                    </div>
                 `;
             } else {
                 instr.innerHTML = `
-                    <div class="bg-indigo-600/10 border border-indigo-500/30 p-6 rounded-2xl text-center">
-                        <i class="fa-brands fa-paypal text-4xl mb-4 text-white"></i>
-                        <p class="text-[11px] font-bold text-slate-300 uppercase tracking-widest">Send payment to: <br><span class="text-white">adeali490@gmail.com</span></p>
+                    <div class="bg-indigo-600/10 border border-indigo-500/30 p-8 rounded-[2rem] text-center">
+                        <i class="fa-brands fa-paypal text-5xl mb-4 text-white"></i>
+                        <p class="text-[11px] font-bold text-slate-300 uppercase tracking-widest">Send payment to PayPal: <br>
+                        <span class="text-white select-all text-lg font-black italic leading-loose">${PAYPAL_EMAIL}</span></p>
                     </div>
-                    <p class="text-[10px] font-bold text-slate-500 text-center uppercase mt-4 italic">After payment, click the button below to notify our admin.</p>
+                    <p class="text-[10px] font-bold text-slate-500 text-center uppercase mt-4 italic">Confirm your payment by sending a screenshot to our admin.</p>
                 `;
             }
             
@@ -142,11 +165,29 @@
         function closeModal() { document.getElementById('paymentModal').classList.add('hidden'); }
 
         async function confirmPayment() {
-            // Logika mengirim notifikasi WA otomatis ke Admin akan kita bahas di tahap berikutnya
-            alert("Notification Sent to Admin! Please wait up to 24h for activation.");
+            const { data: { session } } = await supabase.auth.getSession();
+            const userEmail = session?.user?.email || 'New User';
+            
+            const plan = document.getElementById('modalTitle').innerText;
+            const price = document.getElementById('modalPrice').innerText;
+
+            const message = `Halo Admin WA-Sender PRO! 🚀%0A%0A` +
+                            `Saya ingin konfirmasi pembayaran:%0A` +
+                            `--------------------------------%0A` +
+                            `📧 Email: ${userEmail}%0A` +
+                            `📦 Paket: ${plan}%0A` +
+                            `💰 Total: ${price} (${currentCurrency})%0A` +
+                            `--------------------------------%0A` +
+                            `Mohon segera divalidasi. Berikut saya lampirkan bukti transfernya:`;
+
+            const waUrl = `https://wa.me/${ADMIN_WA}?text=${message}`;
+            window.open(waUrl, '_blank');
+            
+            alert("Redirecting to Admin WhatsApp... Please attach your proof of payment.");
             closeModal();
         }
 
+        // Init
         loadPackages();
     </script>
 </body>
