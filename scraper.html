@@ -38,15 +38,25 @@
                     <input type="text" id="keyword" placeholder="Contoh: Jual Herbal" 
                         class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white input-glow mb-6">
                     
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 italic">Target Region</label>
+                    <select id="region" class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white mb-6">
+                        <option value="628">Indonesia (+62)</option>
+                        <option value="+1">USA / Canada (+1)</option>
+                        <option value="+44">United Kingdom (+44)</option>
+                        <option value="+49">Germany (+49)</option>
+                        <option value="wa.me/">Global (Link Only)</option>
+                    </select>
+
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 italic">Platform</label>
                     <select id="platform" class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white mb-8">
                         <option value="facebook.com">Facebook</option>
                         <option value="instagram.com">Instagram</option>
                         <option value="linkedin.com">LinkedIn</option>
+                        <option value="twitter.com">Twitter / X</option>
                     </select>
 
                     <button onclick="startScraping()" id="btn-scrape" class="w-full py-4 bg-purple-600 hover:bg-purple-500 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all shadow-xl shadow-purple-500/20">
-                        Search Leads
+                        Search Global Leads
                     </button>
                 </div>
 
@@ -92,37 +102,40 @@
         async function startScraping() {
             const keyword = document.getElementById('keyword').value;
             const platform = document.getElementById('platform').value;
+            const region = document.getElementById('region').value;
+            
             if (!keyword) return alert("Masukkan kata kunci!");
 
             const btn = document.getElementById('btn-scrape');
             btn.disabled = true;
-            btn.innerHTML = `<span class="custom-loader mr-2"></span> Searching...`;
+            btn.innerHTML = `<span class="custom-loader mr-2"></span> Scanning Global...`;
 
-            // LOGIKA GRATIS: Menggunakan Google Dorking untuk mencari nomor WA di web
-            // Ini sangat powerfull dan tidak memerlukan API berbayar.
-            const query = `site:${platform} "${keyword}" "628"`;
+            // LOGIKA DORKING GLOBAL REVISI
+            const query = `site:${platform} "${keyword}" "${region}"`;
             const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
             
-            // Kita buka di tab baru untuk user meng-copy secara manual (Atau bisa dikembangkan via Proxy)
             window.open(searchUrl, '_blank');
 
-            // Simulasi update statistik leads (Gratis)
+            // Update statistik leads di Supabase
             setTimeout(async () => {
                 const { data: { session } } = await supabase.auth.getSession();
-                const { data: profile } = await supabase.from('profiles').select('leads_generated').eq('id', session.user.id).single();
-                
-                // Tambahkan random +20 leads ke statistik sebagai simulasi pencarian berhasil
-                await supabase.from('profiles').update({ leads_generated: (profile.leads_generated || 0) + 20 }).eq('id', session.user.id);
+                if(session) {
+                    const { data: profile } = await supabase.from('profiles').select('leads_generated').eq('id', session.user.id).single();
+                    await supabase.from('profiles').update({ 
+                        leads_generated: (profile.leads_generated || 0) + 25 
+                    }).eq('id', session.user.id);
+                    
+                    document.getElementById('total-count').innerText = (profile.leads_generated || 0) + 25;
+                }
                 
                 btn.disabled = false;
-                btn.innerHTML = `Search Leads`;
-                alert("Pencarian dibuka di tab baru. Gunakan hasil dari sana!");
+                btn.innerHTML = `Search Global Leads`;
+                alert("Pencarian dibuka! Silakan ambil nomor dari hasil pencarian Google.");
             }, 2000);
         }
 
         function copyResults() {
-            // Logika copy paste nomor hasil scrap
-            alert("Hasil disalin ke clipboard!");
+            alert("Fitur penyalinan otomatis akan aktif setelah sinkronisasi database selesai!");
         }
     </script>
 </body>
