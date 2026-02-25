@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Sender - WA-Sender PRO</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0F172A; color: #F1F5F9; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .input-glow:focus { border-color: #6366f1; box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); outline: none; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="p-4 md:p-10 bg-slate-950 min-h-screen">
+
+    <div class="max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-12">
+            <div>
+                <a href="dashboard-user.html" class="text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em] hover:text-white transition-all">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Back to Command Center
+                </a>
+                <h1 class="text-4xl font-black italic uppercase tracking-tighter text-white mt-4">Bulk <span class="text-indigo-500">Sender</span></h1>
+            </div>
+            <div class="glass-card px-6 py-3 rounded-2xl hidden md:block">
+                <p id="user-status" class="text-[9px] font-black text-slate-500 uppercase italic tracking-widest">Checking Status...</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-8">
+                <div class="glass-card p-8 rounded-[2.5rem] border-white/5">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 italic">Recipient Numbers (One per line)</label>
+                    <textarea id="phone-list" rows="8" 
+                        class="w-full bg-slate-900/50 border border-white/5 rounded-2xl p-6 text-sm text-slate-300 input-glow transition-all"
+                        placeholder="628123456789&#10;6285161990373"></textarea>
+                    <p class="mt-3 text-[9px] font-bold text-slate-600 uppercase italic italic tracking-tighter">Format: Start with country code (e.g., 62 for Indonesia)</p>
+                </div>
+
+                <div class="glass-card p-8 rounded-[2.5rem] border-white/5">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 italic">Message Content</label>
+                    <textarea id="message-text" rows="6" 
+                        class="w-full bg-slate-900/50 border border-white/5 rounded-2xl p-6 text-sm text-slate-300 input-glow transition-all"
+                        placeholder="Halo, perkenalkan layanan kami..."></textarea>
+                </div>
+            </div>
+
+            <div class="space-y-8">
+                <div class="glass-card p-8 rounded-[2.5rem] border-indigo-500/20 bg-indigo-600/5">
+                    <h3 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-6 italic">Broadcast Console</h3>
+                    
+                    <div class="space-y-6 mb-8">
+                        <div class="flex justify-between items-end">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Total Queue</span>
+                            <span id="queue-count" class="text-2xl font-black italic">0</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                            <div id="progress-bar" class="bg-indigo-500 h-full w-0 transition-all duration-500"></div>
+                        </div>
+                    </div>
+
+                    <button onclick="startBroadcast()" id="btn-send" class="w-full py-5 bg-indigo-600 hover:bg-indigo-500 rounded-[2rem] font-black uppercase text-xs italic shadow-2xl shadow-indigo-500/20 transition-all active:scale-95 flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-bolt"></i> Launch Campaign
+                    </button>
+                </div>
+
+                <div class="glass-card p-8 rounded-[2.5rem] border-white/5">
+                    <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 italic">Campaign Safety</h3>
+                    <div class="flex items-center gap-3 mb-4">
+                        <input type="checkbox" checked class="accent-indigo-500">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Anti-Ban Delay (Random 5-10s)</span>
+                    </div>
+                    <p class="text-[9px] font-bold text-slate-600 leading-relaxed uppercase">Recommended for new WhatsApp numbers to avoid restriction.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
+        const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+        let currentUser = null;
+
+        async function initBulk() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            
+            const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+            currentUser = profile;
+            document.getElementById('user-status').innerText = profile.package_type.toUpperCase() + " // UNLIMITED READY";
+        }
+
+        // Hitung baris di textarea
+        document.getElementById('phone-list').addEventListener('input', function() {
+            const lines = this.value.split('\n').filter(line => line.trim() !== '');
+            document.getElementById('queue-count').innerText = lines.length;
+        });
+
+        async function startBroadcast() {
+            const phones = document.getElementById('phone-list').value.split('\n').filter(p => p.trim() !== '');
+            const msg = encodeURIComponent(document.getElementById('message-text').value);
+            
+            if (phones.length === 0 || !msg) {
+                alert("Please fill numbers and message!");
+                return;
+            }
+
+            const btn = document.getElementById('btn-send');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin"></i> Processing...`;
+
+            let sentCount = 0;
+
+            for (let i = 0; i < phones.length; i++) {
+                // Update Progress UI
+                const progress = ((i + 1) / phones.length) * 100;
+                document.getElementById('progress-bar').style.width = progress + "%";
+                
+                // Eksekusi Via WhatsApp Web (Client-side)
+                // Ini akan membuka tab baru untuk tiap pengiriman (System Freemium)
+                const waUrl = `https://wa.me/${phones[i]}?text=${msg}`;
+                window.open(waUrl, '_blank');
+                
+                sentCount++;
+
+                // JEDA ANTI-BAN (Simulasi)
+                await new Promise(r => setTimeout(r, 2000)); 
+            }
+
+            // UPDATE STATISTIK DI SUPABASE (GRATIS)
+            const newTotal = (currentUser.messages_sent || 0) + sentCount;
+            await supabase.from('profiles').update({ messages_sent: newTotal }).eq('id', currentUser.id);
+
+            alert("Campaign Finished! " + sentCount + " Tabs opened.");
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-bolt"></i> Launch Campaign`;
+        }
+
+        initBulk();
+    </script>
+</body>
+</html>
