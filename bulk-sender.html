@@ -17,24 +17,23 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #060B18; color: #F1F5F9; }
         .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         
-        /* Custom Quill Style */
+        /* FIX: TOOLBAR QUILL TERANG & JELAS */
         .ql-toolbar.ql-snow { border: 1px solid rgba(255,255,255,0.1) !important; background: #1E293B; border-radius: 12px 12px 0 0; }
+        .ql-toolbar.ql-snow .ql-stroke { stroke: #F1F5F9 !important; }
+        .ql-toolbar.ql-snow .ql-fill { fill: #F1F5F9 !important; }
+        .ql-toolbar.ql-snow .ql-picker { color: #F1F5F9 !important; }
+        
         .ql-container.ql-snow { border: 1px solid rgba(255,255,255,0.1) !important; background: #0F172A; border-radius: 0 0 12px 12px; min-height: 250px; color: white; font-size: 14px; }
         .ql-editor.ql-blank::before { color: #475569; font-style: normal; }
         
-        /* Tooltip Link Style */
-        .ql-snow .ql-tooltip { background-color: #1e293b; color: white; border: 1px solid #3b82f6; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); }
-        .ql-snow .ql-tooltip input[type=text] { background: #0f172a; color: white; border: 1px solid #334155; border-radius: 4px; }
-
+        /* Scrollbar & Cards */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 10px; }
-
         .card-target { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-left: 4px solid transparent; }
         .card-target:hover { border-left: 4px solid #3b82f6; transform: translateX(5px); background: rgba(59, 130, 246, 0.05); }
         
-        /* Focus Image Highlight */
-        .ql-editor img { cursor: pointer; transition: 0.3s; border: 2px solid transparent; }
-        .ql-editor img:hover { border: 2px solid #3b82f6; }
+        .ql-editor img { cursor: pointer; border: 2px dashed transparent; transition: 0.3s; }
+        .ql-editor img:hover { border: 2px dashed #3b82f6; }
     </style>
 </head>
 <body class="p-4 md:p-10 min-h-screen">
@@ -45,7 +44,7 @@
                 <h1 class="text-3xl font-black italic uppercase tracking-tighter text-white">BULK <span class="text-blue-500">SENDER</span></h1>
                 <div class="flex items-center gap-2 mt-2">
                     <span class="text-[11px] font-black bg-blue-500/10 text-blue-400 px-4 py-1.5 rounded-full uppercase tracking-widest">OPERATOR CONSOLE</span>
-                    <span id="display-username" class="text-sm font-black text-blue-500 uppercase tracking-widest italic ml-2">@loading...</span>
+                    <span id="display-username" class="text-sm font-black text-blue-500 uppercase tracking-widest italic ml-2">@14ART</span>
                 </div>
             </div>
             <div class="flex gap-4">
@@ -57,15 +56,14 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-7 space-y-6">
                 <div class="glass-card p-6 rounded-[2rem]">
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4 italic">1. Recipient Numbers (All Formats)</label>
-                    <textarea id="phone-list" placeholder="628123456789&#10;08123456789" 
-                        class="w-full h-32 bg-slate-950/50 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-blue-500 transition-all"></textarea>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4 italic">1. Recipient Numbers</label>
+                    <textarea id="phone-list" placeholder="628123456789..." class="w-full h-32 bg-slate-950/50 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-blue-500 transition-all"></textarea>
                 </div>
 
                 <div class="glass-card p-6 rounded-[2rem]">
                     <div class="flex justify-between items-center mb-4">
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">2. Marketing Content</label>
-                        <p class="text-[9px] text-blue-400 font-bold uppercase italic">*Klik Gambar/Video di editor untuk set Link</p>
+                        <p class="text-[9px] text-blue-400 font-bold uppercase italic">*Markdown Auto-Convert Active</p>
                     </div>
                     
                     <div id="editor-wrapper" class="rounded-xl overflow-hidden">
@@ -94,19 +92,18 @@
             </div>
 
             <div class="lg:col-span-5">
-                <div class="glass-card rounded-[2.5rem] overflow-hidden flex flex-col h-full max-h-[850px]">
+                <div class="glass-card rounded-[2.5rem] flex flex-col h-full max-h-[850px]">
                     <div class="p-8 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
                         <div>
                             <h3 class="text-xs font-black uppercase tracking-widest text-white">List Pengiriman</h3>
-                            <p class="text-[9px] text-slate-500 uppercase mt-1 font-bold">Total Queue: <span id="queue-count" class="text-blue-500">0</span></p>
+                            <p class="text-[9px] text-slate-500 uppercase mt-1 font-bold">Total: <span id="queue-count" class="text-blue-500">0</span></p>
                         </div>
-                        <button onclick="clearQueue()" class="text-[9px] font-black text-red-400 uppercase hover:text-red-500">Clear All</button>
+                        <button onclick="clearQueue()" class="text-[9px] font-black text-red-400 uppercase">Clear All</button>
                     </div>
-
                     <div id="queue-list" class="flex-grow overflow-y-auto p-6 space-y-3">
-                        <div id="empty-state" class="py-20 text-center">
-                            <i class="fa-solid fa-layer-group text-slate-800 text-4xl mb-4"></i>
-                            <p class="text-[10px] font-black text-slate-600 uppercase tracking-widest italic">Belum ada antrean pesan</p>
+                        <div id="empty-state" class="py-20 text-center text-slate-600">
+                            <i class="fa-solid fa-layer-group text-4xl mb-4"></i>
+                            <p class="text-[10px] font-black uppercase italic tracking-widest">Antrean Kosong</p>
                         </div>
                     </div>
                 </div>
@@ -119,68 +116,71 @@
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        // --- CUSTOM QUILL HANDLERS FOR VIDEO & LINK ---
         var quill = new Quill('#editor-container', {
             modules: { toolbar: '#toolbar-container' },
-            placeholder: 'Tulis pesan promosi Anda di sini...',
+            placeholder: 'Tulis pesan...',
             theme: 'snow'
         });
 
-        // 1. VIDEO FROM DEVICE HANDLER
-        quill.getModule('toolbar').addHandler('video', () => {
-            const fileInput = document.createElement('input');
-            fileInput.setAttribute('type', 'file');
-            fileInput.setAttribute('accept', 'video/*');
-            fileInput.click();
-
-            fileInput.onchange = () => {
-                const file = fileInput.files[0];
-                if (file) {
-                    const videoUrl = URL.createObjectURL(file);
-                    const range = quill.getSelection();
-                    quill.insertEmbed(range.index, 'video', videoUrl);
-                }
-            };
-        });
-
-        // 2. IMAGE/MEDIA CLICK TO LINK
-        document.getElementById('editor-container').addEventListener('click', (e) => {
-            if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
-                const currentUrl = e.target.closest('a')?.href || '';
-                const url = prompt("Masukkan/Ubah Link URL untuk media ini:", currentUrl || "https://");
-                
-                if (url) {
-                    // Wrap with Link if not wrapped
-                    if (!e.target.closest('a')) {
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.target = "_blank";
-                        e.target.parentNode.insertBefore(link, e.target);
-                        link.appendChild(e.target);
-                    } else {
-                        e.target.closest('a').href = url;
-                    }
-                }
+        // --- HANDLER MEDIA (SINKRONISASI WHATSAPP) ---
+        // Image & Video via URL agar bisa terkirim sebagai Link di WA
+        quill.getModule('toolbar').addHandler('image', () => {
+            const url = prompt("Masukkan URL Gambar Marketing:");
+            if (url) {
+                const range = quill.getSelection();
+                quill.insertEmbed(range.index, 'image', url);
             }
         });
 
-        // AUTH & USERNAME
-        async function checkUser() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if(!session) window.location.href = 'index.html';
+        quill.getModule('toolbar').addHandler('video', () => {
+            const url = prompt("Masukkan URL Video (YouTube/Direct Link):");
+            if (url) {
+                const range = quill.getSelection();
+                quill.insertEmbed(range.index, 'video', url);
+            }
+        });
 
-            const { data: profile } = await supabase.from('profiles').select('username').eq('id', session.user.id).single();
-            document.getElementById('display-username').innerText = `@${profile?.username || '14ART'}`;
+        // --- PENERJEMAH HTML KE MARKDOWN WHATSAPP ---
+        function getWhatsAppFriendlyText(html) {
+            let text = html;
+            // Bold
+            text = text.replace(/<strong>(.*?)<\/strong>/g, '*$1*').replace(/<b>(.*?)<\/b>/g, '*$1*');
+            // Italic
+            text = text.replace(/<em>(.*?)<\/em>/g, '_$1_').replace(/<i>(.*?)<\/i>/g, '_$1_');
+            // Link pada Teks: "Teks (URL)"
+            text = text.replace(/<a href="(.*?)".*?>(.*?)<\/a>/g, '$2 ($1)');
+            // Image/Video: "Media: URL"
+            text = text.replace(/<img.*?src="(.*?)".*?>/g, '\nMedia Gambar: $1\n');
+            text = text.replace(/<iframe.*?src="(.*?)".*?><\/iframe>/g, '\nMedia Video: $1\n');
+            
+            // Clean Tag & Decode
+            const temp = document.createElement('div');
+            temp.innerHTML = text.replace(/<p>/g, '').replace(/<\/p>/g, '\n');
+            return temp.textContent || temp.innerText || "";
         }
 
-        // CAMPAIGN LOGIC
+        async function sendManual(number, btn) {
+            const htmlContent = quill.root.innerHTML;
+            const finalMessage = getWhatsAppFriendlyText(htmlContent);
+            const encodedText = encodeURIComponent(finalMessage);
+            const waUrl = `https://wa.me/${number}?text=${encodedText}`;
+
+            const waWindow = window.open(waUrl, '_blank');
+            if (waWindow) {
+                btn.disabled = true;
+                btn.innerHTML = "SENT";
+                btn.className = "h-9 px-4 bg-green-500/20 text-green-500 text-[9px] font-black uppercase rounded-lg border border-green-500/30";
+                const card = btn.closest('.card-target');
+                card.style.opacity = '0.5';
+                card.style.borderLeft = '4px solid #10b981';
+            }
+        }
+
         function launchCampaign() {
             const phoneInput = document.getElementById('phone-list').value;
             const numbers = phoneInput.split('\n').filter(n => n.trim() !== "");
-
-            if(numbers.length === 0) return alert("Masukkan minimal satu nomor tujuan!");
-            if(quill.getText().trim().length === 0) return alert("Isi pesan tidak boleh kosong!");
-
+            if(numbers.length === 0) return;
+            
             document.getElementById('empty-state').classList.add('hidden');
             const list = document.getElementById('queue-list');
 
@@ -193,22 +193,15 @@
                 card.className = "card-target glass-card p-4 rounded-2xl flex justify-between items-center bg-slate-900/40";
                 card.innerHTML = `
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500">
-                            <i class="fa-brands fa-whatsapp text-lg"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs font-black text-white tracking-wider">${formatted}</p>
-                            <p class="text-[8px] font-black text-slate-500 uppercase">Ready to send</p>
-                        </div>
+                        <div class="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500"><i class="fa-brands fa-whatsapp text-lg"></i></div>
+                        <div><p class="text-xs font-black text-white">${formatted}</p><p class="text-[8px] font-black text-slate-500 uppercase">Ready</p></div>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="sendManual('${formatted}', this)" class="h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white text-[9px] font-black uppercase rounded-lg transition-all shadow-lg shadow-blue-500/20">Kirim</button>
-                        <button onclick="this.closest('.card-target').remove(); updateCount()" class="h-9 w-9 bg-slate-800 text-slate-500 hover:text-red-500 rounded-lg flex items-center justify-center transition-all"><i class="fa-solid fa-trash-can text-xs"></i></button>
-                    </div>
-                `;
+                        <button onclick="sendManual('${formatted}', this)" class="h-9 px-4 bg-blue-600 text-white text-[9px] font-black uppercase rounded-lg transition-all">Kirim</button>
+                        <button onclick="this.closest('.card-target').remove(); updateCount()" class="h-9 w-9 bg-slate-800 text-slate-500 hover:text-red-500 rounded-lg flex items-center justify-center"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    </div>`;
                 list.appendChild(card);
             });
-
             updateCount();
             document.getElementById('phone-list').value = '';
         }
@@ -220,44 +213,24 @@
         }
 
         function clearQueue() {
-            if(confirm("Hapus semua antrean?")) {
+            if(confirm("Hapus semua?")) {
                 const list = document.getElementById('queue-list');
-                const cards = list.querySelectorAll('.card-target');
-                cards.forEach(card => card.remove());
+                list.querySelectorAll('.card-target').forEach(c => c.remove());
                 updateCount();
             }
         }
 
-        // --- REAL WHATSAPP SEND LOGIC ---
-        async function sendManual(number, btn) {
-            // Kita ambil pesan murni (plaintext) untuk wa.me
-            // Namun jika Master ingin menyertakan link, pastikan linknya ikut ter-encode
-            const plainText = quill.getText(); 
-            const encodedText = encodeURIComponent(plainText);
-            const waUrl = `https://wa.me/${number}?text=${encodedText}`;
-
-            // Buka WhatsApp (True Redirect)
-            const waWindow = window.open(waUrl, '_blank');
-
-            if (waWindow) {
-                // UI Feedback: SENT
-                btn.disabled = true;
-                btn.innerHTML = "SENT";
-                btn.className = "h-9 px-4 bg-green-500/20 text-green-500 text-[9px] font-black uppercase rounded-lg cursor-not-allowed border border-green-500/30";
-                
-                const card = btn.closest('.card-target');
-                card.style.opacity = '0.5';
-                card.style.borderLeft = '4px solid #10b981';
-            } else {
-                alert("Gagal membuka WhatsApp. Pastikan Browser mengizinkan Popup!");
-            }
+        async function checkUser() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if(!session) window.location.href = 'index.html';
+            const { data: profile } = await supabase.from('profiles').select('username').eq('id', session.user.id).single();
+            document.getElementById('display-username').innerText = `@${profile?.username || '14ART'}`;
         }
 
         async function handleLogout() {
             await supabase.auth.signOut();
             window.location.href = 'index.html';
         }
-
         checkUser();
     </script>
 </body>
