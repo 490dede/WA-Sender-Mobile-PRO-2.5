@@ -108,6 +108,28 @@
                 </div>
             </div>
         </div>
+
+        <div class="mt-12 glass-card rounded-[2rem] overflow-hidden mb-10">
+            <div class="p-6 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
+                <h3 class="text-xs font-black uppercase tracking-widest text-white italic">
+                    <i class="fa-solid fa-clock-rotate-left mr-2 text-blue-500"></i> Campaign History / Riwayat Pengiriman
+                </h3>
+                <button onclick="clearHistory()" class="text-[9px] font-black text-slate-500 uppercase hover:text-red-400 transition-colors">Clear History</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-950/50">
+                            <th class="p-4 text-[9px] font-black uppercase tracking-widest text-slate-500 border-b border-white/5">Date - Time</th>
+                            <th class="p-4 text-[9px] font-black uppercase tracking-widest text-slate-500 border-b border-white/5">Total Queue</th>
+                            <th class="p-4 text-[9px] font-black uppercase tracking-widest text-slate-500 border-b border-white/5">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -154,9 +176,7 @@
             text = text.replace(/<strong>(.*?)<\/strong>/g, '*$1*').replace(/<b>(.*?)<\/b>/g, '*$1*');
             text = text.replace(/<em>(.*?)<\/em>/g, '_$1_').replace(/<i>(.*?)<\/i>/g, '_$1_');
             
-            // Link Style: Bold + Italic + Link (Underline Emulation)
             text = text.replace(/<a href="(.*?)".*?>(.*?)<\/a>/g, '_*$2*_ \n$1');
-
             text = text.replace(/<p>/g, '').replace(/<\/p>/g, '\n').replace(/<br>/g, '\n');
             text = text.replace(/<[^>]*>?/gm, '');
 
@@ -168,7 +188,7 @@
                     finalOutput += "\n\n*Gallery:*";
                     otherMedia.forEach(m => finalOutput += `\n${m}`);
                 }
-                finalOutput += "\n\n" + primaryMedia; // Primary at bottom to trigger preview
+                finalOutput += "\n\n" + primaryMedia; 
             }
             return finalOutput;
         }
@@ -195,6 +215,9 @@
             const numbers = phoneInput.split('\n').filter(n => n.trim() !== "");
             if(numbers.length === 0) return alert("Please input numbers!");
             
+            // Add to History Logic
+            addToHistory(numbers.length);
+
             document.getElementById('empty-state').classList.add('hidden');
             const list = document.getElementById('queue-list');
 
@@ -234,6 +257,50 @@
             }
         }
 
+        // --- HISTORY CORE LOGIC ---
+        function addToHistory(count) {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('id-ID');
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            const datetime = `${dateStr} - ${timeStr}`;
+            
+            const history = JSON.parse(localStorage.getItem('wa_bulk_history') || '[]');
+            history.push({ datetime, total: count });
+            
+            if (history.length > 20) history.shift(); // Keep last 20 records
+            localStorage.setItem('wa_bulk_history', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('wa_bulk_history') || '[]');
+            const body = document.getElementById('history-body');
+            body.innerHTML = '';
+
+            if (history.length === 0) {
+                body.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-[10px] text-slate-600 font-bold uppercase italic tracking-widest">No history recorded / Belum ada riwayat</td></tr>`;
+                return;
+            }
+
+            [...history].reverse().forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-white/5 hover:bg-white/[0.02] transition-colors";
+                tr.innerHTML = `
+                    <td class="p-4 text-xs font-medium text-slate-300 italic">${item.datetime}</td>
+                    <td class="p-4 text-xs font-black text-blue-400 uppercase tracking-tighter">${item.total} Numbers / Nomor</td>
+                    <td class="p-4"><span class="text-[9px] font-black bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full uppercase tracking-widest italic border border-blue-500/20">Archived</span></td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function clearHistory() {
+            if(confirm("Hapus semua riwayat pengiriman?")) {
+                localStorage.removeItem('wa_bulk_history');
+                renderHistory();
+            }
+        }
+
         async function checkUser() {
             const { data: { session } } = await supabase.auth.getSession();
             if(!session) window.location.href = 'index.html';
@@ -241,7 +308,9 @@
             document.getElementById('display-username').innerText = `@${profile?.username || '14ART'}`;
         }
 
+        // Initialize
         checkUser();
+        renderHistory();
     </script>
 </body>
 </html>
