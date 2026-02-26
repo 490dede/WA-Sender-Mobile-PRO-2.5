@@ -15,13 +15,20 @@
         .nav-card:hover { transform: translateY(-10px); background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
         .glow-indigo { box-shadow: 0 0 30px rgba(99, 102, 241, 0.3); }
         .text-sharp { text-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+        
+        /* Mencegah elemen navigasi hilang saat scroll */
+        .sticky-nav { position: sticky; top: 0; z-index: 50; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px); }
     </style>
 </head>
 <body class="p-4 md:p-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black min-h-screen">
 
     <div class="max-w-7xl mx-auto">
-        <div class="flex justify-end gap-4 mb-6">
-            <button onclick="handleLogout()" class="px-6 py-2 bg-slate-800 hover:bg-red-900/40 text-red-400 text-[10px] font-black uppercase rounded-full transition-all border border-red-500/20">
+        <div class="flex justify-between items-center mb-10 pb-6 border-b border-white/5">
+            <div class="flex items-center gap-3">
+                <span class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></span>
+                <p class="text-[9px] font-black text-slate-500 uppercase tracking-[0.4em]">System Online</p>
+            </div>
+            <button onclick="handleLogout()" class="px-6 py-2 bg-slate-800 hover:bg-red-900/40 text-red-400 text-[10px] font-black uppercase rounded-full transition-all border border-red-500/20 shadow-lg">
                 <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout System
             </button>
         </div>
@@ -31,21 +38,19 @@
                 <h1 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-white text-sharp leading-none">
                     COMMAND <span class="text-indigo-500">CENTER</span>
                 </h1>
-                <div class="flex items-center gap-3 mt-4">
-                    <span class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></span>
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic">
-                        Global Automation Engine v2.3 <span class="text-indigo-400 ml-2">// SYSTEM ONLINE</span>
-                    </p>
-                </div>
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic mt-4">
+                    Global Automation Engine v2.3 <span class="text-indigo-400 ml-2">// MASTER CONSOLE</span>
+                </p>
             </div>
             
             <a href="profile.html" class="glass-card px-8 py-5 rounded-[2.5rem] flex items-center gap-5 hover:bg-slate-800/80 transition-all border-white/10 group glow-indigo">
                 <div class="text-right">
                     <p id="display-name" class="text-sm font-extrabold italic uppercase text-white tracking-tight leading-none mb-1">Loading...</p>
-                    <p id="display-tier" class="text-[9px] font-black text-indigo-400 tracking-[0.2em] uppercase italic opacity-70 group-hover:opacity-100 transition-opacity italic underline">Checking Tier...</p>
+                    <p id="display-tier" class="text-[9px] font-black tracking-[0.2em] uppercase italic opacity-70 group-hover:opacity-100 transition-opacity underline">Checking Tier...</p>
                 </div>
-                <div class="w-14 h-14 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center border-2 border-white/10 shadow-2xl group-hover:rotate-6 transition-transform">
-                    <i class="fa-solid fa-user-astronaut text-2xl text-white"></i>
+                <div id="avatar-container" class="w-14 h-14 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center border-2 border-white/10 shadow-2xl group-hover:rotate-6 transition-transform overflow-hidden">
+                    <img id="user-avatar-mini" src="" class="w-full h-full object-cover hidden">
+                    <i id="user-icon-placeholder" class="fa-solid fa-user-astronaut text-2xl text-white"></i>
                 </div>
             </a>
         </div>
@@ -75,11 +80,11 @@
                 <p class="text-[9px] font-bold text-slate-500 uppercase leading-relaxed tracking-wider">Leads Generation</p>
             </div>
 
-            <div onclick="location.href='upgrade.html'" class="nav-card bg-gradient-to-br from-indigo-600 to-indigo-800 p-10 rounded-[3rem] flex flex-col items-center text-center shadow-2xl shadow-indigo-500/20 border-indigo-400/30">
+            <div onclick="location.href='upgrade.html'" id="upgrade-card" class="nav-card bg-gradient-to-br from-indigo-600 to-indigo-800 p-10 rounded-[3rem] flex flex-col items-center text-center shadow-2xl border-indigo-400/30">
                 <div class="w-20 h-20 bg-white/10 rounded-[2rem] flex items-center justify-center mb-8 shadow-lg backdrop-blur-md">
-                    <i class="fa-solid fa-crown text-4xl text-white"></i>
+                    <i id="upgrade-icon" class="fa-solid fa-crown text-4xl text-white"></i>
                 </div>
-                <h3 class="text-sm font-black italic uppercase tracking-widest text-white mb-3">Go Professional</h3>
+                <h3 id="upgrade-title" class="text-sm font-black italic uppercase tracking-widest text-white mb-3">Go Professional</h3>
                 <p class="text-[9px] font-bold text-white/70 uppercase leading-relaxed tracking-tighter">Unlimited Potential</p>
             </div>
         </div>
@@ -123,9 +128,8 @@
 
         async function initDashboard() {
             const { data: { session } } = await supabase.auth.getSession();
-            if (!session) { window.location.href = 'login.html'; return; }
+            if (!session) { window.location.href = 'index.html'; return; }
 
-            // SOURCE OF TRUTH: Ambil data profile terbaru
             const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('*')
@@ -133,16 +137,41 @@
                 .single();
 
             if (!error && profile) {
-                // SINKRONISASI TIER (Biar tidak nyangkut di Trial)
-                document.getElementById('display-name').innerText = profile.full_name || 'User';
-                document.getElementById('display-tier').innerText = profile.package_type.toUpperCase() + " ACCOUNT";
+                // Render Nama/Username
+                document.getElementById('display-name').innerText = profile.username || profile.full_name || 'MASTER';
                 
-                // Ambil data statistik asli
+                // Sinkronisasi Tier & Styling Warna
+                const tier = profile.package_type || 'TRIAL';
+                const tierEl = document.getElementById('display-tier');
+                tierEl.innerText = tier.toUpperCase() + " ACCOUNT";
+                
+                const upgradeCard = document.getElementById('upgrade-card');
+                const upgradeTitle = document.getElementById('upgrade-title');
+
+                if(tier === 'MULTI') {
+                    tierEl.classList.add('text-purple-400');
+                    upgradeCard.classList.replace('from-indigo-600', 'from-purple-600');
+                    upgradeTitle.innerText = "Manage Team";
+                } else if(tier === 'PRO') {
+                    tierEl.classList.add('text-emerald-400');
+                    upgradeCard.classList.replace('from-indigo-600', 'from-emerald-600');
+                } else {
+                    tierEl.classList.add('text-slate-400');
+                }
+
+                // Render Avatar jika ada
+                if(profile.avatar_url) {
+                    const avatarImg = document.getElementById('user-avatar-mini');
+                    avatarImg.src = profile.avatar_url;
+                    avatarImg.classList.remove('hidden');
+                    document.getElementById('user-icon-placeholder').classList.add('hidden');
+                }
+                
+                // Animasi Statistik
                 const sent = profile.messages_sent || 0;
                 const leads = profile.leads_generated || 0;
                 const rate = sent > 0 ? Math.floor((leads / sent) * 100) : 0;
 
-                // Animasi uplift angka
                 animateValue("stats-sent", 0, sent, 1500);
                 animateValue("stats-rate", 0, rate, 2000, "%");
                 animateValue("stats-leads", 0, leads, 2500);
@@ -163,8 +192,10 @@
         }
 
         async function handleLogout() {
-            await supabase.auth.signOut();
-            window.location.href = 'login.html';
+            const { error } = await supabase.auth.signOut();
+            if(!error) {
+                window.location.replace('index.html'); // Gunakan replace agar tidak bisa back
+            }
         }
 
         async function handleDeleteAccount() {
@@ -174,7 +205,7 @@
                 if (!error) {
                     await supabase.auth.signOut();
                     alert("Akun telah dihapus.");
-                    window.location.href = 'register.html';
+                    window.location.href = 'index.html';
                 }
             }
         }
