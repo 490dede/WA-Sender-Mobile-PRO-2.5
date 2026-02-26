@@ -1,23 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Identity - WA-Sender PRO</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #060B18; color: #F1F5F9; }
-        .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .input-glow:focus { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); outline: none; }
-        .profile-gradient { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); }
-        .lock-overlay { background: rgba(6, 11, 24, 0.85); backdrop-filter: blur(8px); }
-    </style>
-</head>
 <body class="p-4 md:p-10 min-h-screen">
-
     <div class="max-w-6xl mx-auto">
         <div class="flex items-center justify-between mb-10">
             <div>
@@ -27,7 +8,7 @@
                 <h1 class="text-3xl font-black italic uppercase tracking-tighter text-white mt-2">ACCOUNT <span class="text-blue-500">IDENTITY</span></h1>
             </div>
             <div id="account-badge" class="px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-[10px] font-black text-blue-400 uppercase tracking-widest">
-                Checking Level...
+                Checking...
             </div>
         </div>
 
@@ -35,8 +16,12 @@
             <div class="lg:col-span-1 space-y-6">
                 <div class="glass-card p-8 rounded-[2.5rem] relative overflow-hidden">
                     <div class="flex flex-col items-center text-center mb-8">
-                        <div class="w-24 h-24 rounded-3xl profile-gradient p-1 mb-4 shadow-2xl shadow-blue-500/20">
+                        <div class="group relative w-24 h-24 rounded-3xl profile-gradient p-1 mb-4 shadow-2xl shadow-blue-500/20">
                             <img id="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Lucky" class="w-full h-full rounded-[1.4rem] bg-slate-900 object-cover">
+                            <button onclick="triggerPhotoUpload()" class="absolute inset-0 bg-black/60 rounded-[1.4rem] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <i class="fa-solid fa-camera text-white"></i>
+                            </button>
+                            <input type="file" id="photo-input" class="hidden" accept="image/*" onchange="uploadPhoto(this)">
                         </div>
                         <h2 id="display-name" class="text-xl font-black text-white italic tracking-tight">Loading...</h2>
                         <p id="display-email" class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">user@mail.com</p>
@@ -44,14 +29,14 @@
 
                     <div class="space-y-4">
                         <div>
-                            <label class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 block ml-1">Full Name</label>
-                            <input type="text" id="user-fullname" class="w-full bg-slate-950 border border-white/5 rounded-xl p-3 text-sm text-white input-glow">
+                            <label class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 block ml-1">Username (Letters, Numbers, Symbols)</label>
+                            <input type="text" id="user-username" class="w-full bg-slate-950 border border-white/5 rounded-xl p-3 text-sm text-white input-glow" placeholder="Admin_01!">
                         </div>
                         <div>
                             <label class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 block ml-1">WhatsApp Identity</label>
                             <input type="text" id="user-phone" placeholder="628xxx" class="w-full bg-slate-950 border border-white/5 rounded-xl p-3 text-sm text-white input-glow">
                         </div>
-                        <button onclick="updateProfile()" id="btn-save-profile" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all mt-4">
+                        <button onclick="updateProfile()" id="btn-save-profile" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all mt-4 shadow-lg shadow-blue-500/20">
                             Update Identity
                         </button>
                     </div>
@@ -64,8 +49,8 @@
                         <i class="fa-solid fa-lock text-2xl text-blue-500"></i>
                     </div>
                     <h3 class="text-white font-black uppercase tracking-widest text-sm">Multi-User Management</h3>
-                    <p class="text-slate-500 text-[10px] uppercase mt-2 font-bold max-w-[250px] leading-relaxed">This feature is exclusive for <span class="text-blue-400">MULTI Account</span> holders to manage CS teams.</p>
-                    <a href="go-professional.html" class="mt-6 px-8 py-3 bg-blue-600 text-white text-[10px] font-black rounded-xl uppercase hover:bg-blue-500 transition-all shadow-xl shadow-blue-500/20">Upgrade to Multi</a>
+                    <p class="text-slate-500 text-[10px] uppercase mt-2 font-bold max-w-[250px] leading-relaxed">This feature is exclusive for <span class="text-blue-400">MULTI Account</span> holders.</p>
+                    <button onclick="window.location.href='go-professional.html'" class="mt-6 px-8 py-3 bg-blue-600 text-white text-[10px] font-black rounded-xl uppercase hover:bg-blue-500 transition-all shadow-xl shadow-blue-500/20">Upgrade to Multi</button>
                 </div>
 
                 <div class="glass-card rounded-[2.5rem] overflow-hidden min-h-[450px]">
@@ -83,14 +68,13 @@
                         <table class="w-full text-left">
                             <thead class="text-[9px] font-black text-slate-600 uppercase tracking-tighter border-b border-white/5">
                                 <tr>
-                                    <th class="p-4">Name</th>
+                                    <th class="p-4">Agent Username</th>
                                     <th class="p-4">WhatsApp</th>
                                     <th class="p-4">Status</th>
                                     <th class="p-4 text-right">Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="team-list" class="text-sm">
-                                </tbody>
+                            <tbody id="team-list" class="text-sm"></tbody>
                         </table>
                         <div id="empty-team" class="hidden p-12 text-center">
                             <i class="fa-solid fa-users-slash text-slate-800 text-3xl mb-4"></i>
@@ -106,11 +90,12 @@
         <div class="glass-card w-full max-w-md p-8 rounded-[2.5rem] border-blue-500/20">
             <h3 class="text-lg font-black italic text-white uppercase mb-6">Register <span class="text-blue-500">CS Agent</span></h3>
             <div class="space-y-4">
-                <input type="text" id="cs-name" placeholder="CS Name (e.g. Siska Admin)" class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white input-glow">
-                <input type="text" id="cs-phone" placeholder="WhatsApp Number (628...)" class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white input-glow">
+                <input type="text" id="cs-username" placeholder="CS Username" class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white input-glow">
+                <input type="email" id="cs-email" placeholder="Agent Email Address" class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white input-glow">
+                <input type="text" id="cs-phone" placeholder="WhatsApp (e.g. 628...)" class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white input-glow">
                 <div class="flex gap-3 mt-6">
                     <button onclick="closeAddTeam()" class="flex-1 py-4 bg-slate-800 rounded-xl font-black uppercase text-[10px] tracking-widest">Cancel</button>
-                    <button onclick="saveTeam()" class="flex-1 py-4 bg-blue-600 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-blue-500/20 text-white">Deploy CS</button>
+                    <button id="btn-deploy-cs" onclick="saveTeam()" class="flex-1 py-4 bg-blue-600 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-blue-500/20 text-white">Deploy CS</button>
                 </div>
             </div>
         </div>
@@ -121,93 +106,137 @@
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        let myTeam = [];
-
         async function init() {
             const { data: { session } } = await supabase.auth.getSession();
             if(!session) return window.location.href = 'index.html';
 
             const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
             
-            // Render Profile Info
-            document.getElementById('display-name').innerText = profile.full_name || 'Anonymous User';
-            document.getElementById('user-fullname').value = profile.full_name || '';
+            // Render UI
+            document.getElementById('display-name').innerText = profile.username || 'Master User';
+            document.getElementById('user-username').value = profile.username || '';
             document.getElementById('display-email').innerText = session.user.email;
             document.getElementById('user-phone').value = profile.whatsapp_number || '';
             
-            const level = profile.membership_level || 'FREE';
+            if(profile.avatar_url) document.getElementById('user-avatar').src = profile.avatar_url;
+
+            // Sync Membership Level
+            const level = profile.membership_level || 'TRIAL';
             document.getElementById('account-badge').innerText = level + ' ACCOUNT';
 
-            // Logika Gerbang MULTI
+            // Logika Gerbang MULTI (CS Management)
             if (level !== 'MULTI') {
                 document.getElementById('lock-screen').classList.remove('hidden');
                 document.getElementById('btn-add-team').disabled = true;
-                document.getElementById('btn-add-team').classList.add('opacity-10');
+                document.getElementById('btn-add-team').style.opacity = '0.3';
             } else {
-                loadTeam();
+                loadTeam(session.user.id);
             }
         }
 
+        // FUNGSI GANTI FOTO
+        function triggerPhotoUpload() { document.getElementById('photo-input').click(); }
+
+        async function uploadPhoto(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const imgBase64 = e.target.result;
+                document.getElementById('user-avatar').src = imgBase64;
+                const { data: { session } } = await supabase.auth.getSession();
+                await supabase.from('profiles').update({ avatar_url: imgBase64 }).eq('id', session.user.id);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // FUNGSI UPDATE IDENTITY (Username & Phone)
         async function updateProfile() {
-            const name = document.getElementById('user-fullname').value;
+            const usernameInput = document.getElementById('user-username').value;
             const phone = document.getElementById('user-phone').value;
             const btn = document.getElementById('btn-save-profile');
             
-            btn.innerHTML = "Updating...";
+            btn.innerHTML = "SECURING...";
             const { data: { session } } = await supabase.auth.getSession();
             
             const { error } = await supabase.from('profiles').update({ 
-                full_name: name,
+                username: usernameInput, // Support kombinasi karakter
                 whatsapp_number: phone 
             }).eq('id', session.user.id);
 
             if(!error) {
-                alert("Identity secured!");
+                alert("Identity secured, Master!");
                 location.reload();
+            } else {
+                alert("Error: " + error.message);
+                btn.innerHTML = "Update Identity";
             }
-            btn.innerHTML = "Update Identity";
         }
 
-        // Logic Team Management (Simple Array Simulation for now)
-        function loadTeam() {
+        // LOAD TEAM DARI SUPABASE
+        async function loadTeam(ownerId) {
             const list = document.getElementById('team-list');
             const empty = document.getElementById('empty-team');
-            if(myTeam.length === 0) {
+            
+            const { data: teams } = await supabase.from('teams').select('*').eq('owner_id', ownerId);
+
+            if(!teams || teams.length === 0) {
                 list.innerHTML = '';
                 empty.classList.remove('hidden');
             } else {
                 empty.classList.add('hidden');
-                list.innerHTML = myTeam.map((cs, i) => `
-                    <tr class="border-b border-white/5">
-                        <td class="p-4 font-bold text-white">${cs.name}</td>
-                        <td class="p-4 text-slate-400">${cs.phone}</td>
-                        <td class="p-4"><span class="px-2 py-0.5 bg-blue-500/10 text-blue-400 text-[8px] font-black rounded">OPERATIONAL</span></td>
+                list.innerHTML = teams.map((cs) => `
+                    <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-all">
+                        <td class="p-4 font-bold text-white">${cs.username}</td>
+                        <td class="p-4 text-slate-400">${cs.whatsapp_number}</td>
+                        <td class="p-4"><span class="px-2 py-0.5 bg-green-500/10 text-green-400 text-[8px] font-black rounded">ACTIVE</span></td>
                         <td class="p-4 text-right">
-                            <button onclick="deleteTeam(${i})" class="text-slate-600 hover:text-red-500 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                            <button onclick="deleteTeam('${cs.id}')" class="text-slate-600 hover:text-red-500 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     </tr>
                 `).join('');
             }
         }
 
-        function openAddTeam() { document.getElementById('modal-team').classList.remove('hidden'); }
-        function closeAddTeam() { document.getElementById('modal-team').classList.add('hidden'); }
-        
-        function saveTeam() {
-            const n = document.getElementById('cs-name').value;
-            const p = document.getElementById('cs-phone').value;
-            if(!n || !p) return;
-            myTeam.push({name: n, phone: p});
-            closeAddTeam();
-            loadTeam();
+        // SAVE TEAM KE SUPABASE
+        async function saveTeam() {
+            const user = document.getElementById('cs-username').value;
+            const email = document.getElementById('cs-email').value;
+            const phone = document.getElementById('cs-phone').value;
+            const btn = document.getElementById('btn-deploy-cs');
+
+            if(!user || !email || !phone) return alert("Semua kolom harus diisi!");
+
+            btn.innerHTML = "DEPLOYING...";
+            const { data: { session } } = await supabase.auth.getSession();
+
+            const { error } = await supabase.from('teams').insert([{
+                owner_id: session.user.id,
+                username: user,
+                email: email,
+                whatsapp_number: phone
+            }]);
+
+            if(!error) {
+                closeAddTeam();
+                init();
+            } else {
+                alert(error.message);
+            }
+            btn.innerHTML = "Deploy CS";
         }
 
-        function deleteTeam(i) {
-            myTeam.splice(i, 1);
-            loadTeam();
+        async function deleteTeam(id) {
+            if(confirm("Hapus agent ini?")) {
+                await supabase.from('teams').delete().eq('id', id);
+                init();
+            }
         }
+
+        function openAddTeam() { document.getElementById('modal-team').classList.remove('hidden'); }
+        function closeAddTeam() { document.getElementById('modal-team').classList.add('hidden'); }
 
         init();
     </script>
 </body>
-</html>
