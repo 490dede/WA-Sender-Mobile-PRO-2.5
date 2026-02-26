@@ -121,7 +121,7 @@
             if(profile.avatar_url) document.getElementById('user-avatar').src = profile.avatar_url;
 
             // Sync Membership Level
-            const level = profile.membership_level || 'TRIAL';
+            const level = profile.package_type || 'TRIAL'; // Menyesuaikan kolom package_type di DB
             document.getElementById('account-badge').innerText = level + ' ACCOUNT';
 
             // Logika Gerbang MULTI (CS Management)
