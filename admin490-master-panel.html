@@ -47,24 +47,40 @@
 
         <div id="section-users" class="space-y-6">
             <div class="glass-card p-7 rounded-[2.5rem]">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                    <div class="lg:col-span-2">
-                        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Search Identity</label>
-                        <input type="text" id="searchUser" oninput="filterData()" placeholder="Name/WA..." class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
-                    </div>
-                    <div><label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Start Date</label><input type="date" id="startDate" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white"></div>
-                    <div><label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">End Date</label><input type="date" id="endDate" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white"></div>
-                    <div>
-                        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Tier</label>
-                        <select id="filterPackage" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs font-black text-white">
-                            <option value="ALL">ALL</option><option value="TRIAL">TRIAL</option><option value="PRO">PRO</option><option value="MULTI">MULTI</option>
-                        </select>
-                    </div>
-                    <div class="flex gap-2 pt-5">
-                        <button onclick="openModal('region')" class="flex-1 p-3 bg-white/5 hover:bg-indigo-500/20 rounded-xl border border-white/10 text-indigo-400"><i class="fa-solid fa-globe"></i></button>
-                        <button onclick="openModal('platform')" class="flex-1 p-3 bg-white/5 hover:bg-purple-500/20 rounded-xl border border-white/10 text-purple-400"><i class="fa-solid fa-layer-group"></i></button>
-                    </div>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+    <div class="lg:col-span-2">
+        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Search Identity</label>
+        <input type="text" id="searchUser" oninput="filterData()" placeholder="Name/WA..." class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+    </div>
+    <div><label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Start Date</label><input type="date" id="startDate" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white"></div>
+    <div><label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">End Date</label><input type="date" id="endDate" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white"></div>
+    
+    <div>
+        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Tier</label>
+        <select id="filterPackage" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs font-black text-white">
+            <option value="ALL">ALL TIER</option><option value="TRIAL">TRIAL</option><option value="PRO">PRO</option><option value="MULTI">MULTI</option>
+        </select>
+    </div>
+
+    <div>
+        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Region</label>
+        <select id="filterRegion" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs font-black text-white">
+            <option value="ALL">ALL REGION</option>
+        </select>
+    </div>
+
+    <div>
+        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Platform</label>
+        <select id="filterPlatform" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs font-black text-white">
+            <option value="ALL">ALL PLATFORM</option>
+        </select>
+    </div>
+
+    <div class="flex gap-2 pt-5">
+        <button onclick="openModal('region')" class="flex-1 p-3 bg-white/5 hover:bg-indigo-500/20 rounded-xl border border-white/10 text-indigo-400"><i class="fa-solid fa-globe"></i></button>
+        <button onclick="openModal('platform')" class="flex-1 p-3 bg-white/5 hover:bg-purple-500/20 rounded-xl border border-white/10 text-purple-400"><i class="fa-solid fa-layer-group"></i></button>
+    </div>
+</div>
             </div>
             <div class="glass-card rounded-[3rem] overflow-hidden">
                 <table class="w-full text-left">
