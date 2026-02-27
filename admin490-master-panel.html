@@ -146,28 +146,47 @@
         }
 
         function renderTable(data) {
-            const tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = '';
-            data.forEach(u => {
-                const date = new Date(u.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
-                tbody.innerHTML += `
-                    <tr class="hover:bg-white/[0.02] transition-all">
-                        <td class="p-6">
-                            <p class="font-black italic text-white text-sm uppercase">${u.username || 'NEW_USER'}</p>
-                            <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">${u.email}</p>
-                        </td>
-                        <td class="p-6 font-mono text-xs font-black text-indigo-400 tracking-tighter">${u.whatsapp_number || '-'}</td>
-                        <td class="p-6 text-center">
-                            <span class="px-4 py-1.5 rounded-lg text-[9px] font-black italic uppercase ${u.package_type === 'TRIAL' ? 'bg-slate-500/10 text-slate-400' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/10'}">${u.package_type}</span>
-                        </td>
-                        <td class="p-6 text-[11px] font-black text-slate-500 italic">${date}</td>
-                        <td class="p-6 text-right">
-                            <button onclick="quickUpdate('${u.id}', 'PRO')" class="text-indigo-400 hover:text-white mr-4"><i class="fa-solid fa-crown text-xs"></i></button>
-                            <button onclick="quickUpdate('${u.id}', 'MULTI')" class="text-purple-400 hover:text-white"><i class="fa-solid fa-layer-group text-xs"></i></button>
-                        </td>
-                    </tr>`;
-            });
-        }
+    const tbody = document.getElementById('userTableBody');
+    tbody.innerHTML = '';
+    data.forEach(u => {
+        const date = new Date(u.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+        tbody.innerHTML += `
+            <tr class="hover:bg-white/[0.02] transition-all border-b border-white/5">
+                <td class="p-6 cursor-pointer group" onclick="viewAsUser('${u.id}')">
+                    <p class="font-black italic text-white text-sm uppercase group-hover:text-indigo-400 transition-colors">
+                        <i class="fa-solid fa-eye text-[10px] opacity-0 group-hover:opacity-100 mr-2"></i>${u.username || 'NEW_USER'}
+                    </p>
+                    <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">${u.email}</p>
+                </td>
+                <td class="p-6 font-mono text-xs font-black text-indigo-400 tracking-tighter">${u.whatsapp_number || '-'}</td>
+                <td class="p-6 text-center">
+                    <span class="px-4 py-1.5 rounded-lg text-[9px] font-black italic uppercase ${u.package_type === 'TRIAL' ? 'bg-slate-500/10 text-slate-400' : u.package_type === 'PRO' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-purple-500/20 text-purple-400'} border border-white/5">${u.package_type}</span>
+                </td>
+                <td class="p-6 text-[11px] font-black text-slate-500 italic">${date}</td>
+                <td class="p-6 text-right space-x-2">
+                    <button onclick="quickUpdate('${u.id}', 'PRO')" class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all"><i class="fa-solid fa-crown text-[10px]"></i></button>
+                    <button onclick="quickUpdate('${u.id}', 'MULTI')" class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 hover:bg-purple-500 hover:text-white transition-all"><i class="fa-solid fa-layer-group text-[10px]"></i></button>
+                    <button onclick="deleteUser('${u.id}')" class="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                </td>
+            </tr>`;
+    });
+}
+
+// FUNGSI BARU UNTUK ADMIN VIEW MODE
+function viewAsUser(userId) {
+    // Simpan target ID di sessionStorage untuk dibaca dashboard-akun.html
+    sessionStorage.setItem('view_as_user_id', userId);
+    window.location.href = 'dashboard-akun.html?mode=view';
+}
+
+// FUNGSI DELETE USER UNTUK ADMIN
+async function deleteUser(id) {
+    if(confirm("Hapus user ini secara permanen dari database?")) {
+        const { error } = await supabase.from('profiles').delete().eq('id', id);
+        if(!error) loadData();
+        else alert("Gagal menghapus: " + error.message);
+    }
+}
 
         function updateStats(data) {
             const pPro = parseInt(document.getElementById('priceProInput').value) || 0;
