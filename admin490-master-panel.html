@@ -13,6 +13,9 @@
         .glass-card { background: rgba(30, 41, 59, 0.45); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         .modal-bg { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0F172A; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -77,7 +80,7 @@
 
         <div class="glass-card rounded-[3rem] overflow-hidden">
             <div class="max-h-[600px] overflow-y-auto">
-                <table class="w-full text-left">
+                <table class="w-full text-left border-collapse">
                     <thead class="sticky top-0 bg-slate-900 z-10 border-b border-white/10">
                         <tr class="text-[10px] font-black text-slate-500 uppercase italic">
                             <th class="p-6">User Info</th>
@@ -129,13 +132,16 @@
         }
 
         async function loadPlatforms() { 
-            const { data } = await supabase.from('scraper_platforms').select('*'); 
+            const { data } = await supabase.from('scraper_platforms').select('*').order('platform_name'); 
             platforms = data || []; 
         }
 
         async function loadData() {
             const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
-            if (!error) { allUsers = data; filterData(); }
+            if (!error) { 
+                allUsers = data; 
+                filterData(); 
+            }
         }
 
         function filterData() {
@@ -147,17 +153,17 @@
             let filtered = allUsers.filter(u => {
                 const matchSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
                 const matchPkg = pkg === 'ALL' || u.package_type === pkg;
+                
                 const joinDate = new Date(u.created_at).setHours(0,0,0,0);
-                const matchRegion = activeRegionFilter === 'ALL' || 
-                   (u.region_code === activeRegionFilter) || 
-                   (u.whatsapp_number && u.whatsapp_number.startsWith(activeRegionFilter));
-                const matchPlatform = activePlatformFilter === 'ALL' || u.platform === activePlatformFilter;
                 const matchDate = (!start || joinDate >= new Date(start).setHours(0,0,0,0)) && 
                                   (!end || joinDate <= new Date(end).setHours(0,0,0,0));
-
                 
-                // Integrasi Filter Region & Platform
-                const matchRegion = activeRegionFilter === 'ALL' || u.region_code === activeRegionFilter;
+                // Logic Filter Region (Mengecek kolom region_code ATAU awalan nomor WA)
+                const matchRegion = activeRegionFilter === 'ALL' || 
+                                   (u.region_code === activeRegionFilter) || 
+                                   (u.whatsapp_number && u.whatsapp_number.startsWith(activeRegionFilter));
+                
+                // Logic Filter Platform
                 const matchPlatform = activePlatformFilter === 'ALL' || u.platform === activePlatformFilter;
 
                 return matchSearch && matchPkg && matchDate && matchRegion && matchPlatform;
@@ -197,16 +203,18 @@
         function updateStats(data) {
             const pPro = parseInt(document.getElementById('priceProInput').value) || 0;
             const pMulti = parseInt(document.getElementById('priceMultiInput').value) || 0;
+            
             const cPro = data.filter(u => u.package_type === 'PRO').length;
             const cMulti = data.filter(u => u.package_type === 'MULTI').length;
+            
             const revPro = cPro * pPro; 
             const revMulti = cMulti * pMulti;
             const total = revPro + revMulti;
             
             document.getElementById('statTotal').innerText = data.length;
-            document.getElementById('revPro').innerText = `Rp ${revPro.toLocaleString()}`;
-            document.getElementById('revMulti').innerText = `Rp ${revMulti.toLocaleString()}`;
-            document.getElementById('totalRevenue').innerText = `Rp ${total.toLocaleString()}`;
+            document.getElementById('revPro').innerText = `Rp ${revPro.toLocaleString('id-ID')}`;
+            document.getElementById('revMulti').innerText = `Rp ${revMulti.toLocaleString('id-ID')}`;
+            document.getElementById('totalRevenue').innerText = `Rp ${total.toLocaleString('id-ID')}`;
         }
 
         function setGlobalFilter(type, value) {
@@ -242,11 +250,14 @@
 
             if(mode === 'region') {
                 title.innerText = "Manage Regions";
-                inputArea.innerHTML = `<input id="newRegionName" placeholder="Country Name" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-xs text-white"><input id="newRegionCode" placeholder="Code (e.g. 62)" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-xs text-white">`;
+                inputArea.innerHTML = `
+                    <input id="newRegionName" placeholder="Country Name" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-xs text-white">
+                    <input id="newRegionCode" placeholder="Code (e.g. 62)" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-xs text-white">`;
                 renderList(regions, 'region_name', 'phone_code');
             } else {
                 title.innerText = "Manage Platforms";
-                inputArea.innerHTML = `<input id="newPlatformName" placeholder="Platform Name" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-xs text-white">`;
+                inputArea.innerHTML = `
+                    <input id="newPlatformName" placeholder="Platform Name" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-xs text-white">`;
                 renderList(platforms, 'platform_name');
             }
             document.getElementById('modalAddBtn').onclick = mode === 'region' ? addRegion : addPlatform;
@@ -276,15 +287,20 @@
         }
 
         async function addRegion() {
-            const n = document.getElementById('newRegionName').value; const c = document.getElementById('newRegionCode').value;
-            if(!n || !c) return; await supabase.from('region_codes').insert({ region_name: n, phone_code: c });
-            await loadRegions(); openModal('region');
+            const n = document.getElementById('newRegionName').value; 
+            const c = document.getElementById('newRegionCode').value;
+            if(!n || !c) return; 
+            await supabase.from('region_codes').insert({ region_name: n, phone_code: c });
+            await loadRegions(); 
+            openModal('region');
         }
 
         async function addPlatform() {
             const n = document.getElementById('newPlatformName').value;
-            if(!n) return; await supabase.from('scraper_platforms').insert({ platform_name: n });
-            await loadPlatforms(); openModal('platform');
+            if(!n) return; 
+            await supabase.from('scraper_platforms').insert({ platform_name: n });
+            await loadPlatforms(); 
+            openModal('platform');
         }
 
         async function deleteRecord(id) {
