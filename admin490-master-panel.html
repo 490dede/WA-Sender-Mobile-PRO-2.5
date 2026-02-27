@@ -190,9 +190,7 @@
         document.getElementById('totalRevenue').innerText = `Rp ${(proRev + multiRev).toLocaleString()}`;
     }
 
-    // --- NAVIGATION FIXED ---
     function viewAsUser(userId) {
-        // Mengirim parameter mode=admin agar profile.html tahu ini mode View Only
         window.location.href = `profile.html?id=${userId}&mode=admin`; 
     }
 
@@ -212,103 +210,53 @@
         document.getElementById(`tab-${tab}`).classList.add('active');
     }
 
-    // --- MODAL LOGIC (FIXED ADD & VALUE) ---
-    // --- MODAL LOGIC (FIXED & SYNCED) ---
-async function openModal(type) {
-    const listArea = document.getElementById('modalListArea');
-    const btnAdd = document.getElementById('modalAddBtn');
-    
-    // Sesuaikan nama tabel dengan database asli kamu
-    let table = type === 'region' ? 'region_codes' : 'scrapper_platforms'; 
-    
-    document.getElementById('modalTitle').innerText = `MANAGE ${type.toUpperCase()}`;
-    document.getElementById('managementModal').classList.replace('hidden', 'flex');
-    
-    const { data, error } = await supabase.from(table).select('*');
+    // --- MODAL LOGIC FIXED ---
+    async function openModal(type) {
+        const listArea = document.getElementById('modalListArea');
+        const btnAdd = document.getElementById('modalAddBtn');
+        let table = type === 'region' ? 'region_codes' : 'scrapper_platforms'; 
+        
+        document.getElementById('modalTitle').innerText = `MANAGE ${type.toUpperCase()}`;
+        document.getElementById('managementModal').classList.replace('hidden', 'flex');
+        
+        const { data, error } = await supabase.from(table).select('*');
+        if(error) {
+            listArea.innerHTML = `<p class="text-red-400 text-center uppercase font-black">Error loading data.</p>`;
+            return;
+        }
 
-    if(error) {
-        console.error("Gagal load tabel:", table, error);
-        listArea.innerHTML = `<p class="text-red-400 text-[10px] p-4 text-center uppercase font-black">Tabel '${table}' tidak ditemukan atau akses ditolak.</p>`;
-        return;
+        listArea.innerHTML = (data || []).map(item => `
+            <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                <span class="text-xs font-bold uppercase">${item.region_name || item.platform_name || 'Undefined'}</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-[10px] font-mono text-indigo-400">${item.phone_code || ''}</span>
+                    <button onclick="deleteModalItem('${table}', '${item.id}', '${type}')" class="text-red-500 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+            </div>`).join('');
+
+        btnAdd.onclick = () => addModalItem(table, type);
     }
 
-    listArea.innerHTML = (data || []).map(item => `
-        <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-            <span class="text-xs font-bold uppercase">${item.region_name || item.platform_name || 'Undefined'}</span>
-            <div class="flex items-center gap-3">
-                <span class="text-[10px] font-mono text-indigo-400">${item.phone_code || ''}</span>
-                <button onclick="deleteModalItem('${table}', '${item.id}', '${type}')" class="text-red-500 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
-            </div>
-        </div>
-    `).join('');
+    async function addModalItem(table, type) {
+        const val1 = document.getElementById('modalInput1').value.trim();
+        const val2 = document.getElementById('modalInput2').value.trim();
+        if(!val1) return alert("Nama harus diisi!");
 
-    btnAdd.onclick = () => addModalItem(table, type);
-}
+        let payload = {};
+        if (type === 'region') {
+            payload = { region_name: val1, phone_code: val2 };
+        } else {
+            payload = { platform_name: val1 };
+        }
 
-async function addModalItem(table, type) {
-    const val1 = document.getElementById('modalInput1').value.trim();
-    const val2 = document.getElementById('modalInput2').value.trim();
-    
-    if(!val1) return alert("Nama harus diisi!");
-
-    let payload = {};
-    if (type === 'region') {
-        // Harus sinkron dengan: region_name & phone_code
-        payload = { 
-            region_name: val1, 
-            phone_code: val2 
-        };
-    } else {
-        // Harus sinkron dengan: platform_name
-        // Catatan: Karena tabel scrapper_platforms kamu tidak punya kolom version, 
-        // kita hanya mengirim platform_name saja.
-        payload = { 
-            platform_name: val1 
-        };
+        const { error } = await supabase.from(table).insert([payload]);
+        if(error) alert(`Gagal: ${error.message}`);
+        else {
+            document.getElementById('modalInput1').value = '';
+            document.getElementById('modalInput2').value = '';
+            openModal(type);
+        }
     }
-
-    const { error } = await supabase.from(table).insert([payload]);
-    
-    if(error) {
-        console.error("Insert Gagal:", error);
-        alert(`Gagal: ${error.message}`);
-    } else {
-        document.getElementById('modalInput1').value = '';
-        document.getElementById('modalInput2').value = '';
-        openModal(type); // Refresh list
-    }
-}
-
-    // Pastikan payload sesuai dengan struktur kolom tabel Supabase kamu
-    let payload = {};
-    if (type === 'region') {
-        payload = { 
-            country_name: val1, 
-            phone_code: val2 
-        };
-    } else {
-        payload = { 
-            platform_name: val1, 
-            version: val2 // Pastikan di tabel platform_settings kolomnya bernama 'version'
-        };
-    }
-
-    console.log("Mengirim data ke:", table, payload); // Debugging
-
-    const { data, error } = await supabase.from(table).insert([payload]).select();
-
-    if(error) {
-        console.error("Detail Error Supabase:", error);
-        alert(`Gagal: ${error.message} (Cek Console F12)`);
-    } else {
-        console.log("Berhasil tambah data:", data);
-        // Reset input setelah berhasil
-        document.getElementById('modalInput1').value = '';
-        document.getElementById('modalInput2').value = '';
-        // Refresh daftar di modal
-        openModal(type);
-    }
-}
 
     async function deleteModalItem(table, id, type) {
         if(confirm("Hapus item?")) { 
@@ -319,7 +267,6 @@ async function addModalItem(table, type) {
 
     function closeModal() { document.getElementById('managementModal').classList.replace('flex', 'hidden'); }
 
-    // --- SUBSCRIPTION ---
     async function loadPlans() {
         const { data } = await supabase.from('subscription_plans').select('*').order('price', { ascending: true });
         document.getElementById('planList').innerHTML = (data || []).map(p => `
@@ -346,7 +293,6 @@ async function addModalItem(table, type) {
         };
         await supabase.from('subscription_plans').insert(plan);
         loadPlans();
-        // Clear form
         ['planName', 'planPrice', 'planImage', 'planDuration', 'planDesc'].forEach(id => document.getElementById(id).value = '');
     }
 
@@ -371,6 +317,6 @@ async function addModalItem(table, type) {
     async function handleLogout() { await supabase.auth.signOut(); window.location.href = 'login.html'; }
 
     init();
-</script>
+    </script>
 </body>
 </html>
