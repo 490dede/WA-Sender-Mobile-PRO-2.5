@@ -142,37 +142,63 @@
     
     let allUsers = [], quill;
 
-    async function init() {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session || session.user.email !== 'adeali490@gmail.com') { 
-            window.location.href = 'login.html'; return; 
-        }
-        quill = new Quill('#announcementEditor', { theme: 'snow', modules: { toolbar: [['bold', 'italic', 'underline'], ['link']] } });
-        await Promise.all([loadData(), loadPlans(), loadAnnouncements()]);
+    // Tambahkan pemanggilan loadFilterOptions di dalam init
+async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || session.user.email !== 'adeali490@gmail.com') { 
+        window.location.href = 'login.html'; return; 
     }
+    quill = new Quill('#announcementEditor', { theme: 'snow', modules: { toolbar: [['bold', 'italic', 'underline'], ['link']] } });
+    
+    await Promise.all([loadData(), loadPlans(), loadAnnouncements(), loadFilterOptions()]);
+}
 
-    async function loadData() {
-        const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
-        if(!error) { allUsers = data || []; filterData(); }
-    }
+// Fungsi baru untuk mengambil data Region & Platform ke dalam Dropdown Filter
+async function loadFilterOptions() {
+    const { data: regions } = await supabase.from('region_codes').select('region_name');
+    const { data: platforms } = await supabase.from('scrapper_platforms').select('platform_name');
 
-    function filterData() {
-        const search = document.getElementById('searchUser').value.toLowerCase();
-        const pkg = document.getElementById('filterPackage').value;
-        const start = document.getElementById('startDate').value;
-        const end = document.getElementById('endDate').value;
-
-        let filtered = allUsers.filter(u => {
-            const mSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
-            const mPkg = pkg === 'ALL' || u.package_type === pkg;
-            const joinDate = new Date(u.created_at).setHours(0,0,0,0);
-            const mStart = start ? joinDate >= new Date(start).setHours(0,0,0,0) : true;
-            const mEnd = end ? joinDate <= new Date(end).setHours(0,0,0,0) : true;
-            return mSearch && mPkg && mStart && mEnd;
+    if (regions) {
+        const regSelect = document.getElementById('filterRegion');
+        regions.forEach(r => {
+            regSelect.innerHTML += `<option value="${r.region_name}">${r.region_name.toUpperCase()}</option>`;
         });
-        renderTable(filtered);
-        updateStats(filtered);
     }
+
+    if (platforms) {
+        const platSelect = document.getElementById('filterPlatform');
+        platforms.forEach(p => {
+            platSelect.innerHTML += `<option value="${p.platform_name}">${p.platform_name.toUpperCase()}</option>`;
+        });
+    }
+}
+
+// Update fungsi filterData agar mendukung Region & Platform
+function filterData() {
+    const search = document.getElementById('searchUser').value.toLowerCase();
+    const pkg = document.getElementById('filterPackage').value;
+    const region = document.getElementById('filterRegion').value;
+    const platform = document.getElementById('filterPlatform').value;
+    const start = document.getElementById('startDate').value;
+    const end = document.getElementById('endDate').value;
+
+    let filtered = allUsers.filter(u => {
+        const mSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
+        const mPkg = pkg === 'ALL' || u.package_type === pkg;
+        
+        // Filter baru (Pastikan nama kolom di tabel 'profiles' adalah 'region' dan 'platform')
+        const mRegion = region === 'ALL' || u.region === region;
+        const mPlatform = platform === 'ALL' || u.platform === platform;
+
+        const joinDate = new Date(u.created_at).setHours(0,0,0,0);
+        const mStart = start ? joinDate >= new Date(start).setHours(0,0,0,0) : true;
+        const mEnd = end ? joinDate <= new Date(end).setHours(0,0,0,0) : true;
+        
+        return mSearch && mPkg && mRegion && mPlatform && mStart && mEnd;
+    });
+    renderTable(filtered);
+    updateStats(filtered);
+}
 
     function renderTable(data) {
         document.getElementById('userTableBody').innerHTML = data.map(u => `
