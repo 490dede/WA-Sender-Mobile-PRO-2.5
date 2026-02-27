@@ -245,22 +245,44 @@
     }
 
     async function addModalItem(table, type) {
-        const val1 = document.getElementById('modalInput1').value;
-        const val2 = document.getElementById('modalInput2').value;
-        if(!val1 || !val2) return alert("Semua kolom harus diisi!");
-
-        let payload = type === 'region' ? 
-            { country_name: val1, phone_code: val2 } : 
-            { platform_name: val1, version: val2 };
-
-        const { error } = await supabase.from(table).insert(payload);
-        if(error) {
-            console.error(error);
-            alert("Gagal menambah data: " + error.message);
-        } else {
-            openModal(type); // Refresh tampilan modal
-        }
+    const val1 = document.getElementById('modalInput1').value.trim();
+    const val2 = document.getElementById('modalInput2').value.trim();
+    
+    if(!val1 || !val2) {
+        alert("Isi semua kolom dulu, Bos!");
+        return;
     }
+
+    // Pastikan payload sesuai dengan struktur kolom tabel Supabase kamu
+    let payload = {};
+    if (type === 'region') {
+        payload = { 
+            country_name: val1, 
+            phone_code: val2 
+        };
+    } else {
+        payload = { 
+            platform_name: val1, 
+            version: val2 // Pastikan di tabel platform_settings kolomnya bernama 'version'
+        };
+    }
+
+    console.log("Mengirim data ke:", table, payload); // Debugging
+
+    const { data, error } = await supabase.from(table).insert([payload]).select();
+
+    if(error) {
+        console.error("Detail Error Supabase:", error);
+        alert(`Gagal: ${error.message} (Cek Console F12)`);
+    } else {
+        console.log("Berhasil tambah data:", data);
+        // Reset input setelah berhasil
+        document.getElementById('modalInput1').value = '';
+        document.getElementById('modalInput2').value = '';
+        // Refresh daftar di modal
+        openModal(type);
+    }
+}
 
     async function deleteModalItem(table, id, type) {
         if(confirm("Hapus item?")) { 
