@@ -148,8 +148,13 @@
                 const matchSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
                 const matchPkg = pkg === 'ALL' || u.package_type === pkg;
                 const joinDate = new Date(u.created_at).setHours(0,0,0,0);
+                const matchRegion = activeRegionFilter === 'ALL' || 
+                   (u.region_code === activeRegionFilter) || 
+                   (u.whatsapp_number && u.whatsapp_number.startsWith(activeRegionFilter));
+                const matchPlatform = activePlatformFilter === 'ALL' || u.platform === activePlatformFilter;
                 const matchDate = (!start || joinDate >= new Date(start).setHours(0,0,0,0)) && 
                                   (!end || joinDate <= new Date(end).setHours(0,0,0,0));
+
                 
                 // Integrasi Filter Region & Platform
                 const matchRegion = activeRegionFilter === 'ALL' || u.region_code === activeRegionFilter;
