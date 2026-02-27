@@ -18,6 +18,7 @@
         #announcementEditor { height: 200px; background: white; color: black; border-radius: 0 0 1rem 1rem; }
         .ql-toolbar { background: #F1F5F9; border-radius: 1rem 1rem 0 0; }
         ::-webkit-calendar-picker-indicator { filter: invert(1); }
+        .modal-bg { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -32,16 +33,16 @@
         </div>
 
         <div class="bg-slate-800/40 p-8 rounded-[3rem] border border-white/5 flex flex-wrap justify-around gap-8 text-center">
-            <div><p class="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Total Users</p><h2 id="statTotal" class="text-3xl font-black italic">0</h2></div>
-            <div><p class="text-[10px] font-black text-indigo-400 uppercase mb-2 tracking-widest">Pro Revenue</p><h2 id="statPro" class="text-3xl font-black italic text-indigo-300">Rp 0</h2></div>
-            <div><p class="text-[10px] font-black text-purple-400 uppercase mb-2 tracking-widest">Multi Revenue</p><h2 id="statMulti" class="text-3xl font-black italic text-purple-300">Rp 0</h2></div>
-            <div><p class="text-[10px] font-black text-emerald-400 uppercase mb-2 tracking-widest">Total Omzet</p><h2 id="totalRevenue" class="text-4xl font-black italic text-emerald-400">Rp 0</h2></div>
+            <div><p class="text-[10px] font-black text-slate-400 uppercase mb-2">Total Users</p><h2 id="statTotal" class="text-3xl font-black italic">0</h2></div>
+            <div><p class="text-[10px] font-black text-indigo-400 uppercase mb-2">Pro Revenue</p><h2 id="statPro" class="text-3xl font-black italic text-indigo-300">Rp 0</h2></div>
+            <div><p class="text-[10px] font-black text-purple-400 uppercase mb-2">Multi Revenue</p><h2 id="statMulti" class="text-3xl font-black italic text-purple-300">Rp 0</h2></div>
+            <div><p class="text-[10px] font-black text-emerald-400 uppercase mb-2">Total Omzet</p><h2 id="totalRevenue" class="text-4xl font-black italic text-emerald-400">Rp 0</h2></div>
         </div>
 
         <div class="flex gap-4 border-b border-white/10 pb-4 overflow-x-auto">
-            <button onclick="switchTab('users')" id="tab-users" class="nav-btn active px-6 py-2 rounded-full border border-white/10 text-xs font-black uppercase transition-all">User Management</button>
-            <button onclick="switchTab('packages')" id="tab-packages" class="nav-btn px-6 py-2 rounded-full border border-white/10 text-xs font-black uppercase transition-all">Subscription Plans</button>
-            <button onclick="switchTab('announcement')" id="tab-announcement" class="nav-btn px-6 py-2 rounded-full border border-white/10 text-xs font-black uppercase transition-all">Announcements</button>
+            <button onclick="switchTab('users')" id="tab-users" class="nav-btn active px-6 py-2 rounded-full border border-white/10 text-xs font-black uppercase transition-all whitespace-nowrap">User Management</button>
+            <button onclick="switchTab('packages')" id="tab-packages" class="nav-btn px-6 py-2 rounded-full border border-white/10 text-xs font-black uppercase transition-all whitespace-nowrap">Subscription Plans</button>
+            <button onclick="switchTab('announcement')" id="tab-announcement" class="nav-btn px-6 py-2 rounded-full border border-white/10 text-xs font-black uppercase transition-all whitespace-nowrap">Announcements</button>
         </div>
 
         <div id="section-users" class="space-y-6">
@@ -71,12 +72,11 @@
                     </div>
                 </div>
             </div>
-
             <div class="glass-card rounded-[3rem] overflow-hidden">
                 <table class="w-full text-left">
                     <thead class="bg-slate-900 border-b border-white/10">
                         <tr class="text-[10px] font-black text-slate-500 uppercase italic">
-                            <th class="p-6">User Info</th><th class="p-6">WA Number</th><th class="p-6 text-center">Tier Status</th><th class="p-6">Joined Date</th><th class="p-6 text-right">Actions</th>
+                            <th class="p-6">User Info</th><th class="p-6">WA Number</th><th class="p-6 text-center">Tier Status</th><th class="p-6">Joined</th><th class="p-6 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="userTableBody" class="divide-y divide-white/5"></tbody>
@@ -104,11 +104,19 @@
                 <h3 class="text-xl font-black italic uppercase mb-6">Broadcast Announcement</h3>
                 <div id="announcementEditor"></div>
                 <div class="mt-6 flex justify-between items-center">
-                    <p class="text-[10px] text-slate-400 uppercase font-black italic">* This message will appear on all user dashboards</p>
+                    <p class="text-[10px] text-slate-400 uppercase font-black italic">Will appear on all user dashboards</p>
                     <button onclick="publishAnnouncement()" class="px-10 py-4 bg-emerald-600 rounded-2xl font-black uppercase text-xs">Send Now</button>
                 </div>
             </div>
             <div class="glass-card p-8 rounded-[3rem]" id="announcementHistory"></div>
+        </div>
+    </div>
+
+    <div id="managementModal" class="fixed inset-0 modal-bg z-[100] hidden items-center justify-center p-4">
+        <div class="glass-card w-full max-w-md rounded-[3rem] p-10 relative border-white/20">
+            <button onclick="closeModal()" class="absolute top-8 right-8 text-slate-400"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h2 id="modalTitle" class="text-2xl font-black italic uppercase mb-8">Manage Data</h2>
+            <div id="modalListArea" class="max-h-60 overflow-y-auto space-y-2"></div>
         </div>
     </div>
 
@@ -117,4 +125,150 @@
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
         
-        let allUsers
+        let allUsers = [], quill;
+
+        async function init() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session || session.user.email !== 'adeali490@gmail.com') { window.location.href = 'login.html'; return; }
+            
+            quill = new Quill('#announcementEditor', { 
+                theme: 'snow', 
+                modules: { toolbar: [['bold', 'italic', 'underline'], ['link']] }
+            });
+            
+            await Promise.all([loadData(), loadPlans(), loadAnnouncements()]);
+        }
+
+        async function loadData() {
+            const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+            allUsers = data || []; 
+            filterData();
+        }
+
+        function filterData() {
+            const search = document.getElementById('searchUser').value.toLowerCase();
+            const pkg = document.getElementById('filterPackage').value;
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+
+            let filtered = allUsers.filter(u => {
+                const mSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
+                const mPkg = pkg === 'ALL' || u.package_type === pkg;
+                const joinDate = new Date(u.created_at).setHours(0,0,0,0);
+                const mStart = start ? joinDate >= new Date(start).setHours(0,0,0,0) : true;
+                const mEnd = end ? joinDate <= new Date(end).setHours(0,0,0,0) : true;
+                return mSearch && mPkg && mStart && mEnd;
+            });
+
+            renderTable(filtered);
+            updateStats(filtered);
+        }
+
+        function updateStats(data) {
+            let proRev = 0, multiRev = 0;
+            data.forEach(u => {
+                if(u.package_type === 'PRO') proRev += 55000;
+                if(u.package_type === 'MULTI') multiRev += 188000;
+            });
+            document.getElementById('statTotal').innerText = data.length;
+            document.getElementById('statPro').innerText = `Rp ${proRev.toLocaleString('id-ID')}`;
+            document.getElementById('statMulti').innerText = `Rp ${multiRev.toLocaleString('id-ID')}`;
+            document.getElementById('totalRevenue').innerText = `Rp ${(proRev + multiRev).toLocaleString('id-ID')}`;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = data.map(u => `
+                <tr class="hover:bg-white/[0.02] border-b border-white/5">
+                    <td class="p-6 cursor-pointer group" onclick="viewAsUser('${u.id}')">
+                        <p class="font-black italic text-white text-sm uppercase group-hover:text-indigo-400">${u.username || 'NEW_USER'}</p>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">${u.email}</p>
+                    </td>
+                    <td class="p-6 font-mono text-xs font-black text-indigo-400">${u.whatsapp_number || '-'}</td>
+                    <td class="p-6 text-center">
+                        <span class="px-4 py-1.5 rounded-lg text-[9px] font-black italic uppercase ${u.package_type === 'TRIAL' ? 'bg-slate-500/10 text-slate-400' : u.package_type === 'PRO' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-purple-500/20 text-purple-400'}">${u.package_type}</span>
+                    </td>
+                    <td class="p-6 text-[11px] font-black text-slate-500 italic">${new Date(u.created_at).toLocaleDateString()}</td>
+                    <td class="p-6 text-right space-x-2">
+                        <button onclick="quickUpdate('${u.id}', 'PRO')" class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white"><i class="fa-solid fa-crown text-[10px]"></i></button>
+                        <button onclick="quickUpdate('${u.id}', 'MULTI')" class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 hover:bg-purple-500 hover:text-white"><i class="fa-solid fa-layer-group text-[10px]"></i></button>
+                        <button onclick="deleteUser('${u.id}')" class="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function viewAsUser(userId) {
+            sessionStorage.setItem('view_as_user_id', userId);
+            window.location.href = 'account-profile.html?mode=view';
+        }
+
+        async function quickUpdate(id, pkg) {
+            await supabase.from('profiles').update({ package_type: pkg }).eq('id', id);
+            loadData();
+        }
+
+        async function deleteUser(id) {
+            if(confirm("Hapus user?")) { await supabase.from('profiles').delete().eq('id', id); loadData(); }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`section-${tab}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+        }
+
+        async function loadPlans() {
+            const { data } = await supabase.from('subscription_plans').select('*').order('created_at', { ascending: false });
+            document.getElementById('planList').innerHTML = (data || []).map(p => `
+                <div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+                    <img src="${p.image_url}" class="absolute inset-0 w-full h-full object-cover opacity-10">
+                    <div class="relative z-10">
+                        <h4 class="text-lg font-black italic uppercase text-indigo-400">${p.name}</h4>
+                        <p class="text-2xl font-black">Rp ${p.price.toLocaleString()}</p>
+                        <button onclick="deletePlan('${p.id}')" class="text-red-500 text-[10px] font-black uppercase mt-4">Delete</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        async function savePlan() {
+            const plan = {
+                name: document.getElementById('planName').value,
+                price: document.getElementById('planPrice').value,
+                image_url: document.getElementById('planImage').value,
+                duration_days: document.getElementById('planDuration').value,
+                description: document.getElementById('planDesc').value,
+                is_published: true
+            };
+            await supabase.from('subscription_plans').insert(plan);
+            loadPlans();
+        }
+
+        async function deletePlan(id) { if(confirm("Hapus?")) { await supabase.from('subscription_plans').delete().eq('id', id); loadPlans(); } }
+
+        async function loadAnnouncements() {
+            const { data } = await supabase.from('global_announcements').select('*').order('created_at', { ascending: false }).limit(5);
+            document.getElementById('announcementHistory').innerHTML = (data || []).map(a => `
+                <div class="bg-white/5 p-4 rounded-2xl mb-2">
+                    <div class="text-[11px]">${a.content}</div>
+                </div>`).join('');
+        }
+
+        async function publishAnnouncement() {
+            const content = quill.root.innerHTML;
+            if(content === '<p><br></p>') return;
+            await supabase.from('global_announcements').insert({ content });
+            quill.setContents([]); loadAnnouncements();
+        }
+
+        function openModal(type) {
+            document.getElementById('modalTitle').innerText = `Manage ${type}`;
+            document.getElementById('managementModal').classList.replace('hidden', 'flex');
+        }
+        function closeModal() { document.getElementById('managementModal').classList.replace('flex', 'hidden'); }
+        async function handleLogout() { await supabase.auth.signOut(); window.location.href = 'login.html'; }
+
+        init();
+    </script>
+</body>
+</html>
