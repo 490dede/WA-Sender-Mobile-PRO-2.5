@@ -15,8 +15,6 @@
         .nav-card:hover { transform: translateY(-10px); background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
         .glow-indigo { box-shadow: 0 0 30px rgba(99, 102, 241, 0.3); }
         .text-sharp { text-shadow: 0 4px 15px rgba(0,0,0,0.8); }
-        
-        /* Mencegah elemen navigasi hilang saat scroll */
         .sticky-nav { position: sticky; top: 0; z-index: 50; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px); }
     </style>
 </head>
@@ -39,7 +37,7 @@
                     COMMAND <span class="text-indigo-500">CENTER</span>
                 </h1>
                 <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic mt-4">
-                    Global Automation Engine v2.3 <span class="text-indigo-400 ml-2">// MASTER CONSOLE</span>
+                    Global Automation Engine v2.5 <span class="text-indigo-400 ml-2">// AI INTEGRATED</span>
                 </p>
             </div>
             
@@ -55,29 +53,23 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            <div onclick="location.href='bulk-sender.html'" class="nav-card glass-card p-10 rounded-[3rem] flex flex-col items-center text-center">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            <div onclick="location.href='bulk-sender.html'" class="nav-card glass-card p-10 rounded-[3rem] flex flex-col items-center text-center relative overflow-hidden group">
+                <div class="absolute top-4 right-6 bg-indigo-500/20 text-indigo-400 text-[8px] font-black px-3 py-1 rounded-full uppercase italic">AI Assisted</div>
                 <div class="w-20 h-20 bg-slate-900/50 rounded-[2rem] flex items-center justify-center mb-8 border border-white/5 shadow-inner">
                     <i class="fa-solid fa-paper-plane text-4xl text-indigo-400"></i>
                 </div>
                 <h3 class="text-sm font-black italic uppercase tracking-widest text-white mb-3">Bulk Sender</h3>
-                <p class="text-[9px] font-bold text-slate-500 uppercase leading-relaxed tracking-wider">Broadcast to thousands</p>
+                <p class="text-[9px] font-bold text-slate-500 uppercase leading-relaxed tracking-wider">Broadcast with AI Suggester</p>
             </div>
 
-            <div onclick="location.href='auto-reply.html'" class="nav-card glass-card p-10 rounded-[3rem] flex flex-col items-center text-center">
+            <div onclick="location.href='auto-reply.html'" class="nav-card glass-card p-10 rounded-[3rem] flex flex-col items-center text-center relative overflow-hidden group">
+                <div class="absolute top-4 right-6 bg-emerald-500/20 text-emerald-400 text-[8px] font-black px-3 py-1 rounded-full uppercase italic">Smart Engine</div>
                 <div class="w-20 h-20 bg-slate-900/50 rounded-[2rem] flex items-center justify-center mb-8 border border-white/5 shadow-inner">
                     <i class="fa-solid fa-robot text-4xl text-emerald-400"></i>
                 </div>
                 <h3 class="text-sm font-black italic uppercase tracking-widest text-white mb-3">Auto AI Reply</h3>
-                <p class="text-[9px] font-bold text-slate-500 uppercase leading-relaxed tracking-wider">24/7 Automation</p>
-            </div>
-
-            <div onclick="location.href='scraper.html'" class="nav-card glass-card p-10 rounded-[3rem] flex flex-col items-center text-center">
-                <div class="w-20 h-20 bg-slate-900/50 rounded-[2rem] flex items-center justify-center mb-8 border border-white/5 shadow-inner">
-                    <i class="fa-solid fa-magnifying-glass-chart text-4xl text-purple-400"></i>
-                </div>
-                <h3 class="text-sm font-black italic uppercase tracking-widest text-white mb-3">Data Scraper</h3>
-                <p class="text-[9px] font-bold text-slate-500 uppercase leading-relaxed tracking-wider">Leads Generation</p>
+                <p class="text-[9px] font-bold text-slate-500 uppercase leading-relaxed tracking-wider">24/7 Smart Response</p>
             </div>
 
             <div onclick="location.href='upgrade.html'" id="upgrade-card" class="nav-card bg-gradient-to-br from-indigo-600 to-indigo-800 p-10 rounded-[3rem] flex flex-col items-center text-center shadow-2xl border-indigo-400/30">
@@ -96,18 +88,14 @@
                     System Performance
                 </h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
                     <div class="border-l-2 border-white/5 pl-8 hover:border-indigo-500 transition-colors">
-                        <p class="text-[10px] font-black text-slate-500 uppercase italic tracking-widest mb-2">Messages Sent</p>
+                        <p class="text-[10px] font-black text-slate-500 uppercase italic tracking-widest mb-2">Total Broadcasts</p>
                         <p id="stats-sent" class="text-5xl md:text-6xl font-black text-white italic tracking-tighter">0</p>
                     </div>
                     <div class="border-l-2 border-white/5 pl-8 hover:border-emerald-500 transition-colors">
-                        <p class="text-[10px] font-black text-slate-500 uppercase italic tracking-widest mb-2">Response Rate</p>
-                        <p id="stats-rate" class="text-5xl md:text-6xl font-black text-emerald-400 italic tracking-tighter">0%</p>
-                    </div>
-                    <div class="border-l-2 border-white/5 pl-8 hover:border-purple-500 transition-colors">
-                        <p class="text-[10px] font-black text-slate-500 uppercase italic tracking-widest mb-2">Leads Generated</p>
-                        <p id="stats-leads" class="text-5xl md:text-6xl font-black text-purple-400 italic tracking-tighter">0</p>
+                        <p class="text-[10px] font-black text-slate-500 uppercase italic tracking-widest mb-2">AI Response Accuracy</p>
+                        <p id="stats-rate" class="text-5xl md:text-6xl font-black text-emerald-400 italic tracking-tighter">98%</p>
                     </div>
                 </div>
             </div>
@@ -137,10 +125,8 @@
                 .single();
 
             if (!error && profile) {
-                // Render Nama/Username
                 document.getElementById('display-name').innerText = profile.username || profile.full_name || 'MASTER';
                 
-                // Sinkronisasi Tier & Styling Warna
                 const tier = profile.package_type || 'TRIAL';
                 const tierEl = document.getElementById('display-tier');
                 tierEl.innerText = tier.toUpperCase() + " ACCOUNT";
@@ -155,11 +141,8 @@
                 } else if(tier === 'PRO') {
                     tierEl.classList.add('text-emerald-400');
                     upgradeCard.classList.replace('from-indigo-600', 'from-emerald-600');
-                } else {
-                    tierEl.classList.add('text-slate-400');
                 }
 
-                // Render Avatar jika ada
                 if(profile.avatar_url) {
                     const avatarImg = document.getElementById('user-avatar-mini');
                     avatarImg.src = profile.avatar_url;
@@ -167,14 +150,8 @@
                     document.getElementById('user-icon-placeholder').classList.add('hidden');
                 }
                 
-                // Animasi Statistik
                 const sent = profile.messages_sent || 0;
-                const leads = profile.leads_generated || 0;
-                const rate = sent > 0 ? Math.floor((leads / sent) * 100) : 0;
-
                 animateValue("stats-sent", 0, sent, 1500);
-                animateValue("stats-rate", 0, rate, 2000, "%");
-                animateValue("stats-leads", 0, leads, 2500);
             }
         }
 
@@ -193,18 +170,15 @@
 
         async function handleLogout() {
             const { error } = await supabase.auth.signOut();
-            if(!error) {
-                window.location.replace('index.html'); // Gunakan replace agar tidak bisa back
-            }
+            if(!error) window.location.replace('index.html');
         }
 
         async function handleDeleteAccount() {
-            if (confirm("WARNING: Hapus akun secara permanen? Seluruh statistik akan hilang.")) {
+            if (confirm("WARNING: Hapus akun secara permanen?")) {
                 const { data: { session } } = await supabase.auth.getSession();
                 const { error } = await supabase.from('profiles').delete().eq('id', session.user.id);
                 if (!error) {
                     await supabase.auth.signOut();
-                    alert("Akun telah dihapus.");
                     window.location.href = 'index.html';
                 }
             }
