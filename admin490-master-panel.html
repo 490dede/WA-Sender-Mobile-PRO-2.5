@@ -213,45 +213,71 @@
     }
 
     // --- MODAL LOGIC (FIXED ADD & VALUE) ---
-    async function openModal(type) {
-        const listArea = document.getElementById('modalListArea');
-        const btnAdd = document.getElementById('modalAddBtn');
-        const input1 = document.getElementById('modalInput1');
-        const input2 = document.getElementById('modalInput2');
+    // --- MODAL LOGIC (FIXED & SYNCED) ---
+async function openModal(type) {
+    const listArea = document.getElementById('modalListArea');
+    const btnAdd = document.getElementById('modalAddBtn');
+    
+    // Sesuaikan nama tabel dengan database asli kamu
+    let table = type === 'region' ? 'region_codes' : 'scrapper_platforms'; 
+    
+    document.getElementById('modalTitle').innerText = `MANAGE ${type.toUpperCase()}`;
+    document.getElementById('managementModal').classList.replace('hidden', 'flex');
+    
+    const { data, error } = await supabase.from(table).select('*');
 
-        // Reset Input
-        input1.value = ''; input2.value = '';
-        input1.placeholder = type === 'region' ? "Country Name (e.g. Indonesia)" : "Platform Name (e.g. Chrome)";
-        input2.placeholder = type === 'region' ? "Phone Code (e.g. 62)" : "Version (e.g. 1.0.2)";
-
-        document.getElementById('modalTitle').innerText = `MANAGE ${type.toUpperCase()}`;
-        document.getElementById('managementModal').classList.replace('hidden', 'flex');
-        
-        let table = type === 'region' ? 'region_codes' : 'platform_settings';
-        const { data } = await supabase.from(table).select('*');
-
-        listArea.innerHTML = (data || []).length > 0 ? (data || []).map(item => `
-            <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                <span class="text-xs font-bold uppercase">${item.country_name || item.platform_name || 'Undefined'}</span>
-                <div class="flex items-center gap-3">
-                    <span class="text-[10px] font-mono text-indigo-400">${item.phone_code || item.version || ''}</span>
-                    <button onclick="deleteModalItem('${table}', '${item.id}', '${type}')" class="text-red-500 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
-                </div>
-            </div>
-        `).join('') : `<p class="text-center text-[10px] text-slate-500 uppercase py-4">No data found</p>`;
-
-        // Re-bind click event with current type
-        btnAdd.onclick = () => addModalItem(table, type);
+    if(error) {
+        console.error("Gagal load tabel:", table, error);
+        listArea.innerHTML = `<p class="text-red-400 text-[10px] p-4 text-center uppercase font-black">Tabel '${table}' tidak ditemukan atau akses ditolak.</p>`;
+        return;
     }
 
-    async function addModalItem(table, type) {
+    listArea.innerHTML = (data || []).map(item => `
+        <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+            <span class="text-xs font-bold uppercase">${item.region_name || item.platform_name || 'Undefined'}</span>
+            <div class="flex items-center gap-3">
+                <span class="text-[10px] font-mono text-indigo-400">${item.phone_code || ''}</span>
+                <button onclick="deleteModalItem('${table}', '${item.id}', '${type}')" class="text-red-500 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+        </div>
+    `).join('');
+
+    btnAdd.onclick = () => addModalItem(table, type);
+}
+
+async function addModalItem(table, type) {
     const val1 = document.getElementById('modalInput1').value.trim();
     const val2 = document.getElementById('modalInput2').value.trim();
     
-    if(!val1 || !val2) {
-        alert("Isi semua kolom dulu, Bos!");
-        return;
+    if(!val1) return alert("Nama harus diisi!");
+
+    let payload = {};
+    if (type === 'region') {
+        // Harus sinkron dengan: region_name & phone_code
+        payload = { 
+            region_name: val1, 
+            phone_code: val2 
+        };
+    } else {
+        // Harus sinkron dengan: platform_name
+        // Catatan: Karena tabel scrapper_platforms kamu tidak punya kolom version, 
+        // kita hanya mengirim platform_name saja.
+        payload = { 
+            platform_name: val1 
+        };
     }
+
+    const { error } = await supabase.from(table).insert([payload]);
+    
+    if(error) {
+        console.error("Insert Gagal:", error);
+        alert(`Gagal: ${error.message}`);
+    } else {
+        document.getElementById('modalInput1').value = '';
+        document.getElementById('modalInput2').value = '';
+        openModal(type); // Refresh list
+    }
+}
 
     // Pastikan payload sesuai dengan struktur kolom tabel Supabase kamu
     let payload = {};
