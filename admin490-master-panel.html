@@ -121,154 +121,212 @@
     </div>
 
     <script>
-        const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
-        const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
-        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+    const SB_URL = "https://xitvmryrzeiinlcgdrfj.supabase.co";
+    const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
+    const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+    
+    let allUsers = [], quill;
+
+    async function init() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session || session.user.email !== 'adeali490@gmail.com') { 
+            window.location.href = 'login.html'; 
+            return; 
+        }
         
-        let allUsers = [], quill;
+        quill = new Quill('#announcementEditor', { 
+            theme: 'snow', 
+            modules: { toolbar: [['bold', 'italic', 'underline'], ['link']] }
+        });
+        
+        await Promise.all([loadData(), loadPlans(), loadAnnouncements()]);
+    }
 
-        async function init() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session || session.user.email !== 'adeali490@gmail.com') { window.location.href = 'login.html'; return; }
-            
-            quill = new Quill('#announcementEditor', { 
-                theme: 'snow', 
-                modules: { toolbar: [['bold', 'italic', 'underline'], ['link']] }
-            });
-            
-            await Promise.all([loadData(), loadPlans(), loadAnnouncements()]);
+    async function loadData() {
+        const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+        if(error) { console.error(error); return; }
+        allUsers = data || []; 
+        filterData();
+    }
+
+    function filterData() {
+        const search = document.getElementById('searchUser').value.toLowerCase();
+        const pkg = document.getElementById('filterPackage').value;
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+
+        let filtered = allUsers.filter(u => {
+            const mSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
+            const mPkg = pkg === 'ALL' || u.package_type === pkg;
+            const joinDate = new Date(u.created_at).setHours(0,0,0,0);
+            const mStart = start ? joinDate >= new Date(start).setHours(0,0,0,0) : true;
+            const mEnd = end ? joinDate <= new Date(end).setHours(0,0,0,0) : true;
+            return mSearch && mPkg && mStart && mEnd;
+        });
+
+        renderTable(filtered);
+        updateStats(filtered);
+    }
+
+    function updateStats(data) {
+        let proRev = 0, multiRev = 0;
+        data.forEach(u => {
+            if(u.package_type === 'PRO') proRev += 55000;
+            if(u.package_type === 'MULTI') multiRev += 188000;
+        });
+        document.getElementById('statTotal').innerText = data.length;
+        document.getElementById('statPro').innerText = `Rp ${proRev.toLocaleString('id-ID')}`;
+        document.getElementById('statMulti').innerText = `Rp ${multiRev.toLocaleString('id-ID')}`;
+        document.getElementById('totalRevenue').innerText = `Rp ${(proRev + multiRev).toLocaleString('id-ID')}`;
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('userTableBody');
+        if(!tbody) return;
+        tbody.innerHTML = data.map(u => `
+            <tr class="hover:bg-white/[0.02] border-b border-white/5">
+                <td class="p-6 cursor-pointer group" onclick="viewAsUser('${u.id}')">
+                    <p class="font-black italic text-white text-sm uppercase group-hover:text-indigo-400">${u.username || 'NEW_USER'}</p>
+                    <p class="text-[9px] font-bold text-slate-500 uppercase">${u.email}</p>
+                </td>
+                <td class="p-6 font-mono text-xs font-black text-indigo-400">${u.whatsapp_number || '-'}</td>
+                <td class="p-6 text-center">
+                    <span class="px-4 py-1.5 rounded-lg text-[9px] font-black italic uppercase ${u.package_type === 'TRIAL' ? 'bg-slate-500/10 text-slate-400' : u.package_type === 'PRO' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-purple-500/20 text-purple-400'}">${u.package_type}</span>
+                </td>
+                <td class="p-6 text-[11px] font-black text-slate-500 italic">${new Date(u.created_at).toLocaleDateString()}</td>
+                <td class="p-6 text-right space-x-2">
+                    <button onclick="quickUpdate('${u.id}', 'PRO')" class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white"><i class="fa-solid fa-crown text-[10px]"></i></button>
+                    <button onclick="quickUpdate('${u.id}', 'MULTI')" class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 hover:bg-purple-500 hover:text-white"><i class="fa-solid fa-layer-group text-[10px]"></i></button>
+                    <button onclick="deleteUser('${u.id}')" class="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                </td>
+            </tr>`).join('');
+    }
+
+    // PERBAIKAN: Fungsi view user yang lebih aman
+    function viewAsUser(userId) {
+        sessionStorage.setItem('view_as_user_id', userId);
+        // Pastikan file ini ada di folder yang sama, atau arahkan ke dashboard utama user
+        window.location.href = 'index.html?admin_view=' + userId; 
+    }
+
+    async function quickUpdate(id, pkg) {
+        const { error } = await supabase.from('profiles').update({ package_type: pkg }).eq('id', id);
+        if(!error) loadData();
+    }
+
+    async function deleteUser(id) {
+        if(confirm("Hapus user secara permanen?")) { 
+            await supabase.from('profiles').delete().eq('id', id); 
+            loadData(); 
         }
+    }
 
-        async function loadData() {
-            const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
-            allUsers = data || []; 
-            filterData();
+    function switchTab(tab) {
+        document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
+        document.getElementById(`section-${tab}`).classList.remove('hidden');
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+    }
+
+    // LOGIKA MODAL PERBAIKAN
+    async function openModal(type) {
+        const title = document.getElementById('modalTitle');
+        const listArea = document.getElementById('modalListArea');
+        title.innerText = `Manage ${type.toUpperCase()}`;
+        listArea.innerHTML = `<p class="text-center text-xs animate-pulse">Loading data...</p>`;
+        
+        document.getElementById('managementModal').classList.replace('hidden', 'flex');
+
+        let tableName = type === 'region' ? 'region_codes' : 'platform_settings';
+        const { data } = await supabase.from(tableName).select('*');
+
+        if (!data || data.length === 0) {
+            listArea.innerHTML = `<p class="text-center text-xs text-slate-500">No data found.</p>`;
+        } else {
+            listArea.innerHTML = data.map(item => `
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <span class="text-xs font-bold uppercase">${item.name || item.platform_name}</span>
+                    <span class="text-[10px] font-mono text-indigo-400">${item.code || item.version || ''}</span>
+                </div>
+            `).join('');
         }
+    }
 
-        function filterData() {
-            const search = document.getElementById('searchUser').value.toLowerCase();
-            const pkg = document.getElementById('filterPackage').value;
-            const start = document.getElementById('startDate').value;
-            const end = document.getElementById('endDate').value;
+    function closeModal() { 
+        document.getElementById('managementModal').classList.replace('flex', 'hidden'); 
+    }
 
-            let filtered = allUsers.filter(u => {
-                const mSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
-                const mPkg = pkg === 'ALL' || u.package_type === pkg;
-                const joinDate = new Date(u.created_at).setHours(0,0,0,0);
-                const mStart = start ? joinDate >= new Date(start).setHours(0,0,0,0) : true;
-                const mEnd = end ? joinDate <= new Date(end).setHours(0,0,0,0) : true;
-                return mSearch && mPkg && mStart && mEnd;
-            });
-
-            renderTable(filtered);
-            updateStats(filtered);
-        }
-
-        function updateStats(data) {
-            let proRev = 0, multiRev = 0;
-            data.forEach(u => {
-                if(u.package_type === 'PRO') proRev += 55000;
-                if(u.package_type === 'MULTI') multiRev += 188000;
-            });
-            document.getElementById('statTotal').innerText = data.length;
-            document.getElementById('statPro').innerText = `Rp ${proRev.toLocaleString('id-ID')}`;
-            document.getElementById('statMulti').innerText = `Rp ${multiRev.toLocaleString('id-ID')}`;
-            document.getElementById('totalRevenue').innerText = `Rp ${(proRev + multiRev).toLocaleString('id-ID')}`;
-        }
-
-        function renderTable(data) {
-            const tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = data.map(u => `
-                <tr class="hover:bg-white/[0.02] border-b border-white/5">
-                    <td class="p-6 cursor-pointer group" onclick="viewAsUser('${u.id}')">
-                        <p class="font-black italic text-white text-sm uppercase group-hover:text-indigo-400">${u.username || 'NEW_USER'}</p>
-                        <p class="text-[9px] font-bold text-slate-500 uppercase">${u.email}</p>
-                    </td>
-                    <td class="p-6 font-mono text-xs font-black text-indigo-400">${u.whatsapp_number || '-'}</td>
-                    <td class="p-6 text-center">
-                        <span class="px-4 py-1.5 rounded-lg text-[9px] font-black italic uppercase ${u.package_type === 'TRIAL' ? 'bg-slate-500/10 text-slate-400' : u.package_type === 'PRO' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-purple-500/20 text-purple-400'}">${u.package_type}</span>
-                    </td>
-                    <td class="p-6 text-[11px] font-black text-slate-500 italic">${new Date(u.created_at).toLocaleDateString()}</td>
-                    <td class="p-6 text-right space-x-2">
-                        <button onclick="quickUpdate('${u.id}', 'PRO')" class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white"><i class="fa-solid fa-crown text-[10px]"></i></button>
-                        <button onclick="quickUpdate('${u.id}', 'MULTI')" class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 hover:bg-purple-500 hover:text-white"><i class="fa-solid fa-layer-group text-[10px]"></i></button>
-                        <button onclick="deleteUser('${u.id}')" class="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
-                    </td>
-                </tr>`).join('');
-        }
-
-        function viewAsUser(userId) {
-            sessionStorage.setItem('view_as_user_id', userId);
-            window.location.href = 'account-profile.html?mode=view';
-        }
-
-        async function quickUpdate(id, pkg) {
-            await supabase.from('profiles').update({ package_type: pkg }).eq('id', id);
-            loadData();
-        }
-
-        async function deleteUser(id) {
-            if(confirm("Hapus user?")) { await supabase.from('profiles').delete().eq('id', id); loadData(); }
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`section-${tab}`).classList.remove('hidden');
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-        }
-
-        async function loadPlans() {
-            const { data } = await supabase.from('subscription_plans').select('*').order('created_at', { ascending: false });
-            document.getElementById('planList').innerHTML = (data || []).map(p => `
-                <div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
-                    <img src="${p.image_url}" class="absolute inset-0 w-full h-full object-cover opacity-10">
+    // LOGIKA PACKAGE & ANNOUNCEMENT
+    async function loadPlans() {
+        const { data } = await supabase.from('subscription_plans').select('*').order('created_at', { ascending: false });
+        const planList = document.getElementById('planList');
+        if(planList) {
+            planList.innerHTML = (data || []).map(p => `
+                <div class="glass-card p-6 rounded-3xl relative overflow-hidden group border border-white/5">
                     <div class="relative z-10">
                         <h4 class="text-lg font-black italic uppercase text-indigo-400">${p.name}</h4>
-                        <p class="text-2xl font-black">Rp ${p.price.toLocaleString()}</p>
-                        <button onclick="deletePlan('${p.id}')" class="text-red-500 text-[10px] font-black uppercase mt-4">Delete</button>
+                        <p class="text-2xl font-black">Rp ${Number(p.price).toLocaleString()}</p>
+                        <p class="text-[10px] text-slate-500 mt-1 uppercase">${p.duration_days} Days Plan</p>
+                        <button onclick="deletePlan('${p.id}')" class="text-red-500 text-[10px] font-black uppercase mt-4 hover:text-red-400 transition-colors">Delete Plan</button>
                     </div>
                 </div>`).join('');
         }
+    }
 
-        async function savePlan() {
-            const plan = {
-                name: document.getElementById('planName').value,
-                price: document.getElementById('planPrice').value,
-                image_url: document.getElementById('planImage').value,
-                duration_days: document.getElementById('planDuration').value,
-                description: document.getElementById('planDesc').value,
-                is_published: true
-            };
-            await supabase.from('subscription_plans').insert(plan);
+    async function savePlan() {
+        const plan = {
+            name: document.getElementById('planName').value,
+            price: parseInt(document.getElementById('planPrice').value),
+            image_url: document.getElementById('planImage').value,
+            duration_days: parseInt(document.getElementById('planDuration').value),
+            description: document.getElementById('planDesc').value,
+            is_published: true
+        };
+        const { error } = await supabase.from('subscription_plans').insert(plan);
+        if(!error) {
+            alert('Plan Published!');
             loadPlans();
         }
+    }
 
-        async function deletePlan(id) { if(confirm("Hapus?")) { await supabase.from('subscription_plans').delete().eq('id', id); loadPlans(); } }
+    async function deletePlan(id) { 
+        if(confirm("Hapus plan ini?")) { 
+            await supabase.from('subscription_plans').delete().eq('id', id); 
+            loadPlans(); 
+        } 
+    }
 
-        async function loadAnnouncements() {
-            const { data } = await supabase.from('global_announcements').select('*').order('created_at', { ascending: false }).limit(5);
-            document.getElementById('announcementHistory').innerHTML = (data || []).map(a => `
-                <div class="bg-white/5 p-4 rounded-2xl mb-2">
-                    <div class="text-[11px]">${a.content}</div>
+    async function loadAnnouncements() {
+        const { data } = await supabase.from('global_announcements').select('*').order('created_at', { ascending: false }).limit(5);
+        const history = document.getElementById('announcementHistory');
+        if(history) {
+            history.innerHTML = `<h4 class="text-[10px] font-black uppercase text-slate-500 mb-4 tracking-widest text-center italic">Recent History</h4>` + 
+            (data || []).map(a => `
+                <div class="bg-white/5 p-4 rounded-2xl mb-2 border border-white/5">
+                    <div class="text-[11px] text-slate-300">${a.content}</div>
+                    <p class="text-[8px] text-slate-600 mt-2 uppercase font-black">${new Date(a.created_at).toLocaleString()}</p>
                 </div>`).join('');
         }
+    }
 
-        async function publishAnnouncement() {
-            const content = quill.root.innerHTML;
-            if(content === '<p><br></p>') return;
-            await supabase.from('global_announcements').insert({ content });
-            quill.setContents([]); loadAnnouncements();
+    async function publishAnnouncement() {
+        const content = quill.root.innerHTML;
+        if(content === '<p><br></p>') return;
+        const { error } = await supabase.from('global_announcements').insert({ content });
+        if(!error) {
+            quill.setContents([]); 
+            loadAnnouncements(); 
+            alert('Broadcast Sent!');
         }
+    }
 
-        function openModal(type) {
-            document.getElementById('modalTitle').innerText = `Manage ${type}`;
-            document.getElementById('managementModal').classList.replace('hidden', 'flex');
-        }
-        function closeModal() { document.getElementById('managementModal').classList.replace('flex', 'hidden'); }
-        async function handleLogout() { await supabase.auth.signOut(); window.location.href = 'login.html'; }
+    async function handleLogout() { 
+        await supabase.auth.signOut(); 
+        window.location.href = 'login.html'; 
+    }
 
-        init();
-    </script>
+    // Jalankan Init
+    init();
+</script>
 </body>
 </html>
