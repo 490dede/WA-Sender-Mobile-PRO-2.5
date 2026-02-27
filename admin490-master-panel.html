@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Console v2.7 - WA-Sender PRO</title>
+    <title>Master Console v2.7.1 - WA-Sender PRO</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -14,10 +14,10 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0F172A; color: #F1F5F9; }
         .glass-card { background: rgba(30, 41, 59, 0.45); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .modal-bg { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
         .nav-btn.active { background: #4F46E5; color: white; border-color: #6366F1; }
         #announcementEditor { height: 200px; background: white; color: black; border-radius: 0 0 1rem 1rem; }
         .ql-toolbar { background: #F1F5F9; border-radius: 1rem 1rem 0 0; }
+        ::-webkit-calendar-picker-indicator { filter: invert(1); }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -26,48 +26,57 @@
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div>
                 <h1 class="text-5xl font-black italic uppercase tracking-tighter text-white">MASTER <span class="text-indigo-500">CONSOLE</span></h1>
-                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2 italic">Strategic CRM & Revenue Tracker v2.7</p>
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2 italic">Strategic CRM & Revenue Tracker v2.7.1</p>
             </div>
             <button onclick="handleLogout()" class="px-8 py-3 bg-red-900/20 hover:bg-red-500/40 text-red-400 text-[11px] font-black uppercase rounded-full border border-red-500/30 transition-all">Logout System</button>
         </div>
 
         <div class="bg-slate-800/40 p-8 rounded-[3rem] border border-white/5 flex flex-wrap justify-around gap-8 text-center">
-            <div><p class="text-[10px] font-black text-slate-400 uppercase mb-2">Total Users</p><h2 id="statTotal" class="text-3xl font-black italic">0</h2></div>
-            <div><p class="text-[10px] font-black text-indigo-400 uppercase mb-2">Total Omzet</p><h2 id="totalRevenue" class="text-4xl font-black italic text-emerald-400">Rp 0</h2></div>
+            <div><p class="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Total Users</p><h2 id="statTotal" class="text-3xl font-black italic">0</h2></div>
+            <div><p class="text-[10px] font-black text-indigo-400 uppercase mb-2 tracking-widest">Pro Revenue</p><h2 id="statPro" class="text-3xl font-black italic text-indigo-300">Rp 0</h2></div>
+            <div><p class="text-[10px] font-black text-purple-400 uppercase mb-2 tracking-widest">Multi Revenue</p><h2 id="statMulti" class="text-3xl font-black italic text-purple-300">Rp 0</h2></div>
+            <div><p class="text-[10px] font-black text-emerald-400 uppercase mb-2 tracking-widest">Total Omzet</p><h2 id="totalRevenue" class="text-4xl font-black italic text-emerald-400">Rp 0</h2></div>
         </div>
 
         <div class="flex gap-4 border-b border-white/10 pb-4 overflow-x-auto">
-            <button onclick="switchTab('users')" id="tab-users" class="nav-btn active px-6 py-2 rounded-full border border-white/10 text-xs font-black uppercase transition-all whitespace-nowrap">User Management</button>
-            <button onclick="switchTab('packages')" id="tab-packages" class="nav-btn px-6 py-2 rounded-full border border-white/10 text-xs font-black uppercase transition-all whitespace-nowrap">Subscription Plans</button>
-            <button onclick="switchTab('announcement')" id="tab-announcement" class="nav-btn px-6 py-2 rounded-full border border-white/10 text-xs font-black uppercase transition-all whitespace-nowrap">Announcements</button>
+            <button onclick="switchTab('users')" id="tab-users" class="nav-btn active px-6 py-2 rounded-full border border-white/10 text-xs font-black uppercase transition-all">User Management</button>
+            <button onclick="switchTab('packages')" id="tab-packages" class="nav-btn px-6 py-2 rounded-full border border-white/10 text-xs font-black uppercase transition-all">Subscription Plans</button>
+            <button onclick="switchTab('announcement')" id="tab-announcement" class="nav-btn px-6 py-2 rounded-full border border-white/10 text-xs font-black uppercase transition-all">Announcements</button>
         </div>
 
         <div id="section-users" class="space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div class="lg:col-span-12 glass-card p-7 rounded-[2.5rem]">
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        <div class="col-span-2">
-                            <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Search</label>
-                            <input type="text" id="searchUser" oninput="filterData()" placeholder="Name/WA..." class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Tier</label>
-                            <select id="filterPackage" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs font-black text-white">
-                                <option value="ALL">ALL</option><option value="TRIAL">TRIAL</option><option value="PRO">PRO</option><option value="MULTI">MULTI</option>
-                            </select>
-                        </div>
-                        <div class="flex gap-2 pt-5">
-                            <button onclick="openModal('region')" class="flex-1 p-3 bg-white/5 hover:bg-indigo-500/20 rounded-xl border border-white/10 text-indigo-400"><i class="fa-solid fa-globe"></i></button>
-                            <button onclick="openModal('platform')" class="flex-1 p-3 bg-white/5 hover:bg-purple-500/20 rounded-xl border border-white/10 text-purple-400"><i class="fa-solid fa-layer-group"></i></button>
-                        </div>
+            <div class="glass-card p-7 rounded-[2.5rem]">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                    <div class="lg:col-span-2">
+                        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Search Identity</label>
+                        <input type="text" id="searchUser" oninput="filterData()" placeholder="Name/WA..." class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Start Date</label>
+                        <input type="date" id="startDate" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">End Date</label>
+                        <input type="date" id="endDate" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Tier</label>
+                        <select id="filterPackage" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs font-black text-white">
+                            <option value="ALL">ALL</option><option value="TRIAL">TRIAL</option><option value="PRO">PRO</option><option value="MULTI">MULTI</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2 pt-5">
+                        <button onclick="openModal('region')" class="flex-1 p-3 bg-white/5 hover:bg-indigo-500/20 rounded-xl border border-white/10 text-indigo-400"><i class="fa-solid fa-globe"></i></button>
+                        <button onclick="openModal('platform')" class="flex-1 p-3 bg-white/5 hover:bg-purple-500/20 rounded-xl border border-white/10 text-purple-400"><i class="fa-solid fa-layer-group"></i></button>
                     </div>
                 </div>
             </div>
+
             <div class="glass-card rounded-[3rem] overflow-hidden">
                 <table class="w-full text-left">
-                    <thead class="sticky top-0 bg-slate-900 z-10 border-b border-white/10">
+                    <thead class="bg-slate-900 border-b border-white/10">
                         <tr class="text-[10px] font-black text-slate-500 uppercase italic">
-                            <th class="p-6">User Info</th><th class="p-6">WA Number</th><th class="p-6 text-center">Tier</th><th class="p-6">Joined</th><th class="p-6 text-right">Actions</th>
+                            <th class="p-6">User Info</th><th class="p-6">WA Number</th><th class="p-6 text-center">Tier Status</th><th class="p-6">Joined Date</th><th class="p-6 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="userTableBody" class="divide-y divide-white/5"></tbody>
@@ -79,15 +88,14 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="glass-card p-8 rounded-[3rem] space-y-4">
                     <h3 class="text-xl font-black italic uppercase">Create New Plan</h3>
-                    <input type="text" id="planName" placeholder="Plan Name (e.g. Ramadhan PRO)" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-xs">
+                    <input type="text" id="planName" placeholder="Plan Name" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-xs">
                     <input type="number" id="planPrice" placeholder="Price (Rp)" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-xs">
                     <input type="text" id="planImage" placeholder="Promo Image URL" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-xs">
                     <input type="number" id="planDuration" placeholder="Duration (Days)" class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-xs">
                     <textarea id="planDesc" placeholder="Description..." class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-xs h-24"></textarea>
-                    <button onclick="savePlan()" class="w-full py-4 bg-indigo-600 rounded-2xl font-black uppercase text-xs hover:bg-indigo-500 transition-all">Publish Plan</button>
+                    <button onclick="savePlan()" class="w-full py-4 bg-indigo-600 rounded-2xl font-black uppercase text-xs">Publish Plan</button>
                 </div>
-                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4" id="planList">
-                    </div>
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4" id="planList"></div>
             </div>
         </div>
 
@@ -97,21 +105,10 @@
                 <div id="announcementEditor"></div>
                 <div class="mt-6 flex justify-between items-center">
                     <p class="text-[10px] text-slate-400 uppercase font-black italic">* This message will appear on all user dashboards</p>
-                    <button onclick="publishAnnouncement()" class="px-10 py-4 bg-emerald-600 rounded-2xl font-black uppercase text-xs hover:bg-emerald-500 transition-all">Send Now</button>
+                    <button onclick="publishAnnouncement()" class="px-10 py-4 bg-emerald-600 rounded-2xl font-black uppercase text-xs">Send Now</button>
                 </div>
             </div>
-            <div class="glass-card p-8 rounded-[3rem]" id="announcementHistory">
-                </div>
-        </div>
-    </div>
-
-    <div id="managementModal" class="fixed inset-0 modal-bg z-[100] hidden items-center justify-center p-4">
-        <div class="glass-card w-full max-w-md rounded-[3rem] p-10 relative border-white/20">
-            <button onclick="closeModal()" class="absolute top-8 right-8 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <h2 id="modalTitle" class="text-2xl font-black italic uppercase mb-8">Manage Data</h2>
-            <div id="modalInputArea" class="space-y-4 mb-8"></div>
-            <div id="modalListArea" class="max-h-60 overflow-y-auto space-y-2 mb-8 pt-6 border-t border-white/5"></div>
-            <button id="modalAddBtn" class="w-full py-4 bg-emerald-600 rounded-2xl text-[11px] font-black uppercase">Add New Record</button>
+            <div class="glass-card p-8 rounded-[3rem]" id="announcementHistory"></div>
         </div>
     </div>
 
@@ -120,133 +117,4 @@
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
         
-        let allUsers = [], regions = [], platforms = [], quill;
-        let activeRegionFilter = 'ALL', activePlatformFilter = 'ALL';
-
-        async function init() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session || session.user.email !== 'adeali490@gmail.com') { window.location.href = 'login.html'; return; }
-            
-            // Initialize Quill
-            quill = new Quill('#announcementEditor', { theme: 'snow', placeholder: 'Tulis pesan Anda untuk seluruh user...' });
-            
-            await Promise.all([loadRegions(), loadPlatforms(), loadData(), loadPlans(), loadAnnouncements()]);
-        }
-
-        // --- TAB LOGIC ---
-        function switchTab(tab) {
-            document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`section-${tab}`).classList.remove('hidden');
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-        }
-
-        // --- USER LOGIC ---
-        async function loadData() {
-            const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
-            allUsers = data || []; filterData();
-        }
-
-        function filterData() {
-            const search = document.getElementById('searchUser').value.toLowerCase();
-            const pkg = document.getElementById('filterPackage').value;
-            let filtered = allUsers.filter(u => {
-                const mSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
-                const mPkg = pkg === 'ALL' || u.package_type === pkg;
-                const mReg = activeRegionFilter === 'ALL' || (u.whatsapp_number && u.whatsapp_number.startsWith(activeRegionFilter));
-                const mPlat = activePlatformFilter === 'ALL' || u.platform === activePlatformFilter;
-                return mSearch && mPkg && mReg && mPlat;
-            });
-            renderTable(filtered); updateStats(filtered);
-        }
-
-        function renderTable(data) {
-            const tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = data.map(u => `
-                <tr class="hover:bg-white/[0.02] border-b border-white/5">
-                    <td class="p-6 cursor-pointer" onclick="viewAsUser('${u.id}')">
-                        <p class="font-black italic text-white text-sm uppercase">${u.username || 'NEW_USER'}</p>
-                        <p class="text-[9px] font-bold text-slate-500 uppercase">${u.email}</p>
-                    </td>
-                    <td class="p-6 font-mono text-xs font-black text-indigo-400">${u.whatsapp_number || '-'}</td>
-                    <td class="p-6 text-center">
-                        <span class="px-4 py-1.5 rounded-lg text-[9px] font-black italic uppercase ${u.package_type === 'TRIAL' ? 'bg-slate-500/10 text-slate-400' : 'bg-emerald-500/20 text-emerald-400'}">${u.package_type}</span>
-                    </td>
-                    <td class="p-6 text-[11px] font-black text-slate-500 italic">${new Date(u.created_at).toLocaleDateString()}</td>
-                    <td class="p-6 text-right space-x-2">
-                        <button onclick="quickUpdate('${u.id}', 'PRO')" class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500"><i class="fa-solid fa-crown text-[10px]"></i></button>
-                        <button onclick="deleteUser('${u.id}')" class="w-8 h-8 rounded-lg bg-red-500/10 text-red-500"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
-                    </td>
-                </tr>`).join('');
-        }
-
-        function updateStats(data) {
-            document.getElementById('statTotal').innerText = data.length;
-            const rev = data.reduce((acc, u) => acc + (u.package_type === 'PRO' ? 55000 : u.package_type === 'MULTI' ? 188000 : 0), 0);
-            document.getElementById('totalRevenue').innerText = `Rp ${rev.toLocaleString('id-ID')}`;
-        }
-
-        // --- SUBSCRIPTION LOGIC ---
-        async function loadPlans() {
-            const { data } = await supabase.from('subscription_plans').select('*').order('created_at', { ascending: false });
-            document.getElementById('planList').innerHTML = (data || []).map(p => `
-                <div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
-                    <img src="${p.image_url || 'https://via.placeholder.com/300'}" class="absolute inset-0 w-full h-full object-cover opacity-10 group-hover:opacity-20 transition-all">
-                    <div class="relative z-10">
-                        <h4 class="text-lg font-black italic uppercase text-indigo-400">${p.name}</h4>
-                        <p class="text-2xl font-black mt-1">Rp ${p.price.toLocaleString()}</p>
-                        <p class="text-[10px] text-slate-400 uppercase font-black mt-2">${p.duration_days} Days Access</p>
-                        <div class="mt-4 flex gap-2">
-                            <button onclick="deletePlan('${p.id}')" class="text-red-500 text-xs font-black uppercase italic">Delete</button>
-                            <div class="flex-1"></div>
-                            <span class="${p.is_published ? 'text-emerald-400' : 'text-slate-500'} text-[9px] font-black uppercase italic">${p.is_published ? 'Published' : 'Draft'}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function savePlan() {
-            const plan = {
-                name: document.getElementById('planName').value,
-                price: document.getElementById('planPrice').value,
-                image_url: document.getElementById('planImage').value,
-                duration_days: document.getElementById('planDuration').value,
-                description: document.getElementById('planDesc').value,
-                is_published: true
-            };
-            await supabase.from('subscription_plans').insert(plan);
-            loadPlans();
-        }
-
-        async function deletePlan(id) { if(confirm("Hapus paket ini?")) { await supabase.from('subscription_plans').delete().eq('id', id); loadPlans(); } }
-
-        // --- ANNOUNCEMENT LOGIC ---
-        async function loadAnnouncements() {
-            const { data } = await supabase.from('global_announcements').select('*').order('created_at', { ascending: false }).limit(5);
-            document.getElementById('announcementHistory').innerHTML = `<h4 class="text-xs font-black uppercase italic mb-4 text-slate-500 tracking-widest">Broadcast History</h4>` + (data || []).map(a => `
-                <div class="bg-white/5 p-4 rounded-2xl mb-2 border border-white/5">
-                    <div class="text-[11px] text-slate-300">${a.content}</div>
-                    <div class="text-[9px] text-slate-600 font-black mt-2 uppercase italic">${new Date(a.created_at).toLocaleString()}</div>
-                </div>`).join('');
-        }
-
-        async function publishAnnouncement() {
-            const content = quill.root.innerHTML;
-            if(content === '<p><br></p>') return;
-            await supabase.from('global_announcements').insert({ content });
-            quill.setContents([]); loadAnnouncements(); alert("Pengumuman Terkirim!");
-        }
-
-        // --- MODAL & HELPERS ---
-        function openModal(mode) { /* logic as before... */ }
-        function closeModal() { document.getElementById('managementModal').classList.replace('flex', 'hidden'); }
-        async function loadRegions() { const { data } = await supabase.from('region_codes').select('*'); regions = data || []; }
-        async function loadPlatforms() { const { data } = await supabase.from('scraper_platforms').select('*'); platforms = data || []; }
-        async function quickUpdate(id, pkg) { await supabase.from('profiles').update({ package_type: pkg }).eq('id', id); loadData(); }
-        async function handleLogout() { await supabase.auth.signOut(); window.location.href = 'login.html'; }
-
-        init();
-    </script>
-</body>
-</html>
+        let allUsers
