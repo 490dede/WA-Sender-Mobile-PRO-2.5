@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lead Scraper - WA-Sender PRO</title>
+    <title>Lead Scraper v2.5 - WA-Sender PRO</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -28,8 +28,8 @@
                 </a>
                 <h1 class="text-4xl font-black italic uppercase tracking-tighter text-white mt-4">LEAD <span class="text-purple-500">SCRAPER</span></h1>
             </div>
-            <div class="glass-card px-6 py-3 rounded-2xl">
-                <p class="text-[9px] font-black text-slate-500 uppercase italic tracking-widest">Targeting: <span class="text-purple-400">Global Search</span></p>
+            <div class="glass-card px-6 py-3 rounded-2xl border-white/10">
+                <p class="text-[9px] font-black text-slate-500 uppercase italic tracking-widest">Master Control: <span class="text-emerald-400">Connected</span></p>
             </div>
         </div>
 
@@ -41,21 +41,12 @@
                         class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white input-glow mb-6">
                     
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 italic">Target Region</label>
-                    <select id="region" class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white mb-6">
-                        <option value="628">Indonesia (+62)</option>
-                        <option value="+1">USA / Canada (+1)</option>
-                        <option value="+44">United Kingdom (+44)</option>
-                        <option value="+49">Germany (+49)</option>
-                        <option value="wa.me/">Global (Link Only)</option>
-                    </select>
+                    <select id="region" class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white mb-6 outline-none focus:ring-1 ring-purple-500">
+                        </select>
 
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 italic">Platform</label>
-                    <select id="platform" class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white mb-8">
-                        <option value="facebook.com">Facebook</option>
-                        <option value="instagram.com">Instagram</option>
-                        <option value="linkedin.com">LinkedIn</option>
-                        <option value="twitter.com">Twitter / X</option>
-                    </select>
+                    <select id="platform" class="w-full bg-slate-900 border border-white/5 rounded-xl p-4 text-sm text-white mb-8 outline-none focus:ring-1 ring-purple-500">
+                        </select>
 
                     <button onclick="startScraping()" id="btn-scrape" class="w-full py-4 bg-purple-600 hover:bg-purple-500 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all shadow-xl shadow-purple-500/20">
                         Search Global Leads
@@ -63,7 +54,7 @@
                 </div>
 
                 <div class="glass-card p-6 rounded-[2rem] border-white/5 text-center">
-                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-2">Total Scraped</p>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-2">My Total Leads</p>
                     <p id="total-count" class="text-4xl font-black text-purple-400 italic">0</p>
                 </div>
             </div>
@@ -91,7 +82,7 @@
                             </thead>
                             <tbody id="result-body" class="text-sm text-slate-400">
                                 <tr>
-                                    <td colspan="2" class="p-20 text-center text-xs italic text-slate-600 uppercase font-bold tracking-[0.3em]">Belum ada data.</td>
+                                    <td colspan="2" class="p-20 text-center text-xs italic text-slate-600 uppercase font-bold tracking-[0.3em]">Ready to scan...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -106,6 +97,44 @@
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
+        async function init() {
+            await Promise.all([
+                loadRegions(),
+                loadPlatforms(),
+                updateLeadCounter()
+            ]);
+        }
+
+        async function loadRegions() {
+            const { data } = await supabase.from('region_codes').select('*').order('region_name');
+            const select = document.getElementById('region');
+            if(data) {
+                select.innerHTML = data.map(r => 
+                    `<option value="${r.phone_code}">${r.region_name} (+${r.phone_code})</option>`
+                ).join('');
+                // Add link only option
+                select.innerHTML += `<option value="wa.me/">Global (Link Only)</option>`;
+            }
+        }
+
+        async function loadPlatforms() {
+            const { data } = await supabase.from('scraper_platforms').select('*').order('platform_name');
+            const select = document.getElementById('platform');
+            if(data) {
+                select.innerHTML = data.map(p => 
+                    `<option value="${p.platform_name.toLowerCase()}.com">${p.platform_name}</option>`
+                ).join('');
+            }
+        }
+
+        async function updateLeadCounter() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if(session) {
+                const { data } = await supabase.from('profiles').select('leads_generated').eq('id', session.user.id).single();
+                document.getElementById('total-count').innerText = data?.leads_generated || 0;
+            }
+        }
+
         async function startScraping() {
             const keyword = document.getElementById('keyword').value;
             const platform = document.getElementById('platform').value;
@@ -117,35 +146,34 @@
             btn.disabled = true;
             btn.innerHTML = `<span class="custom-loader mr-2"></span> Scanning Global...`;
 
-            // GOOGLE DORKING
+            // GOOGLE DORKING LOGIC
             const query = `site:${platform} "${keyword}" "${region}"`;
             const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
             window.open(searchUrl, '_blank');
 
-            // SIMULASI GENERATE DATA KE TABEL (Agar Master bisa coba Push to Sender)
+            // SIMULASI GENERATE DATA
             setTimeout(async () => {
                 const tbody = document.getElementById('result-body');
-                tbody.innerHTML = ''; // Clear
+                tbody.innerHTML = ''; 
                 
-                // Membuat 5 data sampel otomatis setiap kali search
-                for(let i=0; i<5; i++) {
+                for(let i=0; i<10; i++) {
                     const randomNum = Math.floor(1000000 + Math.random() * 9000000);
-                    const finalNum = region.includes('wa.me') ? `62812${randomNum}` : `${region}${randomNum}`;
+                    const cleanRegion = region.replace('+', '');
+                    const finalNum = region.includes('wa.me') ? `62812${randomNum}` : `${cleanRegion}${randomNum}`;
                     
-                    const row = `<tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                        <td class="p-6 font-bold text-white tracking-wider">${finalNum}</td>
+                    const row = `<tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
+                        <td class="p-6 font-bold text-white tracking-wider group-hover:text-purple-400 transition-colors">${finalNum}</td>
                         <td class="p-6 text-[10px] uppercase text-slate-500 italic">${platform} lead for ${keyword}</td>
                     </tr>`;
                     tbody.innerHTML += row;
                 }
 
-                // Update Statistik Supabase
                 const { data: { session } } = await supabase.auth.getSession();
                 if(session) {
                     const { data: profile } = await supabase.from('profiles').select('leads_generated').eq('id', session.user.id).single();
-                    const newTotal = (profile.leads_generated || 0) + 5;
+                    const newTotal = (profile.leads_generated || 0) + 10;
                     await supabase.from('profiles').update({ leads_generated: newTotal }).eq('id', session.user.id);
-                    document.getElementById('total-count').innerText = newTotal;
+                    await updateLeadCounter();
                 }
                 
                 btn.disabled = false;
@@ -156,28 +184,29 @@
         function pushToSender() {
             const numbers = [];
             const rows = document.querySelectorAll("#result-body tr");
-            
             rows.forEach(row => {
                 const num = row.cells[0]?.innerText;
-                if (num && num !== "WhatsApp Number" && num !== "Belum ada data.") {
+                if (num && num !== "WhatsApp Number" && !num.includes("Ready")) {
                     numbers.push(num.trim());
                 }
             });
 
             if (numbers.length === 0) return alert("Tidak ada nomor untuk dikirim!");
-
-            // Simpan ke LocalStorage agar ditangkap oleh bulk-sender.html
             localStorage.setItem('scrapedLeads', numbers.join('\n'));
-            
             alert(numbers.length + " Nomor berhasil dipindahkan ke antrean Bulk Sender!");
             window.location.href = "bulk-sender.html";
         }
 
         function copyResults() {
-            const text = Array.from(document.querySelectorAll("#result-body td:first-child")).map(td => td.innerText).join('\n');
+            const text = Array.from(document.querySelectorAll("#result-body td:first-child"))
+                        .filter(td => !td.innerText.includes("Ready"))
+                        .map(td => td.innerText).join('\n');
+            if(!text) return;
             navigator.clipboard.writeText(text);
             alert("Nomor disalin!");
         }
+
+        init();
     </script>
 </body>
 </html>
