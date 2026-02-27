@@ -19,6 +19,9 @@
         .ql-toolbar { background: #F1F5F9; border-radius: 1rem 1rem 0 0; }
         ::-webkit-calendar-picker-indicator { filter: invert(1); }
         .modal-bg { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
+        /* Custom Scrollbar */
+        #modalListArea::-webkit-scrollbar { width: 4px; }
+        #modalListArea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -48,45 +51,50 @@
         <div id="section-users" class="space-y-6">
             <div class="glass-card p-7 rounded-[2.5rem]">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-4">
-    <div class="lg:col-span-2">
-        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Search Identity</label>
-        <input type="text" id="searchUser" oninput="filterData()" placeholder="Name/WA..." class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
-    </div>
-    <div><label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Start Date</label><input type="date" id="startDate" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white"></div>
-    <div><label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">End Date</label><input type="date" id="endDate" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white"></div>
-    
-    <div>
-        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Tier</label>
-        <select id="filterPackage" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs font-black text-white">
-            <option value="ALL">ALL TIER</option><option value="TRIAL">TRIAL</option><option value="PRO">PRO</option><option value="MULTI">MULTI</option>
-        </select>
-    </div>
+                    <div class="lg:col-span-2">
+                        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Search Identity</label>
+                        <input type="text" id="searchUser" oninput="filterData()" placeholder="Name/WA..." class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white">
+                    </div>
+                    <div><label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Start Date</label><input type="date" id="startDate" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white"></div>
+                    <div><label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">End Date</label><input type="date" id="endDate" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs text-white"></div>
+                    
+                    <div>
+                        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Tier</label>
+                        <select id="filterPackage" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs font-black text-white uppercase">
+                            <option value="ALL">ALL TIER</option><option value="TRIAL">TRIAL</option><option value="PRO">PRO</option><option value="MULTI">MULTI</option>
+                        </select>
+                    </div>
 
-    <div>
-        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Region</label>
-        <select id="filterRegion" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs font-black text-white">
-            <option value="ALL">ALL REGION</option>
-        </select>
-    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Region</label>
+                        <select id="filterRegion" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs font-black text-white uppercase">
+                            <option value="ALL">ALL REGION</option>
+                        </select>
+                    </div>
 
-    <div>
-        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Platform</label>
-        <select id="filterPlatform" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs font-black text-white">
-            <option value="ALL">ALL PLATFORM</option>
-        </select>
-    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-500 uppercase ml-1 italic">Platform</label>
+                        <select id="filterPlatform" onchange="filterData()" class="w-full bg-slate-900 border border-white/5 rounded-xl p-3 text-xs font-black text-white uppercase">
+                            <option value="ALL">ALL PLATFORM</option>
+                        </select>
+                    </div>
 
-    <div class="flex gap-2 pt-5">
-        <button onclick="openModal('region')" class="flex-1 p-3 bg-white/5 hover:bg-indigo-500/20 rounded-xl border border-white/10 text-indigo-400"><i class="fa-solid fa-globe"></i></button>
-        <button onclick="openModal('platform')" class="flex-1 p-3 bg-white/5 hover:bg-purple-500/20 rounded-xl border border-white/10 text-purple-400"><i class="fa-solid fa-layer-group"></i></button>
-    </div>
-</div>
+                    <div class="flex gap-2 pt-5">
+                        <button onclick="openModal('region')" class="flex-1 p-3 bg-white/5 hover:bg-indigo-500/20 rounded-xl border border-white/10 text-indigo-400" title="Manage Regions"><i class="fa-solid fa-globe"></i></button>
+                        <button onclick="openModal('platform')" class="flex-1 p-3 bg-white/5 hover:bg-purple-500/20 rounded-xl border border-white/10 text-purple-400" title="Manage Platforms"><i class="fa-solid fa-layer-group"></i></button>
+                    </div>
+                </div>
             </div>
+
             <div class="glass-card rounded-[3rem] overflow-hidden">
-                <table class="w-full text-left">
+                <table class="w-full text-left border-collapse">
                     <thead class="bg-slate-900 border-b border-white/10">
                         <tr class="text-[10px] font-black text-slate-500 uppercase italic">
-                            <th class="p-6">User Info</th><th class="p-6">WA Number</th><th class="p-6 text-center">Tier Status</th><th class="p-6">Joined</th><th class="p-6 text-right">Actions</th>
+                            <th class="p-6">User Info</th>
+                            <th class="p-6 text-center">WA Number</th>
+                            <th class="p-6 text-center">Tier Status</th>
+                            <th class="p-6 text-center">Joined</th>
+                            <th class="p-6 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="userTableBody" class="divide-y divide-white/5"></tbody>
@@ -118,19 +126,20 @@
                     <button onclick="publishAnnouncement()" class="px-10 py-4 bg-emerald-600 rounded-2xl font-black uppercase text-xs">Send Now</button>
                 </div>
             </div>
-            <div class="glass-card p-8 rounded-[3rem]" id="announcementHistory"></div>
+            <div class="glass-card p-8 rounded-[3rem] space-y-4" id="announcementHistory"></div>
         </div>
     </div>
 
     <div id="managementModal" class="fixed inset-0 modal-bg z-[100] hidden items-center justify-center p-4">
         <div class="glass-card w-full max-w-md rounded-[3rem] p-10 relative border-white/20">
-            <button onclick="closeModal()" class="absolute top-8 right-8 text-slate-400"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <h2 id="modalTitle" class="text-2xl font-black italic uppercase mb-8">Manage Data</h2>
-            <div id="modalListArea" class="max-h-60 overflow-y-auto space-y-2 mb-4"></div>
-            <div id="modalActionArea" class="pt-4 border-t border-white/10 flex gap-2">
-                <input type="text" id="modalInput1" placeholder="Name" class="flex-1 bg-slate-900 border border-white/10 rounded-xl p-3 text-[10px]">
-                <input type="text" id="modalInput2" placeholder="Value" class="w-24 bg-slate-900 border border-white/10 rounded-xl p-3 text-[10px]">
-                <button id="modalAddBtn" class="bg-indigo-600 px-4 rounded-xl text-xs font-black">+</button>
+            <button onclick="closeModal()" class="absolute top-8 right-8 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div id="modalHeaderArea" class="mb-6">
+                </div>
+            <div id="modalListArea" class="max-h-64 overflow-y-auto space-y-2 mb-6 pr-2"></div>
+            <div id="modalActionArea" class="pt-6 border-t border-white/10 flex gap-2">
+                <input type="text" id="modalInput1" placeholder="Name" class="flex-1 bg-slate-900 border border-white/10 rounded-xl p-3 text-[10px] text-white">
+                <input type="text" id="modalInput2" placeholder="Value" class="w-24 bg-slate-900 border border-white/10 rounded-xl p-3 text-[10px] text-white">
+                <button id="modalAddBtn" class="bg-indigo-600 hover:bg-indigo-500 px-6 rounded-xl text-xs font-black transition-all">+</button>
             </div>
         </div>
     </div>
@@ -142,84 +151,230 @@
     
     let allUsers = [], quill;
 
-    // Tambahkan pemanggilan loadFilterOptions di dalam init
-async function init() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session || session.user.email !== 'adeali490@gmail.com') { 
-        window.location.href = 'login.html'; return; 
+    // --- INITIALIZATION ---
+    async function init() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session || session.user.email !== 'adeali490@gmail.com') { 
+            window.location.href = 'login.html'; return; 
+        }
+
+        quill = new Quill('#announcementEditor', { 
+            theme: 'snow', 
+            modules: { toolbar: [['bold', 'italic', 'underline'], ['link']] } 
+        });
+        
+        // Memastikan semua data diload sebelum render
+        await Promise.all([
+            loadData(), 
+            loadPlans(), 
+            loadAnnouncements(), 
+            loadFilterOptions()
+        ]);
     }
-    quill = new Quill('#announcementEditor', { theme: 'snow', modules: { toolbar: [['bold', 'italic', 'underline'], ['link']] } });
-    
-    await Promise.all([loadData(), loadPlans(), loadAnnouncements(), loadFilterOptions()]);
-}
 
-// Fungsi baru untuk mengambil data Region & Platform ke dalam Dropdown Filter
-async function loadFilterOptions() {
-    const { data: regions } = await supabase.from('region_codes').select('region_name');
-    const { data: platforms } = await supabase.from('scrapper_platforms').select('platform_name');
+    // --- LOAD DATA & FILTERS ---
+    async function loadData() {
+        const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+        if(!error) { 
+            allUsers = data || []; 
+            filterData(); 
+        }
+    }
 
-    if (regions) {
+    async function loadFilterOptions() {
+        const { data: regions } = await supabase.from('region_codes').select('region_name');
+        const { data: platforms } = await supabase.from('scrapper_platforms').select('platform_name');
+
         const regSelect = document.getElementById('filterRegion');
-        regions.forEach(r => {
+        const platSelect = document.getElementById('filterPlatform');
+
+        // Reset and Load
+        regSelect.innerHTML = '<option value="ALL">ALL REGION</option>';
+        platSelect.innerHTML = '<option value="ALL">ALL PLATFORM</option>';
+
+        if (regions) regions.forEach(r => {
             regSelect.innerHTML += `<option value="${r.region_name}">${r.region_name.toUpperCase()}</option>`;
         });
-    }
-
-    if (platforms) {
-        const platSelect = document.getElementById('filterPlatform');
-        platforms.forEach(p => {
+        if (platforms) platforms.forEach(p => {
             platSelect.innerHTML += `<option value="${p.platform_name}">${p.platform_name.toUpperCase()}</option>`;
         });
     }
-}
 
-// Update fungsi filterData agar mendukung Region & Platform
-function filterData() {
-    const search = document.getElementById('searchUser').value.toLowerCase();
-    const pkg = document.getElementById('filterPackage').value;
-    const region = document.getElementById('filterRegion').value;
-    const platform = document.getElementById('filterPlatform').value;
-    const start = document.getElementById('startDate').value;
-    const end = document.getElementById('endDate').value;
+    function filterData() {
+        const search = document.getElementById('searchUser').value.toLowerCase();
+        const pkg = document.getElementById('filterPackage').value;
+        const region = document.getElementById('filterRegion').value;
+        const platform = document.getElementById('filterPlatform').value;
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
 
-    let filtered = allUsers.filter(u => {
-        const mSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
-        const mPkg = pkg === 'ALL' || u.package_type === pkg;
-        
-        // Filter baru (Pastikan nama kolom di tabel 'profiles' adalah 'region' dan 'platform')
-        const mRegion = region === 'ALL' || u.region === region;
-        const mPlatform = platform === 'ALL' || u.platform === platform;
+        let filtered = allUsers.filter(u => {
+            const mSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
+            const mPkg = pkg === 'ALL' || u.package_type === pkg;
+            const mRegion = region === 'ALL' || u.region === region;
+            const mPlatform = platform === 'ALL' || u.platform === platform;
 
-        const joinDate = new Date(u.created_at).setHours(0,0,0,0);
-        const mStart = start ? joinDate >= new Date(start).setHours(0,0,0,0) : true;
-        const mEnd = end ? joinDate <= new Date(end).setHours(0,0,0,0) : true;
-        
-        return mSearch && mPkg && mRegion && mPlatform && mStart && mEnd;
-    });
-    renderTable(filtered);
-    updateStats(filtered);
-}
+            const joinDate = new Date(u.created_at).setHours(0,0,0,0);
+            const mStart = start ? joinDate >= new Date(start).setHours(0,0,0,0) : true;
+            const mEnd = end ? joinDate <= new Date(end).setHours(0,0,0,0) : true;
+            
+            return mSearch && mPkg && mRegion && mPlatform && mStart && mEnd;
+        });
+        renderTable(filtered);
+        updateStats(filtered);
+    }
 
+    // --- TABLE RENDERER ---
     function renderTable(data) {
-        document.getElementById('userTableBody').innerHTML = data.map(u => `
-            <tr class="hover:bg-white/[0.02] border-b border-white/5">
+        const tbody = document.getElementById('userTableBody');
+        if (!data.length) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-500 uppercase font-black text-xs italic">No data matching your filters</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = data.map(u => `
+            <tr class="hover:bg-white/[0.02] border-b border-white/5 transition-colors">
                 <td class="p-6 cursor-pointer group" onclick="viewAsUser('${u.id}')">
                     <p class="font-black italic text-white text-sm uppercase group-hover:text-indigo-400 transition-all">${u.username || 'NEW_USER'}</p>
                     <p class="text-[9px] font-bold text-slate-500 uppercase">${u.email}</p>
                 </td>
-                <td class="p-6 font-mono text-xs font-black text-indigo-400">${u.whatsapp_number || '-'}</td>
+                <td class="p-6 text-center font-mono text-xs font-black text-indigo-400">${u.whatsapp_number || '-'}</td>
                 <td class="p-6 text-center">
                     <span class="px-4 py-1.5 rounded-lg text-[9px] font-black italic uppercase ${u.package_type === 'TRIAL' ? 'bg-slate-500/10 text-slate-400' : u.package_type === 'PRO' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-purple-500/20 text-purple-400'}">${u.package_type}</span>
                 </td>
-                <td class="p-6 text-[11px] font-black text-slate-500 italic">${new Date(u.created_at).toLocaleDateString()}</td>
+                <td class="p-6 text-center text-[11px] font-black text-slate-500 italic">${new Date(u.created_at).toLocaleDateString()}</td>
                 <td class="p-6 text-right space-x-2">
-                    <button onclick="quickUpdate('${u.id}', 'PRO')" class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500"><i class="fa-solid fa-crown text-[10px]"></i></button>
-                    <button onclick="quickUpdate('${u.id}', 'MULTI')" class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 hover:bg-purple-500"><i class="fa-solid fa-layer-group text-[10px]"></i></button>
-                    <button onclick="deleteUser('${u.id}')" class="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                    <button onclick="quickUpdate('${u.id}', 'PRO')" class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white transition-all"><i class="fa-solid fa-crown text-[10px]"></i></button>
+                    <button onclick="quickUpdate('${u.id}', 'MULTI')" class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 hover:bg-purple-500 hover:text-white transition-all"><i class="fa-solid fa-layer-group text-[10px]"></i></button>
+                    <button onclick="deleteUser('${u.id}')" class="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
                 </td>
             </tr>`).join('');
     }
 
+    // --- MODAL LOGIC (INCL. FILTER) ---
+    async function openModal(type) {
+        const listArea = document.getElementById('modalListArea');
+        const btnAdd = document.getElementById('modalAddBtn');
+        const headerArea = document.getElementById('modalHeaderArea');
+        let table = type === 'region' ? 'region_codes' : 'scrapper_platforms'; 
+        
+        // Render Header dengan Fitur Filter di dalam Modal
+        headerArea.innerHTML = `
+            <div class="flex flex-col gap-4">
+                <h2 class="text-2xl font-black italic uppercase text-white">MANAGE ${type}</h2>
+                <input type="text" id="modalSearch" placeholder="Search ${type}..." class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-xs text-white">
+            </div>
+        `;
+        
+        document.getElementById('managementModal').classList.replace('hidden', 'flex');
+        
+        const { data, error } = await supabase.from(table).select('*').order('created_at', { ascending: false });
+        if(error) return;
+
+        const renderModalList = (items) => {
+            listArea.innerHTML = (items || []).map(item => `
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5 hover:bg-white/10 transition-all">
+                    <span class="text-xs font-bold uppercase tracking-wider">${item.region_name || item.platform_name || 'Undefined'}</span>
+                    <div class="flex items-center gap-3">
+                        ${item.phone_code ? `<span class="text-[10px] font-mono text-indigo-400 font-bold">${item.phone_code}</span>` : ''}
+                        <button onclick="deleteModalItem('${table}', '${item.id}', '${type}')" class="text-red-500/50 hover:text-red-500 p-2"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    </div>
+                </div>`).join('');
+        };
+
+        renderModalList(data);
+
+        // Logic Filter Modal
+        document.getElementById('modalSearch').oninput = (e) => {
+            const val = e.target.value.toLowerCase();
+            const filtered = data.filter(i => (i.region_name || i.platform_name || '').toLowerCase().includes(val));
+            renderModalList(filtered);
+        };
+
+        btnAdd.onclick = () => addModalItem(table, type);
+    }
+
+    // --- PLANS & ANNOUNCEMENTS PERSISTENCE ---
+    async function loadPlans() {
+        const { data } = await supabase.from('subscription_plans').select('*').order('price', { ascending: true });
+        const container = document.getElementById('planList');
+        if (data) {
+            container.innerHTML = data.map(p => `
+                <div class="glass-card p-6 rounded-3xl relative overflow-hidden group border border-white/5">
+                    <img src="${p.image_url}" class="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700">
+                    <div class="relative z-10">
+                        <h4 class="text-lg font-black italic uppercase text-indigo-400">${p.name}</h4>
+                        <p class="text-2xl font-black">Rp ${Number(p.price).toLocaleString()}</p>
+                        <p class="text-[10px] text-indigo-300/50 uppercase font-black tracking-widest">${p.duration_days} Days Duration</p>
+                        <p class="text-[11px] text-slate-400 mt-2 italic leading-relaxed line-clamp-2">${p.description || 'Premium features enabled'}</p>
+                        <button onclick="deletePlan('${p.id}')" class="text-red-500 text-[10px] font-black uppercase mt-4 hover:text-red-400 transition-colors">Delete Plan</button>
+                    </div>
+                </div>`).join('');
+        }
+    }
+
+    async function loadAnnouncements() {
+        const { data } = await supabase.from('global_announcements').select('*').order('created_at', { ascending: false });
+        const container = document.getElementById('announcementHistory');
+        if (data) {
+            container.innerHTML = data.map(a => `
+                <div class="bg-white/5 p-5 rounded-[2rem] border border-white/5 hover:border-white/10 transition-all">
+                    <div class="text-[12px] text-slate-300 leading-relaxed">${a.content}</div>
+                    <div class="flex justify-between items-center mt-4">
+                        <p class="text-[8px] text-slate-500 uppercase font-black italic">${new Date(a.created_at).toLocaleString()}</p>
+                        <button onclick="deleteAnnouncement('${a.id}')" class="text-red-500/40 hover:text-red-500"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                    </div>
+                </div>`).join('');
+        }
+    }
+
+    // --- CRUD FUNCTIONS ---
+    async function savePlan() {
+        const plan = {
+            name: document.getElementById('planName').value,
+            price: parseInt(document.getElementById('planPrice').value),
+            image_url: document.getElementById('planImage').value,
+            duration_days: parseInt(document.getElementById('planDuration').value),
+            description: document.getElementById('planDesc').value,
+            is_published: true
+        };
+        const { error } = await supabase.from('subscription_plans').insert(plan);
+        if(!error) {
+            loadPlans();
+            ['planName', 'planPrice', 'planImage', 'planDuration', 'planDesc'].forEach(id => document.getElementById(id).value = '');
+        }
+    }
+
+    async function publishAnnouncement() {
+        const content = quill.root.innerHTML;
+        if(content === '<p><br></p>') return;
+        const { error } = await supabase.from('global_announcements').insert({ content });
+        if(!error) { quill.setContents([]); loadAnnouncements(); }
+    }
+
+    async function addModalItem(table, type) {
+        const val1 = document.getElementById('modalInput1').value.trim();
+        const val2 = document.getElementById('modalInput2').value.trim();
+        if(!val1) return alert("Required field!");
+        let payload = type === 'region' ? { region_name: val1, phone_code: val2 } : { platform_name: val1 };
+        const { error } = await supabase.from(table).insert([payload]);
+        if(!error) {
+            document.getElementById('modalInput1').value = '';
+            document.getElementById('modalInput2').value = '';
+            openModal(type);
+            loadFilterOptions();
+        }
+    }
+
+    async function deleteModalItem(table, id, type) {
+        if(confirm("Confirm delete?")) { await supabase.from(table).delete().eq('id', id); openModal(type); loadFilterOptions(); }
+    }
+
+    async function deletePlan(id) { if(confirm("Hapus Plan?")) { await supabase.from('subscription_plans').delete().eq('id', id); loadPlans(); } }
+    async function deleteAnnouncement(id) { if(confirm("Hapus Pengumuman?")) { await supabase.from('global_announcements').delete().eq('id', id); loadAnnouncements(); } }
+    async function quickUpdate(id, pkg) { await supabase.from('profiles').update({ package_type: pkg }).eq('id', id); loadData(); }
+    async function deleteUser(id) { if(confirm("Hapus user secara permanen?")) { await supabase.from('profiles').delete().eq('id', id); loadData(); } }
+
+    // --- UI HELPERS ---
     function updateStats(data) {
         let proRev = 0, multiRev = 0;
         data.forEach(u => {
@@ -232,19 +387,6 @@ function filterData() {
         document.getElementById('totalRevenue').innerText = `Rp ${(proRev + multiRev).toLocaleString()}`;
     }
 
-    function viewAsUser(userId) {
-        window.location.href = `profile.html?id=${userId}&mode=admin`; 
-    }
-
-    async function quickUpdate(id, pkg) {
-        await supabase.from('profiles').update({ package_type: pkg }).eq('id', id);
-        loadData();
-    }
-
-    async function deleteUser(id) {
-        if(confirm("Hapus permanen?")) { await supabase.from('profiles').delete().eq('id', id); loadData(); }
-    }
-
     function switchTab(tab) {
         document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
         document.getElementById(`section-${tab}`).classList.remove('hidden');
@@ -252,112 +394,11 @@ function filterData() {
         document.getElementById(`tab-${tab}`).classList.add('active');
     }
 
-    // --- MODAL LOGIC FIXED ---
-    async function openModal(type) {
-        const listArea = document.getElementById('modalListArea');
-        const btnAdd = document.getElementById('modalAddBtn');
-        let table = type === 'region' ? 'region_codes' : 'scrapper_platforms'; 
-        
-        document.getElementById('modalTitle').innerText = `MANAGE ${type.toUpperCase()}`;
-        document.getElementById('managementModal').classList.replace('hidden', 'flex');
-        
-        const { data, error } = await supabase.from(table).select('*');
-        if(error) {
-            listArea.innerHTML = `<p class="text-red-400 text-center uppercase font-black">Error loading data.</p>`;
-            return;
-        }
-
-        listArea.innerHTML = (data || []).map(item => `
-            <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                <span class="text-xs font-bold uppercase">${item.region_name || item.platform_name || 'Undefined'}</span>
-                <div class="flex items-center gap-3">
-                    <span class="text-[10px] font-mono text-indigo-400">${item.phone_code || ''}</span>
-                    <button onclick="deleteModalItem('${table}', '${item.id}', '${type}')" class="text-red-500 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
-                </div>
-            </div>`).join('');
-
-        btnAdd.onclick = () => addModalItem(table, type);
-    }
-
-    async function addModalItem(table, type) {
-        const val1 = document.getElementById('modalInput1').value.trim();
-        const val2 = document.getElementById('modalInput2').value.trim();
-        if(!val1) return alert("Nama harus diisi!");
-
-        let payload = {};
-        if (type === 'region') {
-            payload = { region_name: val1, phone_code: val2 };
-        } else {
-            payload = { platform_name: val1 };
-        }
-
-        const { error } = await supabase.from(table).insert([payload]);
-        if(error) alert(`Gagal: ${error.message}`);
-        else {
-            document.getElementById('modalInput1').value = '';
-            document.getElementById('modalInput2').value = '';
-            openModal(type);
-        }
-    }
-
-    async function deleteModalItem(table, id, type) {
-        if(confirm("Hapus item?")) { 
-            await supabase.from(table).delete().eq('id', id); 
-            openModal(type); 
-        }
-    }
-
     function closeModal() { document.getElementById('managementModal').classList.replace('flex', 'hidden'); }
-
-    async function loadPlans() {
-        const { data } = await supabase.from('subscription_plans').select('*').order('price', { ascending: true });
-        document.getElementById('planList').innerHTML = (data || []).map(p => `
-            <div class="glass-card p-6 rounded-3xl relative overflow-hidden group border border-white/5">
-                <img src="${p.image_url}" class="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none">
-                <div class="relative z-10">
-                    <h4 class="text-lg font-black italic uppercase text-indigo-400">${p.name}</h4>
-                    <p class="text-2xl font-black">Rp ${Number(p.price).toLocaleString()}</p>
-                    <p class="text-[10px] text-indigo-300/50 uppercase font-black">${p.duration_days} Days</p>
-                    <p class="text-[11px] text-slate-400 mt-2 italic leading-relaxed">${p.description || 'No description'}</p>
-                    <button onclick="deletePlan('${p.id}')" class="text-red-500 text-[10px] font-black uppercase mt-4 block">Delete</button>
-                </div>
-            </div>`).join('');
-    }
-
-    async function savePlan() {
-        const plan = {
-            name: document.getElementById('planName').value,
-            price: parseInt(document.getElementById('planPrice').value),
-            image_url: document.getElementById('planImage').value,
-            duration_days: parseInt(document.getElementById('planDuration').value),
-            description: document.getElementById('planDesc').value,
-            is_published: true
-        };
-        await supabase.from('subscription_plans').insert(plan);
-        loadPlans();
-        ['planName', 'planPrice', 'planImage', 'planDuration', 'planDesc'].forEach(id => document.getElementById(id).value = '');
-    }
-
-    async function deletePlan(id) { if(confirm("Hapus?")) { await supabase.from('subscription_plans').delete().eq('id', id); loadPlans(); } }
-
-    async function loadAnnouncements() {
-        const { data } = await supabase.from('global_announcements').select('*').order('created_at', { ascending: false });
-        document.getElementById('announcementHistory').innerHTML = (data || []).map(a => `
-            <div class="bg-white/5 p-4 rounded-2xl mb-2 border border-white/5">
-                <div class="text-[11px] text-slate-300">${a.content}</div>
-                <p class="text-[8px] text-slate-600 mt-2 uppercase font-black">${new Date(a.created_at).toLocaleString()}</p>
-            </div>`).join('');
-    }
-
-    async function publishAnnouncement() {
-        const content = quill.root.innerHTML;
-        if(content === '<p><br></p>') return;
-        await supabase.from('global_announcements').insert({ content });
-        quill.setContents([]); loadAnnouncements();
-    }
-
+    function viewAsUser(userId) { window.location.href = `profile.html?id=${userId}&mode=admin`; }
     async function handleLogout() { await supabase.auth.signOut(); window.location.href = 'login.html'; }
 
+    // INITIAL RUN
     init();
     </script>
 </body>
