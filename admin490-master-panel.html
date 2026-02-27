@@ -108,135 +108,125 @@
         const SB_KEY = "sb_publishable_DLbeS1UUi5tjY51yRy6VkA_unJMJFbk";
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
         
-        let allUsers = []; let regions = []; let platforms = []; let currentModalMode = '';
+        let allUsers = []; 
+        let regions = []; 
+        let platforms = []; 
+        let currentModalMode = '';
+        let activeRegionFilter = 'ALL';
+        let activePlatformFilter = 'ALL';
 
         async function init() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session || session.user.email !== 'adeali490@gmail.com') { window.location.href = 'login.html'; return; }
-            await loadRegions(); await loadPlatforms(); await loadData();
+            await loadRegions(); 
+            await loadPlatforms(); 
+            await loadData();
         }
 
-        async function loadRegions() { const { data } = await supabase.from('region_codes').select('*').order('region_name'); regions = data || []; }
-        async function loadPlatforms() { const { data } = await supabase.from('scraper_platforms').select('*'); platforms = data || []; }
+        async function loadRegions() { 
+            const { data } = await supabase.from('region_codes').select('*').order('region_name'); 
+            regions = data || []; 
+        }
+
+        async function loadPlatforms() { 
+            const { data } = await supabase.from('scraper_platforms').select('*'); 
+            platforms = data || []; 
+        }
 
         async function loadData() {
             const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
             if (!error) { allUsers = data; filterData(); }
         }
 
-        filterData dan updateStats Anda dengan kode di bawah ini:
+        function filterData() {
+            const search = document.getElementById('searchUser').value.toLowerCase();
+            const pkg = document.getElementById('filterPackage').value;
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
 
-JavaScript
-// Variable global tambahan untuk menyimpan filter aktif dari modal
-let activeRegionFilter = 'ALL';
-let activePlatformFilter = 'ALL';
+            let filtered = allUsers.filter(u => {
+                const matchSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
+                const matchPkg = pkg === 'ALL' || u.package_type === pkg;
+                const joinDate = new Date(u.created_at).setHours(0,0,0,0);
+                const matchDate = (!start || joinDate >= new Date(start).setHours(0,0,0,0)) && 
+                                  (!end || joinDate <= new Date(end).setHours(0,0,0,0));
+                
+                // Integrasi Filter Region & Platform
+                const matchRegion = activeRegionFilter === 'ALL' || u.region_code === activeRegionFilter;
+                const matchPlatform = activePlatformFilter === 'ALL' || u.platform === activePlatformFilter;
 
-function filterData() {
-    const search = document.getElementById('searchUser').value.toLowerCase();
-    const pkg = document.getElementById('filterPackage').value;
-    const start = document.getElementById('startDate').value;
-    const end = document.getElementById('endDate').value;
-
-    let filtered = allUsers.filter(u => {
-        // 1. Search Logic
-        const matchSearch = (u.username || '').toLowerCase().includes(search) || 
-                          (u.whatsapp_number || '').includes(search);
-        
-        // 2. Package Logic
-        const matchPkg = pkg === 'ALL' || u.package_type === pkg;
-        
-        // 3. Date Range Logic
-        const joinDate = new Date(u.created_at).setHours(0,0,0,0);
-        const matchDate = (!start || joinDate >= new Date(start).setHours(0,0,0,0)) && 
-                          (!end || joinDate <= new Date(end).setHours(0,0,0,0));
-
-        // 4. Region & Platform Logic (Filter dari Modal)
-        // Asumsi kolom di database bernama 'region_code' dan 'platform_name'
-        const matchRegion = activeRegionFilter === 'ALL' || u.region_code === activeRegionFilter;
-        const matchPlatform = activePlatformFilter === 'ALL' || u.platform === activePlatformFilter;
-        
-        return matchSearch && matchPkg && matchDate && matchRegion && matchPlatform;
-    });
-
-    renderTable(filtered);
-    updateStats(filtered);
-}
+                return matchSearch && matchPkg && matchDate && matchRegion && matchPlatform;
+            });
+            
+            renderTable(filtered);
+            updateStats(filtered);
+        }
 
         function renderTable(data) {
-    const tbody = document.getElementById('userTableBody');
-    tbody.innerHTML = '';
-    data.forEach(u => {
-        const date = new Date(u.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
-        tbody.innerHTML += `
-            <tr class="hover:bg-white/[0.02] transition-all border-b border-white/5">
-                <td class="p-6 cursor-pointer group" onclick="viewAsUser('${u.id}')">
-                    <p class="font-black italic text-white text-sm uppercase group-hover:text-indigo-400 transition-colors">
-                        <i class="fa-solid fa-eye text-[10px] opacity-0 group-hover:opacity-100 mr-2"></i>${u.username || 'NEW_USER'}
-                    </p>
-                    <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">${u.email}</p>
-                </td>
-                <td class="p-6 font-mono text-xs font-black text-indigo-400 tracking-tighter">${u.whatsapp_number || '-'}</td>
-                <td class="p-6 text-center">
-                    <span class="px-4 py-1.5 rounded-lg text-[9px] font-black italic uppercase ${u.package_type === 'TRIAL' ? 'bg-slate-500/10 text-slate-400' : u.package_type === 'PRO' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-purple-500/20 text-purple-400'} border border-white/5">${u.package_type}</span>
-                </td>
-                <td class="p-6 text-[11px] font-black text-slate-500 italic">${date}</td>
-                <td class="p-6 text-right space-x-2">
-                    <button onclick="quickUpdate('${u.id}', 'PRO')" class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all"><i class="fa-solid fa-crown text-[10px]"></i></button>
-                    <button onclick="quickUpdate('${u.id}', 'MULTI')" class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 hover:bg-purple-500 hover:text-white transition-all"><i class="fa-solid fa-layer-group text-[10px]"></i></button>
-                    <button onclick="deleteUser('${u.id}')" class="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
-                </td>
-            </tr>`;
-    });
-}
-
-// FUNGSI BARU UNTUK ADMIN VIEW MODE
-function viewAsUser(userId) {
-    // Simpan target ID di sessionStorage untuk dibaca dashboard-akun.html
-    sessionStorage.setItem('view_as_user_id', userId);
-    window.location.href = 'dashboard-akun.html?mode=view';
-}
-
-// FUNGSI DELETE USER UNTUK ADMIN
-async function deleteUser(id) {
-    if(confirm("Hapus user ini secara permanen dari database?")) {
-        const { error } = await supabase.from('profiles').delete().eq('id', id);
-        if(!error) loadData();
-        else alert("Gagal menghapus: " + error.message);
-    }
-}
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+            data.forEach(u => {
+                const date = new Date(u.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+                tbody.innerHTML += `
+                    <tr class="hover:bg-white/[0.02] transition-all border-b border-white/5">
+                        <td class="p-6 cursor-pointer group" onclick="viewAsUser('${u.id}')">
+                            <p class="font-black italic text-white text-sm uppercase group-hover:text-indigo-400 transition-colors">
+                                <i class="fa-solid fa-eye text-[10px] opacity-0 group-hover:opacity-100 mr-2"></i>${u.username || 'NEW_USER'}
+                            </p>
+                            <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">${u.email}</p>
+                        </td>
+                        <td class="p-6 font-mono text-xs font-black text-indigo-400 tracking-tighter">${u.whatsapp_number || '-'}</td>
+                        <td class="p-6 text-center">
+                            <span class="px-4 py-1.5 rounded-lg text-[9px] font-black italic uppercase ${u.package_type === 'TRIAL' ? 'bg-slate-500/10 text-slate-400' : u.package_type === 'PRO' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-purple-500/20 text-purple-400'} border border-white/5">${u.package_type}</span>
+                        </td>
+                        <td class="p-6 text-[11px] font-black text-slate-500 italic">${date}</td>
+                        <td class="p-6 text-right space-x-2">
+                            <button onclick="quickUpdate('${u.id}', 'PRO')" class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all"><i class="fa-solid fa-crown text-[10px]"></i></button>
+                            <button onclick="quickUpdate('${u.id}', 'MULTI')" class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 hover:bg-purple-500 hover:text-white transition-all"><i class="fa-solid fa-layer-group text-[10px]"></i></button>
+                            <button onclick="deleteUser('${u.id}')" class="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                        </td>
+                    </tr>`;
+            });
+        }
 
         function updateStats(data) {
-    const pPro = parseInt(document.getElementById('priceProInput').value) || 0;
-    const pMulti = parseInt(document.getElementById('priceMultiInput').value) || 0;
-    
-    // Revenue hanya dihitung dari data yang sudah TERFILTER
-    const cPro = data.filter(u => u.package_type === 'PRO').length;
-    const cMulti = data.filter(u => u.package_type === 'MULTI').length;
-    
-    const revPro = cPro * pPro; 
-    const revMulti = cMulti * pMulti;
-    const totalRev = revPro + revMulti;
-    
-    // Update UI dengan animasi sederhana
-    document.getElementById('statTotal').innerText = data.length;
-    document.getElementById('revPro').innerText = `Rp ${revPro.toLocaleString()}`;
-    document.getElementById('revMulti').innerText = `Rp ${revMulti.toLocaleString()}`;
-    document.getElementById('totalRevenue').innerText = `Rp ${totalRev.toLocaleString()}`;
+            const pPro = parseInt(document.getElementById('priceProInput').value) || 0;
+            const pMulti = parseInt(document.getElementById('priceMultiInput').value) || 0;
+            const cPro = data.filter(u => u.package_type === 'PRO').length;
+            const cMulti = data.filter(u => u.package_type === 'MULTI').length;
+            const revPro = cPro * pPro; 
+            const revMulti = cMulti * pMulti;
+            const total = revPro + revMulti;
+            
+            document.getElementById('statTotal').innerText = data.length;
+            document.getElementById('revPro').innerText = `Rp ${revPro.toLocaleString()}`;
+            document.getElementById('revMulti').innerText = `Rp ${revMulti.toLocaleString()}`;
+            document.getElementById('totalRevenue').innerText = `Rp ${total.toLocaleString()}`;
+        }
 
-    // Beri efek warna jika target tercapai (Opsional)
-    const revEl = document.getElementById('totalRevenue');
-    totalRev > 1000000 ? revEl.classList.add('text-emerald-400') : revEl.classList.remove('text-emerald-400');
-}
+        function setGlobalFilter(type, value) {
+            if(type === 'region') activeRegionFilter = value;
+            if(type === 'platform') activePlatformFilter = value;
+            closeModal();
+            filterData(); 
+        }
 
-// Tambahkan fungsi untuk set filter dari modal
-function setGlobalFilter(type, value) {
-    if(type === 'region') activeRegionFilter = value;
-    if(type === 'platform') activePlatformFilter = value;
-    
-    // Tutup modal dan jalankan filter
-    closeModal();
-    filterData(); 
-}
+        function viewAsUser(userId) {
+            sessionStorage.setItem('view_as_user_id', userId);
+            window.location.href = 'dashboard-akun.html?mode=view';
+        }
+
+        async function quickUpdate(id, pkg) {
+            const { error } = await supabase.from('profiles').update({ package_type: pkg }).eq('id', id);
+            if (!error) loadData();
+        }
+
+        async function deleteUser(id) {
+            if(confirm("Hapus user ini secara permanen?")) {
+                const { error } = await supabase.from('profiles').delete().eq('id', id);
+                if(!error) loadData();
+            }
+        }
 
         function openModal(mode) {
             currentModalMode = mode;
@@ -258,11 +248,26 @@ function setGlobalFilter(type, value) {
         }
 
         function renderList(list, labelKey, secondaryKey = null) {
-            document.getElementById('modalListArea').innerHTML = list.map(item => `
+            const type = currentModalMode;
+            document.getElementById('modalListArea').innerHTML = `
+                <div onclick="setGlobalFilter('${type}', 'ALL')" class="flex justify-between items-center bg-indigo-500/10 p-4 rounded-xl border border-indigo-500/20 cursor-pointer hover:bg-indigo-500/30 mb-2 group">
+                    <span class="text-[10px] font-black uppercase text-indigo-400 group-hover:text-white transition-colors">SHOW ALL ${type.toUpperCase()}S</span>
+                    <i class="fa-solid fa-circle-check text-indigo-400"></i>
+                </div>
+            ` + list.map(item => {
+                const filterVal = secondaryKey ? item[secondaryKey] : item[labelKey];
+                return `
                 <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
-                    <span class="text-[10px] font-black uppercase text-white tracking-widest">${item[labelKey]} ${secondaryKey ? '(+' + item[secondaryKey] + ')' : ''}</span>
-                    <button onclick="deleteRecord('${item.id}')" class="text-red-500 hover:text-white"><i class="fa-solid fa-trash-can"></i></button>
-                </div>`).join('');
+                    <div onclick="setGlobalFilter('${type}', '${filterVal}')" class="flex-1 cursor-pointer group">
+                        <span class="text-[10px] font-black uppercase text-white group-hover:text-indigo-400 transition-all">
+                            ${item[labelKey]} ${secondaryKey ? '(+' + item[secondaryKey] + ')' : ''}
+                        </span>
+                    </div>
+                    <button onclick="deleteRecord('${item.id}')" class="text-red-500 hover:text-white ml-4">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                </div>`;
+            }).join('');
         }
 
         async function addRegion() {
