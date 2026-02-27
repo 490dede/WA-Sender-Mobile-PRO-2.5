@@ -190,9 +190,10 @@
         document.getElementById('totalRevenue').innerText = `Rp ${(proRev + multiRev).toLocaleString()}`;
     }
 
+    // --- NAVIGATION FIXED ---
     function viewAsUser(userId) {
-        // FIX: Mengarah ke profile.html sesuai file di folder kamu
-        window.location.href = `profile.html?id=${userId}`; 
+        // Mengirim parameter mode=admin agar profile.html tahu ini mode View Only
+        window.location.href = `profile.html?id=${userId}&mode=admin`; 
     }
 
     async function quickUpdate(id, pkg) {
@@ -211,17 +212,25 @@
         document.getElementById(`tab-${tab}`).classList.add('active');
     }
 
-    // --- MODAL LOGIC FIXED ---
+    // --- MODAL LOGIC (FIXED ADD & VALUE) ---
     async function openModal(type) {
         const listArea = document.getElementById('modalListArea');
         const btnAdd = document.getElementById('modalAddBtn');
+        const input1 = document.getElementById('modalInput1');
+        const input2 = document.getElementById('modalInput2');
+
+        // Reset Input
+        input1.value = ''; input2.value = '';
+        input1.placeholder = type === 'region' ? "Country Name (e.g. Indonesia)" : "Platform Name (e.g. Chrome)";
+        input2.placeholder = type === 'region' ? "Phone Code (e.g. 62)" : "Version (e.g. 1.0.2)";
+
         document.getElementById('modalTitle').innerText = `MANAGE ${type.toUpperCase()}`;
         document.getElementById('managementModal').classList.replace('hidden', 'flex');
         
         let table = type === 'region' ? 'region_codes' : 'platform_settings';
         const { data } = await supabase.from(table).select('*');
 
-        listArea.innerHTML = (data || []).map(item => `
+        listArea.innerHTML = (data || []).length > 0 ? (data || []).map(item => `
             <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
                 <span class="text-xs font-bold uppercase">${item.country_name || item.platform_name || 'Undefined'}</span>
                 <div class="flex items-center gap-3">
@@ -229,23 +238,35 @@
                     <button onclick="deleteModalItem('${table}', '${item.id}', '${type}')" class="text-red-500 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
             </div>
-        `).join('');
+        `).join('') : `<p class="text-center text-[10px] text-slate-500 uppercase py-4">No data found</p>`;
 
+        // Re-bind click event with current type
         btnAdd.onclick = () => addModalItem(table, type);
     }
 
     async function addModalItem(table, type) {
         const val1 = document.getElementById('modalInput1').value;
         const val2 = document.getElementById('modalInput2').value;
-        if(!val1 || !val2) return;
+        if(!val1 || !val2) return alert("Semua kolom harus diisi!");
 
-        let payload = type === 'region' ? { country_name: val1, phone_code: val2 } : { platform_name: val1, version: val2 };
-        await supabase.from(table).insert(payload);
-        openModal(type);
+        let payload = type === 'region' ? 
+            { country_name: val1, phone_code: val2 } : 
+            { platform_name: val1, version: val2 };
+
+        const { error } = await supabase.from(table).insert(payload);
+        if(error) {
+            console.error(error);
+            alert("Gagal menambah data: " + error.message);
+        } else {
+            openModal(type); // Refresh tampilan modal
+        }
     }
 
     async function deleteModalItem(table, id, type) {
-        if(confirm("Hapus item?")) { await supabase.from(table).delete().eq('id', id); openModal(type); }
+        if(confirm("Hapus item?")) { 
+            await supabase.from(table).delete().eq('id', id); 
+            openModal(type); 
+        }
     }
 
     function closeModal() { document.getElementById('managementModal').classList.replace('flex', 'hidden'); }
@@ -277,6 +298,8 @@
         };
         await supabase.from('subscription_plans').insert(plan);
         loadPlans();
+        // Clear form
+        ['planName', 'planPrice', 'planImage', 'planDuration', 'planDesc'].forEach(id => document.getElementById(id).value = '');
     }
 
     async function deletePlan(id) { if(confirm("Hapus?")) { await supabase.from('subscription_plans').delete().eq('id', id); loadPlans(); } }
