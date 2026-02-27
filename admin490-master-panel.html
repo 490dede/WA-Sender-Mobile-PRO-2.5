@@ -124,26 +124,43 @@
             if (!error) { allUsers = data; filterData(); }
         }
 
-        function filterData() {
-            const search = document.getElementById('searchUser').value.toLowerCase();
-            const pkg = document.getElementById('filterPackage').value;
-            const start = document.getElementById('startDate').value;
-            const end = document.getElementById('endDate').value;
+        filterData dan updateStats Anda dengan kode di bawah ini:
 
-            let filtered = allUsers.filter(u => {
-                const matchSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
-                const matchPkg = pkg === 'ALL' || u.package_type === pkg;
-                
-                // Date Range Logic
-                const joinDate = new Date(u.created_at).setHours(0,0,0,0);
-                const matchDate = (!start || joinDate >= new Date(start).setHours(0,0,0,0)) && 
-                                  (!end || joinDate <= new Date(end).setHours(0,0,0,0));
-                
-                return matchSearch && matchPkg && matchDate;
-            });
-            renderTable(filtered);
-            updateStats(filtered);
-        }
+JavaScript
+// Variable global tambahan untuk menyimpan filter aktif dari modal
+let activeRegionFilter = 'ALL';
+let activePlatformFilter = 'ALL';
+
+function filterData() {
+    const search = document.getElementById('searchUser').value.toLowerCase();
+    const pkg = document.getElementById('filterPackage').value;
+    const start = document.getElementById('startDate').value;
+    const end = document.getElementById('endDate').value;
+
+    let filtered = allUsers.filter(u => {
+        // 1. Search Logic
+        const matchSearch = (u.username || '').toLowerCase().includes(search) || 
+                          (u.whatsapp_number || '').includes(search);
+        
+        // 2. Package Logic
+        const matchPkg = pkg === 'ALL' || u.package_type === pkg;
+        
+        // 3. Date Range Logic
+        const joinDate = new Date(u.created_at).setHours(0,0,0,0);
+        const matchDate = (!start || joinDate >= new Date(start).setHours(0,0,0,0)) && 
+                          (!end || joinDate <= new Date(end).setHours(0,0,0,0));
+
+        // 4. Region & Platform Logic (Filter dari Modal)
+        // Asumsi kolom di database bernama 'region_code' dan 'platform_name'
+        const matchRegion = activeRegionFilter === 'ALL' || u.region_code === activeRegionFilter;
+        const matchPlatform = activePlatformFilter === 'ALL' || u.platform === activePlatformFilter;
+        
+        return matchSearch && matchPkg && matchDate && matchRegion && matchPlatform;
+    });
+
+    renderTable(filtered);
+    updateStats(filtered);
+}
 
         function renderTable(data) {
     const tbody = document.getElementById('userTableBody');
@@ -189,22 +206,37 @@ async function deleteUser(id) {
 }
 
         function updateStats(data) {
-            const pPro = parseInt(document.getElementById('priceProInput').value) || 0;
-            const pMulti = parseInt(document.getElementById('priceMultiInput').value) || 0;
-            const cPro = data.filter(u => u.package_type === 'PRO').length;
-            const cMulti = data.filter(u => u.package_type === 'MULTI').length;
-            const revPro = cPro * pPro; const revMulti = cMulti * pMulti;
-            
-            document.getElementById('statTotal').innerText = data.length;
-            document.getElementById('revPro').innerText = `Rp ${revPro.toLocaleString()}`;
-            document.getElementById('revMulti').innerText = `Rp ${revMulti.toLocaleString()}`;
-            document.getElementById('totalRevenue').innerText = `Rp ${(revPro + revMulti).toLocaleString()}`;
-        }
+    const pPro = parseInt(document.getElementById('priceProInput').value) || 0;
+    const pMulti = parseInt(document.getElementById('priceMultiInput').value) || 0;
+    
+    // Revenue hanya dihitung dari data yang sudah TERFILTER
+    const cPro = data.filter(u => u.package_type === 'PRO').length;
+    const cMulti = data.filter(u => u.package_type === 'MULTI').length;
+    
+    const revPro = cPro * pPro; 
+    const revMulti = cMulti * pMulti;
+    const totalRev = revPro + revMulti;
+    
+    // Update UI dengan animasi sederhana
+    document.getElementById('statTotal').innerText = data.length;
+    document.getElementById('revPro').innerText = `Rp ${revPro.toLocaleString()}`;
+    document.getElementById('revMulti').innerText = `Rp ${revMulti.toLocaleString()}`;
+    document.getElementById('totalRevenue').innerText = `Rp ${totalRev.toLocaleString()}`;
 
-        async function quickUpdate(id, pkg) {
-            const { error } = await supabase.from('profiles').update({ package_type: pkg }).eq('id', id);
-            if (!error) loadData();
-        }
+    // Beri efek warna jika target tercapai (Opsional)
+    const revEl = document.getElementById('totalRevenue');
+    totalRev > 1000000 ? revEl.classList.add('text-emerald-400') : revEl.classList.remove('text-emerald-400');
+}
+
+// Tambahkan fungsi untuk set filter dari modal
+function setGlobalFilter(type, value) {
+    if(type === 'region') activeRegionFilter = value;
+    if(type === 'platform') activePlatformFilter = value;
+    
+    // Tutup modal dan jalankan filter
+    closeModal();
+    filterData(); 
+}
 
         function openModal(mode) {
             currentModalMode = mode;
