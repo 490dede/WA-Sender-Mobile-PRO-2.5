@@ -3,25 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Console v2.2 - WA-Sender PRO</title>
+    <title>Master Console v2.5 - WA-Sender PRO</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0F172A; color: #F1F5F9; }
-        
-        /* WARNA ABU-ABU DITERANGKAN SESUAI REQUEST TIM */
-        .glass-card { 
-            background: rgba(51, 65, 85, 0.45); /* Slate-700 dengan opacity pas */
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255,255,255,0.15); 
-        }
-        
-        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        .glass-card { background: rgba(51, 65, 85, 0.45); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15); }
         .text-sharp { text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .modal-bg { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -31,93 +22,128 @@
             <div>
                 <h1 class="text-5xl font-black italic uppercase tracking-tighter leading-none text-white text-sharp">MASTER <span class="text-indigo-500">CONSOLE</span></h1>
                 <p class="text-[13px] font-black text-slate-300 uppercase tracking-[0.4em] mt-3 flex items-center gap-2">
-                    <i class="fa-solid fa-chart-line text-indigo-500"></i> Strategic ROAS & Revenue Tracker
+                    <i class="fa-solid fa-microchip text-indigo-500 animate-pulse"></i> Global Infrastructure Control v2.5
                 </p>
             </div>
             
-            <div class="flex flex-wrap gap-4 bg-slate-700/40 p-5 rounded-[2.5rem] border border-white/10 backdrop-blur-md shadow-2xl">
-                <div class="px-6 border-r border-white/10 text-center">
-                    <p class="text-[10px] font-black text-slate-300 uppercase mb-1">Users</p>
-                    <h2 id="statTotal" class="text-2xl font-black italic text-white">0</h2>
-                </div>
-                <div class="px-6 border-r border-white/10 text-center">
-                    <p class="text-[10px] font-black text-indigo-400 uppercase mb-1">Pro Revenue</p>
-                    <h2 id="revPro" class="text-2xl font-black italic text-indigo-400">Rp 0</h2>
-                </div>
-                <div class="px-6 border-r border-white/10 text-center">
-                    <p class="text-[10px] font-black text-purple-400 uppercase mb-1">Multi Revenue</p>
-                    <h2 id="revMulti" class="text-2xl font-black italic text-purple-400">Rp 0</h2>
-                </div>
-                <div class="px-6 text-center">
-                    <p class="text-[10px] font-black text-emerald-400 uppercase mb-1 text-sharp">Total Omzet</p>
-                    <h2 id="totalRevenue" class="text-3xl font-black italic text-emerald-400">Rp 0</h2>
-                </div>
+            <div class="flex items-center gap-4">
+                <button onclick="handleLogout()" class="px-8 py-3 bg-red-900/20 hover:bg-red-500/40 text-red-400 text-[11px] font-black uppercase rounded-full border border-red-500/30 transition-all shadow-xl">
+                    <i class="fa-solid fa-power-off mr-2"></i> Logout System
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-slate-700/40 p-6 rounded-[2.5rem] border border-white/10 backdrop-blur-md shadow-2xl flex flex-wrap justify-around gap-6 text-center">
+            <div>
+                <p class="text-[10px] font-black text-slate-300 uppercase mb-1">Total Users</p>
+                <h2 id="statTotal" class="text-3xl font-black italic text-white">0</h2>
+            </div>
+            <div class="w-px h-12 bg-white/5 self-center"></div>
+            <div>
+                <p class="text-[10px] font-black text-indigo-400 uppercase mb-1">Pro Revenue</p>
+                <h2 id="revPro" class="text-3xl font-black italic text-indigo-400">Rp 0</h2>
+            </div>
+            <div class="w-px h-12 bg-white/5 self-center"></div>
+            <div>
+                <p class="text-[10px] font-black text-purple-400 uppercase mb-1">Multi Revenue</p>
+                <h2 id="revMulti" class="text-3xl font-black italic text-purple-400">Rp 0</h2>
+            </div>
+            <div class="w-px h-12 bg-white/5 self-center"></div>
+            <div>
+                <p class="text-[10px] font-black text-emerald-400 uppercase mb-1 text-sharp">Total Omzet</p>
+                <h2 id="totalRevenue" class="text-4xl font-black italic text-emerald-400">Rp 0</h2>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-4 glass-card p-7 rounded-[2.5rem]">
                 <p class="text-[11px] font-black text-white uppercase mb-5 tracking-widest flex items-center">
-                    <i class="fa-solid fa-coins mr-2 text-indigo-400"></i> Master Pricing Control
+                    <i class="fa-solid fa-coins mr-2 text-indigo-400"></i> Pricing Control
                 </p>
-                <div class="flex gap-4">
-                    <div class="flex-1">
-                        <label class="text-[10px] font-black text-slate-200 ml-1 uppercase">PRO Price</label>
-                        <input type="number" id="priceProInput" class="w-full bg-slate-900/80 border border-white/20 rounded-2xl p-3 text-sm font-black text-white focus:ring-2 ring-indigo-500 outline-none">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase ml-1">PRO Price</label>
+                        <input type="number" id="priceProInput" class="w-full bg-slate-900/80 border border-white/10 rounded-xl p-3 text-sm font-black text-white outline-none">
                     </div>
-                    <div class="flex-1">
-                        <label class="text-[10px] font-black text-slate-200 ml-1 uppercase">MULTI Price</label>
-                        <input type="number" id="priceMultiInput" class="w-full bg-slate-900/80 border border-white/20 rounded-2xl p-3 text-sm font-black text-white focus:ring-2 ring-purple-500 outline-none">
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase ml-1">MULTI Price</label>
+                        <input type="number" id="priceMultiInput" class="w-full bg-slate-900/80 border border-white/10 rounded-xl p-3 text-sm font-black text-white outline-none">
                     </div>
-                    <button onclick="updateGlobalPrices()" class="self-end p-3 px-5 bg-indigo-600 rounded-2xl text-xs font-black hover:bg-indigo-500 transition-all shadow-lg active:scale-95">
-                        <i class="fa-solid fa-save text-lg text-white"></i>
-                    </button>
                 </div>
+                <button onclick="updateGlobalPrices()" class="w-full py-3 bg-indigo-600 rounded-xl text-xs font-black hover:bg-indigo-500 transition-all uppercase tracking-widest">Update All Prices</button>
             </div>
 
-            <div class="lg:col-span-8 glass-card p-7 rounded-[2.5rem] grid grid-cols-2 md:grid-cols-4 gap-5">
-                <div class="col-span-2 md:col-span-1">
-                    <label class="text-[10px] font-black text-slate-200 uppercase ml-2 mb-1 block italic">Search User</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-user-gear absolute left-4 top-3.5 text-slate-400 text-xs"></i>
-                        <input type="text" id="searchUser" oninput="filterData()" placeholder="Name/Email..." class="w-full bg-slate-900/80 border border-white/10 rounded-2xl p-3 pl-10 text-xs font-bold text-white outline-none focus:ring-2 ring-indigo-500">
+            <div class="lg:col-span-8 glass-card p-7 rounded-[2.5rem] flex flex-wrap gap-4 items-center">
+                <div class="flex-1 min-w-[200px]">
+                    <p class="text-[11px] font-black text-white uppercase mb-4 tracking-widest italic">Infrastructure Tools</p>
+                    <div class="flex gap-4">
+                        <button onclick="openModal('region')" class="flex-1 p-4 bg-slate-800 rounded-2xl border border-white/5 hover:border-indigo-500 transition-all text-left group">
+                            <i class="fa-solid fa-globe text-indigo-400 mb-2 block group-hover:scale-110 transition-transform"></i>
+                            <span class="block text-[10px] font-black uppercase text-white">Region Codes</span>
+                        </button>
+                        <button onclick="openModal('platform')" class="flex-1 p-4 bg-slate-800 rounded-2xl border border-white/5 hover:border-purple-500 transition-all text-left group">
+                            <i class="fa-solid fa-layer-group text-purple-400 mb-2 block group-hover:scale-110 transition-transform"></i>
+                            <span class="block text-[10px] font-black uppercase text-white">Platforms</span>
+                        </button>
                     </div>
                 </div>
-                <div>
-                    <label class="text-[10px] font-black text-slate-200 uppercase ml-2 mb-1 block italic">Start Date</label>
-                    <input type="date" id="startDate" onchange="filterData()" class="w-full bg-slate-900/80 border border-white/10 rounded-2xl p-2.5 text-xs font-black text-white outline-none">
-                </div>
-                <div>
-                    <label class="text-[10px] font-black text-slate-200 uppercase ml-2 mb-1 block italic">End Date</label>
-                    <input type="date" id="endDate" onchange="filterData()" class="w-full bg-slate-900/80 border border-white/10 rounded-2xl p-2.5 text-xs font-black text-white outline-none">
-                </div>
-                <div>
-                    <label class="text-[10px] font-black text-slate-200 uppercase ml-2 mb-1 block italic">Tier Filter</label>
-                    <select id="filterPackage" onchange="filterData()" class="w-full bg-slate-900/80 border border-white/10 rounded-2xl p-3 text-xs font-black text-white outline-none cursor-pointer">
-                        <option value="ALL">ALL PACKAGES</option>
-                        <option value="TRIAL">TRIAL</option>
-                        <option value="PRO">PRO</option>
-                        <option value="MULTI">MULTI</option>
-                    </select>
+                <div class="w-px h-24 bg-white/5 hidden md:block"></div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1 min-w-[400px]">
+                    <div class="col-span-2">
+                        <label class="text-[9px] font-black text-slate-400 uppercase ml-1 italic">Search User</label>
+                        <input type="text" id="searchUser" oninput="filterData()" placeholder="Name/Email/No..." class="w-full bg-slate-900/80 border border-white/10 rounded-xl p-3 text-xs font-bold text-white">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase ml-1 italic">Region Code</label>
+                        <select id="filterRegion" onchange="filterData()" class="w-full bg-slate-900/80 border border-white/10 rounded-xl p-3 text-xs font-black text-white outline-none">
+                            <option value="ALL">ALL</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase ml-1 italic">Tier</label>
+                        <select id="filterPackage" onchange="filterData()" class="w-full bg-slate-900/80 border border-white/10 rounded-xl p-3 text-xs font-black text-white outline-none">
+                            <option value="ALL">ALL</option>
+                            <option value="TRIAL">TRIAL</option>
+                            <option value="PRO">PRO</option>
+                            <option value="MULTI">MULTI</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="glass-card rounded-[3rem] overflow-hidden shadow-2xl border-white/20">
-            <div class="max-h-[600px] overflow-y-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="sticky top-0 bg-slate-800 z-10 border-b border-white/20">
-                        <tr class="text-[11px] font-black text-white uppercase tracking-widest italic">
-                            <th class="p-7">User Info</th>
-                            <th class="p-7">WhatsApp No.</th>
-                            <th class="p-7 text-center">Package</th>
-                            <th class="p-7">Joined Date</th>
-                            <th class="p-7 text-right">Quick Action</th>
+        <div class="glass-card rounded-[3rem] overflow-hidden shadow-2xl">
+            <div class="max-h-[500px] overflow-y-auto">
+                <table class="w-full text-left">
+                    <thead class="sticky top-0 bg-slate-800 z-10 border-b border-white/10">
+                        <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">
+                            <th class="p-6">User Info</th>
+                            <th class="p-6">WA Number</th>
+                            <th class="p-6 text-center">Tier Status</th>
+                            <th class="p-6">Joined Date</th>
+                            <th class="p-6 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="userTableBody" class="divide-y divide-white/10"></tbody>
+                    <tbody id="userTableBody" class="divide-y divide-white/5"></tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <div id="managementModal" class="fixed inset-0 modal-bg z-[100] hidden items-center justify-center p-4">
+        <div class="glass-card w-full max-w-md rounded-[2.5rem] p-8 relative">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <h2 id="modalTitle" class="text-2xl font-black italic uppercase text-white mb-6">Manage Data</h2>
+            
+            <div id="modalInputArea" class="space-y-4 mb-8">
+                </div>
+
+            <div id="modalListArea" class="max-h-60 overflow-y-auto space-y-2 mb-6 border-t border-white/5 pt-4">
+                </div>
+            
+            <button id="modalAddBtn" class="w-full py-4 bg-emerald-600 rounded-2xl text-[11px] font-black uppercase hover:bg-emerald-500 transition-all tracking-widest">
+                Add New Record
+            </button>
         </div>
     </div>
 
@@ -127,64 +153,55 @@
         const supabase = window.supabase.createClient(SB_URL, SB_KEY);
         
         let allUsers = [];
-        let priceConfig = { PRO: 0, MULTI: 0 };
+        let regions = [];
+        let platforms = [];
+        let currentModalMode = '';
 
         async function init() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session || session.user.email !== 'adeali490@gmail.com') {
-                window.location.href = 'dashboard-user.html';
+                window.location.href = 'index.html';
                 return;
             }
+            await loadRegions();
+            await loadPlatforms();
             await loadPackages();
             await loadData();
         }
 
-        async function loadPackages() {
-            const { data, error } = await supabase.from('packages').select('*');
-            if (!error && data) {
-                data.forEach(p => {
-                    priceConfig[p.package_name] = p.price;
-                    if(p.package_name === 'PRO') document.getElementById('priceProInput').value = p.price;
-                    if(p.package_name === 'MULTI') document.getElementById('priceMultiInput').value = p.price;
-                });
-            }
+        async function loadRegions() {
+            const { data } = await supabase.from('region_codes').select('*').order('region_name');
+            regions = data || [];
+            const select = document.getElementById('filterRegion');
+            select.innerHTML = '<option value="ALL">ALL REGIONS</option>';
+            regions.forEach(r => {
+                select.innerHTML += `<option value="${r.phone_code}">${r.region_name} (+${r.phone_code})</option>`;
+            });
         }
 
-        async function updateGlobalPrices() {
-            const newPro = document.getElementById('priceProInput').value;
-            const newMulti = document.getElementById('priceMultiInput').value;
-            const updates = [
-                supabase.from('packages').update({ price: newPro }).eq('package_name', 'PRO'),
-                supabase.from('packages').update({ price: newMulti }).eq('package_name', 'MULTI')
-            ];
-            const results = await Promise.all(updates);
-            if(!results.some(r => r.error)) {
-                alert("Master Prices Updated Successfully!");
-                await loadPackages();
-                filterData();
-            }
+        async function loadPlatforms() {
+            const { data } = await supabase.from('scraper_platforms').select('*');
+            platforms = data || [];
         }
 
         async function loadData() {
             const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
-            if (error) return;
-            allUsers = data;
-            filterData();
+            if (!error) {
+                allUsers = data;
+                filterData();
+            }
         }
 
         function filterData() {
             const search = document.getElementById('searchUser').value.toLowerCase();
             const pkg = document.getElementById('filterPackage').value;
-            const start = document.getElementById('startDate').value;
-            const end = document.getElementById('endDate').value;
+            const region = document.getElementById('filterRegion').value;
 
             let filtered = allUsers.filter(u => {
-                const userDate = u.created_at.split('T')[0];
-                const matchSearch = (u.username || '').toLowerCase().includes(search) || (u.email || '').toLowerCase().includes(search);
+                const matchSearch = (u.username || '').toLowerCase().includes(search) || (u.whatsapp_number || '').includes(search);
                 const matchPkg = pkg === 'ALL' || u.package_type === pkg;
-                const matchStart = !start || userDate >= start;
-                const matchEnd = !end || userDate <= end;
-                return matchSearch && matchPkg && matchStart && matchEnd;
+                const matchRegion = region === 'ALL' || (u.whatsapp_number && u.whatsapp_number.startsWith(region));
+                return matchSearch && matchPkg && matchRegion;
             });
             renderTable(filtered);
         }
@@ -192,65 +209,99 @@
         function renderTable(data) {
             const tbody = document.getElementById('userTableBody');
             tbody.innerHTML = '';
-            let sumPro = 0, sumMulti = 0;
-
             data.forEach(u => {
-                if(u.package_type === 'PRO') sumPro += Number(priceConfig.PRO);
-                if(u.package_type === 'MULTI') sumMulti += Number(priceConfig.MULTI);
-
-                const date = new Date(u.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
-                const avatar = u.avatar_url 
-                    ? `<img src="${u.avatar_url}" class="w-14 h-14 rounded-2xl object-cover shadow-2xl border-2 border-white/20">` 
-                    : `<div class="w-14 h-14 bg-slate-800 rounded-2xl flex items-center justify-center font-black text-sm text-indigo-400 border-2 border-white/10">${(u.username || 'U').substring(0,2).toUpperCase()}</div>`;
-
+                const date = new Date(u.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short' });
                 tbody.innerHTML += `
-                    <tr class="hover:bg-white/[0.04] transition-all group border-b border-white/5">
-                        <td class="p-7">
-                            <div class="flex items-center gap-4 cursor-pointer" onclick="viewUser('${u.id}')">
-                                ${avatar}
-                                <div>
-                                    <p class="font-black italic uppercase text-white group-hover:text-indigo-400 transition-colors text-base">${u.username || 'Anonymous'}</p>
-                                    <p class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">${u.email}</p>
-                                </div>
-                            </div>
+                    <tr class="hover:bg-white/[0.04] transition-all border-b border-white/5">
+                        <td class="p-6">
+                            <p class="font-black italic text-white text-sm uppercase">${u.username || 'NEW_USER'}</p>
+                            <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">${u.email}</p>
                         </td>
-                        <td class="p-7 font-mono text-sm font-black text-slate-200">${u.whatsapp_number || '-'}</td>
-                        <td class="p-7 text-center">
-                            <span class="px-5 py-2 rounded-xl text-[11px] font-black italic uppercase ${u.package_type === 'TRIAL' ? 'bg-orange-500/20 text-orange-400 border-orange-500/40' : 'bg-indigo-500/20 text-indigo-400 border-indigo-500/40'} border shadow-sm">
+                        <td class="p-6 font-mono text-xs font-black text-indigo-400 tracking-tighter">${u.whatsapp_number || '-'}</td>
+                        <td class="p-6 text-center">
+                            <span class="px-4 py-1.5 rounded-lg text-[9px] font-black italic uppercase ${u.package_type === 'TRIAL' ? 'bg-slate-500/10 text-slate-400' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/20'}">
                                 ${u.package_type}
                             </span>
                         </td>
-                        <td class="p-7 text-[13px] font-black text-slate-400 italic">${date}</td>
-                        <td class="p-7">
-                            <div class="flex flex-col md:flex-row justify-end gap-3">
-                                <button onclick="quickUpdate('${u.id}', 'PRO')" class="px-5 py-3 bg-indigo-600 rounded-2xl text-[11px] font-black uppercase hover:bg-indigo-500 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 italic">
-                                    <i class="fa-solid fa-crown text-[10px]"></i> SET PRO
-                                </button>
-                                <button onclick="quickUpdate('${u.id}', 'MULTI')" class="px-5 py-3 bg-purple-600 rounded-2xl text-[11px] font-black uppercase hover:bg-purple-500 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 italic">
-                                    <i class="fa-solid fa-layer-group text-[10px]"></i> SET MULTI
-                                </button>
-                            </div>
+                        <td class="p-6 text-[11px] font-black text-slate-500 italic">${date}</td>
+                        <td class="p-6 text-right">
+                            <button onclick="quickUpdate('${u.id}', 'PRO')" class="text-indigo-400 hover:text-white transition-colors"><i class="fa-solid fa-crown mr-4"></i></button>
+                            <button onclick="quickUpdate('${u.id}', 'MULTI')" class="text-purple-400 hover:text-white transition-colors"><i class="fa-solid fa-layer-group"></i></button>
                         </td>
                     </tr>`;
             });
-
+            // Update Stats (Omzet logic Master sebelumnya)
             document.getElementById('statTotal').innerText = data.length;
-            document.getElementById('revPro').innerText = "Rp " + sumPro.toLocaleString('id-ID');
-            document.getElementById('revMulti').innerText = "Rp " + sumMulti.toLocaleString('id-ID');
-            document.getElementById('totalRevenue').innerText = "Rp " + (sumPro + sumMulti).toLocaleString('id-ID');
         }
 
-        async function quickUpdate(id, pkg) {
-            if(!confirm("Upgrade user to " + pkg + "?")) return;
-            const expiry = new Date();
-            expiry.setDate(expiry.getDate() + 30);
-            const { error } = await supabase.from('profiles').update({ package_type: pkg, expired_at: expiry.toISOString() }).eq('id', id);
-            if(!error) loadData();
+        // --- MODAL ENGINE ---
+        function openModal(mode) {
+            currentModalMode = mode;
+            const modal = document.getElementById('managementModal');
+            const inputArea = document.getElementById('modalInputArea');
+            const title = document.getElementById('modalTitle');
+            modal.classList.replace('hidden', 'flex');
+
+            if(mode === 'region') {
+                title.innerText = "Manage Regions";
+                inputArea.innerHTML = `
+                    <input id="newRegionName" placeholder="Country Name (e.g. Indonesia)" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-xs font-black text-white">
+                    <input id="newRegionCode" placeholder="Code (e.g. 62)" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-xs font-black text-white">
+                `;
+                renderList(regions, 'region_name', 'phone_code');
+            } else {
+                title.innerText = "Manage Platforms";
+                inputArea.innerHTML = `
+                    <input id="newPlatformName" placeholder="Platform Name (e.g. TikTok)" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-xs font-black text-white">
+                `;
+                renderList(platforms, 'platform_name');
+            }
+
+            document.getElementById('modalAddBtn').onclick = mode === 'region' ? addRegion : addPlatform;
         }
 
-        function viewUser(userId) {
-            sessionStorage.setItem('view_as_user_id', userId);
-            window.location.href = 'dashboard-akun.html?mode=view';
+        function renderList(list, labelKey, secondaryKey = null) {
+            const listArea = document.getElementById('modalListArea');
+            listArea.innerHTML = list.map(item => `
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
+                    <span class="text-[10px] font-black uppercase text-white tracking-widest">
+                        ${item[labelKey]} ${secondaryKey ? '(+' + item[secondaryKey] + ')' : ''}
+                    </span>
+                    <button onclick="deleteRecord('${item.id}')" class="text-red-500 hover:text-white"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+            `).join('');
+        }
+
+        async function addRegion() {
+            const name = document.getElementById('newRegionName').value;
+            const code = document.getElementById('newRegionCode').value;
+            if(!name || !code) return;
+            const { error } = await supabase.from('region_codes').insert({ region_name: name, phone_code: code });
+            if(!error) { await loadRegions(); openModal('region'); }
+        }
+
+        async function addPlatform() {
+            const name = document.getElementById('newPlatformName').value;
+            if(!name) return;
+            const { error } = await supabase.from('scraper_platforms').insert({ platform_name: name });
+            if(!error) { await loadPlatforms(); openModal('platform'); }
+        }
+
+        async function deleteRecord(id) {
+            if(!confirm("Are you sure?")) return;
+            const table = currentModalMode === 'region' ? 'region_codes' : 'scraper_platforms';
+            await supabase.from(table).delete().eq('id', id);
+            currentModalMode === 'region' ? await loadRegions() : await loadPlatforms();
+            openModal(currentModalMode);
+        }
+
+        function closeModal() {
+            document.getElementById('managementModal').classList.replace('flex', 'hidden');
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
         }
 
         init();
